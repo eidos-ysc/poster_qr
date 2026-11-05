@@ -739,12 +739,13 @@
             Math.pow(S.N / 500, 0.55) *
             Math.exp(0.15 * gauss(R)) *
             (S.wd < 1 ? 1.3 : 1);
-          const delay = Math.max(
-            40,
+          // 경계 근처에서는 긴 지연. 경계보다 충분히 위에서는 실측대로 외우면서 동시에 일반화(지연 0)
+          let delay =
             ((13000 * Math.pow(2, (-2.3 * (r - 1)) / 0.4)) / S.wd) *
-              Math.exp(0.3 * gauss(R))
-          );
-          let tgen = tfit + delay;
+            Math.exp(0.3 * gauss(R));
+          const sync = delay < tfit * 0.15;
+          let tgen = sync ? tfit * (0.92 + 0.12 * R()) : tfit + delay;
+          if (sync) delay = 0;
           const success = ok && tgen < LIMIT * 0.9;
           if (!success) tgen = null;
 
@@ -770,7 +771,7 @@
                 seen++;
                 tMem[id] = tfit * Math.pow(5, -R());
                 tRule[id] = success
-                  ? Math.max(tfit, tgen - R() * Math.min(delay * 0.5, 2000))
+                  ? Math.max(sync ? tMem[id] : tfit, tgen - R() * (sync ? tgen * 0.3 : Math.min(delay * 0.5, 2000)))
                   : Infinity;
               } else {
                 tMem[id] = Infinity;
@@ -784,6 +785,7 @@
             tfit,
             tgen,
             delay,
+            sync,
             success,
             cnt,
             tMem,
@@ -819,21 +821,19 @@
           );
         }
         function testAcc(t) {
-          const base =
-            2 +
-            2 * noise(t, 2) +
-            2 * sig((Math.log(t) - Math.log(sim.tfit)) / 0.4);
-          if (!sim.success) return Math.max(0, base);
-          const g = sig((Math.log(t) - Math.log(sim.tgen * 0.85)) / 0.055);
-          return Math.max(
-            0,
-            Math.min(
-              100,
-              base +
-                (100 - base) * g -
-                (g > 0.9 ? Math.abs(noise(t, 3)) * 1.2 : 0)
-            )
-          );
+          // 수열 전체를 맞혀야 정답이라 학습 초반에는 0%. 외운 뒤에도 test는 몇 %에 머문다
+          const post = sig((Math.log(t) - Math.log(sim.tfit)) / 0.4);
+          const base = Math.max(0, post * (2.5 + 2 * noise(t, 2)));
+          let v = base;
+          if (sim.success) {
+            // 지연 0이면 train과 같은 속도로 함께 오르고, grokking이면 늦게 가파르게 오른다
+            const g = sim.sync
+              ? sig((Math.log(t) - Math.log(sim.tgen * 0.62)) / 0.15)
+              : sig((Math.log(t) - Math.log(sim.tgen * 0.85)) / 0.055);
+            v = base + (100 - base) * g - (g > 0.9 ? Math.abs(noise(t, 3)) * 1.2 : 0);
+          }
+          // 처음 보는 문제를 보여 준 문제보다 잘 맞히지는 않는다
+          return Math.max(0, Math.min(100, v, trainAcc(t)));
         }
 
         /* ---------- 공통 ---------- */
@@ -977,9 +977,9 @@
           el(
             "path",
             {
-              d: pts(trainAcc),
+              d: pts(testAcc),
               fill: "none",
-              stroke: "var(--c-train)",
+              stroke: "var(--c-test)",
               "stroke-width": 2,
               "stroke-linejoin": "round",
               "stroke-linecap": "round",
@@ -989,9 +989,9 @@
           el(
             "path",
             {
-              d: pts(testAcc),
+              d: pts(trainAcc),
               fill: "none",
-              stroke: "var(--c-test)",
+              stroke: "var(--c-train)",
               "stroke-width": 2,
               "stroke-linejoin": "round",
               "stroke-linecap": "round",
@@ -1028,8 +1028,11 @@
               label
             );
           };
-          if (tEnd >= sim.tfit) mark(sim.tfit, "외움", "end");
-          if (sim.success && tEnd >= sim.tgen) {
+          if (sim.success && sim.sync) {
+            if (tEnd >= Math.max(sim.tfit, sim.tgen))
+              mark(sim.tfit, "외움 = 일반화 (지연 0)", x(sim.tfit) > W / 2 ? "end" : "start");
+          } else if (tEnd >= sim.tfit) mark(sim.tfit, "외움", "end");
+          if (sim.success && !sim.sync && tEnd >= sim.tgen) {
             const gx = x(sim.tgen),
               close = gx - x(sim.tfit) < 46;
             mark(
@@ -1453,9 +1456,14 @@
           const T = $("#pT"),
             D = $("#pD");
           const step = "step " + fmt(Math.min(curT, LIMIT));
-          if (curT < sim.tfit) {
+          if (sim.success && sim.sync && curT >= Math.max(sim.tfit, sim.tgen)) {
+            T.textContent = "③ 일반화 (지연 0)";
+            D.textContent = "외우는 것과 동시에 test 정답률 95% 도달. grokking 없이 바로 일반화";
+          } else if (curT < sim.tfit || (sim.success && sim.sync)) {
             T.textContent = "① 외우는 중";
-            D.textContent = `보여 준 문제를 외우는 단계 · ${step}`;
+            D.textContent = sim.sync && sim.success
+              ? `외우면서 처음 보는 문제도 함께 맞히는 중 · ${step}`
+              : `보여 준 문제를 외우는 단계 · ${step}`;
           } else if (sim.success && curT < sim.tgen) {
             T.textContent = "② 지연";
             D.textContent = `train은 맞히지만 test는 거의 틀림 · ${step}`;
