@@ -491,30 +491,6 @@
       .ov button[aria-pressed="true"] { border-color: var(--ink); border-width: 2px; font-weight: 600; }
       .ov-cap { color: var(--muted); font-size: 0.74rem; margin: 6px 0 0; }
 
-      /* ── 예측 게임 ── */
-      .q-meta { display: flex; justify-content: space-between; color: var(--muted); font-size: 0.8rem; font-variant-numeric: tabular-nums; }
-      .q-cond { font-size: 1.05rem; font-weight: 700; margin: 8px 0 2px; line-height: 1.4; }
-      .q-cond small { display: block; font-weight: 400; color: var(--muted); font-size: 0.8rem; margin-top: 2px; }
-      .q-ask { font-size: 0.9rem; margin: 10px 0 12px; }
-      .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-      .opt {
-        min-height: 52px; cursor: pointer; border: 1px solid var(--line); background: var(--bg);
-        font-size: 1.05rem; font-weight: 600; font-variant-numeric: tabular-nums;
-      }
-      .opt:hover:not(:disabled) { border-color: var(--ink); }
-      .opt:disabled { cursor: default; }
-      .opt.right { border: 2px solid var(--c-fix); color: var(--c-fix); }
-      .opt.wrong { border: 2px solid var(--c-train); color: var(--c-train); }
-      .q-res { margin: 14px 0 0; }
-      .q-res .t { font-weight: 700; font-size: 1.05rem; }
-      .q-res .d { color: var(--muted); font-size: 0.84rem; margin: 2px 0 8px; }
-      .q-next { display: flex; gap: 6px; margin-top: 12px; }
-      .q-next button {
-        flex: 1; min-height: 44px; cursor: pointer; border: 1px solid var(--ink);
-        background: var(--ink); color: var(--bg); font-weight: 600;
-      }
-      details.hint { margin: 10px 0 0; font-size: 0.84rem; }
-      details.hint summary { cursor: pointer; color: var(--muted); min-height: 36px; display: flex; align-items: center; }
     </style>
   </head>
   <body class="page">
@@ -524,7 +500,6 @@
       <div class="exp-nav" role="tablist" aria-label="체험 고르기">
         <button role="tab" id="xt-bound" data-exp="bound" aria-controls="exp-bound" aria-selected="true">경계 찾기</button>
         <button role="tab" id="xt-noise" data-exp="noise" aria-controls="exp-noise" aria-selected="false" tabindex="-1">오답 섞기</button>
-        <button role="tab" id="xt-game" data-exp="game" aria-controls="exp-game" aria-selected="false" tabindex="-1">예측 게임</button>
       </div>
       <div id="exp-bound" role="tabpanel" aria-labelledby="xt-bound">
       <!-- 결과 -->
@@ -828,43 +803,6 @@
         </div>
       </div>
 
-      <!-- ───────── 예측 게임 ───────── -->
-      <div id="exp-game" role="tabpanel" aria-labelledby="xt-game" hidden>
-        <section class="stage" aria-label="예측 게임">
-          <div class="q-meta"><span id="gNo">문제 1 / 9</span><span id="gScore">맞힌 문제 0</span></div>
-          <div class="q-cond" id="gCond"></div>
-          <p class="q-ask">AI가 처음 보는 문제까지 맞히려면(여러 번 학습해 절반 이상 성공) 문제를 몇 개 보여 줘야 할까요?</p>
-          <div class="opts" id="gOpts"></div>
-          <details class="hint" id="gHint">
-            <summary>힌트 보기</summary>
-            <div id="gHintBody"></div>
-          </details>
-          <div class="q-res" id="gRes" hidden>
-            <div class="t" id="gResT"></div>
-            <div class="d" id="gResD"></div>
-            <div class="viz">
-              <svg id="gChart" role="img" aria-label="보여 준 문제 수별 실제 성공 횟수"></svg>
-            </div>
-            <div class="legend">
-              <span><i style="background: var(--c-test)"></i>절반 이상 성공</span>
-              <span><i style="background: var(--c-seen)"></i>절반 미만</span>
-              <span><i class="ln" style="background: var(--ink)"></i>실측 경계</span>
-              <span><i class="ln" style="background: var(--c-train)"></i>내 선택</span>
-            </div>
-          </div>
-          <div class="q-next" id="gNextWrap" hidden><button id="gNext">다음 문제</button></div>
-        </section>
-
-        <section class="sec" aria-labelledby="h-ghow">
-          <h2 id="h-ghow">이 게임의 답은 어디서 왔나요?</h2>
-          <p class="sub">9개 조건 모두 실제로 문제 수를 바꿔 가며 여러 번 학습한 결과입니다. 연구에서는 이 경계를 연산 표의 칸 수 C 하나로 미리 계산하는 식을 찾았습니다.</p>
-          <p class="sub"><b>N₀ ≈ 2.82 × C<sup>0.763</sup></b> · 9개 조건 모두 ±10% 안 (보고서 표 3)</p>
-        </section>
-
-        <div class="note">
-          <p>실측 경계: 조건마다 10회(a+3b, n=50은 배선 8종 40회) 학습해 절반이 성공하는 문제 수를 이웃한 두 점 사이에서 로그 보간한 값입니다.</p>
-        </div>
-      </div>
     </main>
     <footer><div class="wrap">2026 청소년과학탐구대회 출품작</div></footer>
 
@@ -1831,7 +1769,7 @@
     </script>
 
     <script>
-      /* ───────── 맨 위 탭: 경계 찾기 / 오답 섞기 / 예측 게임 ───────── */
+      /* ───────── 맨 위 탭: 경계 찾기 / 오답 섞기 ───────── */
       (() => {
         const $ = (s) => document.querySelector(s);
         const $$ = (s) => document.querySelectorAll(s);
@@ -1848,7 +1786,7 @@
         const kTick = (t) => ({ 10: "10", 100: "100", 1000: "1천", 10000: "1만" }[t]);
 
         /* ---------- 탭 전환 ---------- */
-        const EXPS = ["bound", "noise", "game"];
+        const EXPS = ["bound", "noise"];
         const xtabs = $$("[data-exp]");
         function showExp(id, push) {
           if (!EXPS.includes(id)) id = "bound";
@@ -1861,7 +1799,6 @@
           if (push && location.hash !== "#" + id) history.replaceState(null, "", "#" + id);
           if (id === "bound" && window.__boundRedraw) window.__boundRedraw();
           if (id === "noise") noiseInit();
-          if (id === "game") gameInit();
         }
         xtabs.forEach((b, i) => {
           b.addEventListener("click", () => showExp(b.dataset.exp, true));
@@ -2060,110 +1997,13 @@
         $("#nRun").addEventListener("click", () => { if (!ND) return; NZ.seed = (NZ.seed + 1) % 4; syncNoiseUI(); playNoise(); });
         $("#nSkip").addEventListener("click", () => { if (!ND) return; cancelAnimationFrame(nRaf); nUpto = 999; drawNoise(); });
 
-        /* =================== 예측 게임 =================== */
-        // 실측: 보고서 표 3 (b: 실측 경계, law: 관계식 값). grid = [보여 준 문제 수, 성공 횟수, 학습 횟수]
-        const Q = [
-          { n: 23, op: "a+b", b: 211, law: 206, src: "E24", grid: [[130,0,10],[160,0,10],[190,0,10],[220,7,10],[260,10,10]] },
-          { n: 31, op: "a+b", b: 329, law: 322, src: "E13", grid: [[218,0,10],[258,0,10],[298,1,10],[337,6,10]] },
-          { n: 50, op: "a+b", b: 623, law: 661, src: "E12", grid: [[561,0,10],[663,8,10],[765,10,10],[867,10,10]] },
-          { n: 61, op: "a+b", b: 880, law: 893, src: "E21", grid: [[832,3,10],[983,9,10],[1135,10,10]] },
-          { n: 71, op: "a+b", b: 1180, law: 1124, src: "E13", grid: [[1125,3,10],[1329,10,10],[1534,10,10],[1738,10,10]] },
-          { n: 101, op: "a+b", b: 2063, law: 1919, src: "E24", grid: [[1900,1,10],[2150,7,10],[2400,10,10],[2700,10,10]] },
-          { n: 31, op: "a+3b", b: 533, law: 533, src: "E13", grid: [[423,0,10],[500,1,10],[577,10,10],[654,10,10]] },
-          { n: 41, op: "a+3b", b: 827, law: 816, src: "E21", grid: [[740,1,10],[874,7,10],[1009,10,10]] },
-          { n: 50, op: "a+3b", b: 993, law: 1105, src: "E7", grid: [[768,0,40],[896,3,40],[1024,25,40],[1152,36,40],[1280,40,40]] },
-        ];
-        const Cof = (n, op) => (op === "a+b" ? (n * (n + 1)) / 2 : n * n);
-                const nice = (v) => { const p = Math.pow(10, Math.floor(Math.log10(v)) - 1); return Math.round(v / p) * p; };
-        let G = null;
-        function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
-        function gameInit() { if (!G) newGame(); }
-        function newGame() { G = { order: shuffle(Q.map((_, i) => i)), k: 0, score: 0 }; showQ(); }
-        function showQ() {
-          const q = Q[G.order[G.k]], C = Cof(q.n, q.op);
-          $("#gNo").textContent = `문제 ${G.k + 1} / ${Q.length}`;
-          $("#gScore").textContent = `맞힌 문제 ${G.score}`;
-          $("#gCond").innerHTML = `수 1~${q.n}, 연산 ${q.op === "a+b" ? "a + b" : "a + 3b"}<small>AI가 익혀야 할 연산 표: ${fmt(C)}칸` +
-            (q.op === "a+b" ? " (교환법칙이 있어 a+b와 b+a는 같은 칸)" : " (교환법칙이 없어 n×n칸)") + "</small>";
-          const truth = nice(q.b);
-          const mult = shuffle([0.4, 0.55, 1.6, 2.3, 3.2]).slice(0, 3);
-          const opts = shuffle([truth, ...mult.map((k) => nice(q.b * k))]);
-          const box = $("#gOpts");
-          box.innerHTML = "";
-          opts.forEach((v) => {
-            const b = document.createElement("button");
-            b.className = "opt"; b.textContent = fmt(v) + "개"; b.dataset.v = v;
-            b.addEventListener("click", () => answer(v));
-            box.appendChild(b);
-          });
-          $("#gHint").open = false;
-          $("#gHintBody").innerHTML = `연구에서 찾은 식 N₀ ≈ 2.82 × C<sup>0.763</sup>에 C = ${fmt(C)}을 넣어 보세요. 표가 4배 커지면 필요한 문제는 약 2.9배가 됩니다.`;
-          $("#gRes").hidden = true;
-          $("#gNextWrap").hidden = true;
-          G.q = q; G.truth = truth;
-        }
-        function answer(v) {
-          const q = G.q, ok = v === G.truth, L = q.law;
-          if (ok) G.score++;
-          $$("#gOpts .opt").forEach((b) => {
-            b.disabled = true;
-            if (+b.dataset.v === G.truth) b.classList.add("right");
-            else if (+b.dataset.v === v) b.classList.add("wrong");
-          });
-          $("#gScore").textContent = `맞힌 문제 ${G.score}`;
-          $("#gResT").textContent = ok ? "정답입니다" : v < G.truth ? "너무 적습니다" : "너무 많습니다";
-          $("#gResD").innerHTML = `실제 경계 약 <b>${fmt(q.b)}개</b> · 식으로 미리 계산한 값 ${fmt(L)}개 (차이 ${Math.round(Math.abs(L / q.b - 1) * 100)}%)`;
-          $("#gRes").hidden = false;
-          const last = G.k === Q.length - 1;
-          $("#gNext").textContent = last ? "처음부터 다시" : "다음 문제";
-          $("#gNextWrap").hidden = false;
-          G.pick = v;
-          drawGame();
-          if (last) $("#gResD").innerHTML += `<br><b>${Q.length}문제 중 ${G.score}개를 맞혔습니다.</b>`;
-        }
-        function drawGame() {
-          const svg = $("#gChart"), q = G.q;
-          const W = svg.parentNode.clientWidth;
-          if (!W) return;
-          const H = 170, m = { l: 34, r: 10, t: 16, b: 28 };
-          svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("height", H); svg.innerHTML = "";
-          const pw = W - m.l - m.r, ph = H - m.t - m.b;
-          const xs = q.grid.map((g) => g[0]).concat([q.b, G.pick]);
-          const lo = Math.min(...xs) * 0.85, hi = Math.max(...xs) * 1.15;
-          const x = (v) => m.l + Math.log(v / lo) / Math.log(hi / lo) * pw;
-          const y = (f) => m.t + (1 - f) * ph;
-          for (const f of [0, 0.5, 1]) {
-            el("line", { x1: m.l, x2: W - m.r, y1: y(f), y2: y(f), stroke: "var(--c-grid)" }, svg);
-            el("text", { x: m.l - 5, y: y(f) + 4, "text-anchor": "end", "font-size": 10, fill: "var(--muted)" }, svg, f * 100 + "%");
-          }
-          const bw = Math.max(10, Math.min(26, pw / (q.grid.length * 2.2)));
-          for (const [N, k, n] of q.grid) {
-            const f = k / n, X = x(N);
-            el("rect", { x: X - bw / 2, y: y(f), width: bw, height: Math.max(1, y(0) - y(f)), fill: f >= 0.5 ? "var(--c-test)" : "var(--c-seen)" }, svg);
-            el("text", { x: X, y: y(0) + 13, "text-anchor": "middle", "font-size": 10, fill: "var(--muted)" }, svg, fmt(N));
-            el("text", { x: X, y: y(f) - 4, "text-anchor": "middle", "font-size": 10, fill: "var(--ink)" }, svg, `${k}/${n}`);
-          }
-          const vline = (v, col, label, dy) => {
-            el("line", { x1: x(v), x2: x(v), y1: m.t - 4, y2: y(0), stroke: col, "stroke-width": 2, "stroke-dasharray": col === "var(--ink)" ? "" : "4 3" }, svg);
-            el("text", { x: x(v) + 4, y: m.t + dy, "font-size": 10.5, "font-weight": 600, fill: col }, svg, label);
-          };
-          vline(q.b, "var(--ink)", "경계 " + fmt(q.b), 4);
-          if (G.pick !== G.truth) vline(G.pick, "var(--c-train)", "내 선택", 18);
-          el("text", { x: W - m.r, y: H - 2, "text-anchor": "end", "font-size": 10, fill: "var(--muted)" }, svg, "보여 준 문제 수");
-        }
-        $("#gNext").addEventListener("click", () => {
-          if (G.k === Q.length - 1) newGame();
-          else { G.k++; showQ(); }
-          $("#exp-game .stage").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
-        });
-
         /* ---------- 크기 변화 ---------- */
         let lastW = innerWidth, rz = 0;
         addEventListener("resize", () => {
           if (innerWidth === lastW) return;
           lastW = innerWidth;
           clearTimeout(rz);
-          rz = setTimeout(() => { if (!$("#exp-noise").hidden) drawNoise(); if (!$("#exp-game").hidden && G && !$("#gRes").hidden) drawGame(); }, 100);
+          rz = setTimeout(() => { if (!$("#exp-noise").hidden) drawNoise(); }, 100);
         });
 
         const start = location.hash.slice(1);
