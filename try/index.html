@@ -5,14 +5,660 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>체험하기</title>
   <link rel="stylesheet" href="../style.css">
+  <style>
+    :root {
+      --c-train: #eb6834;
+      --c-test: #2a78d6;
+      --c-empty: #f1f1ef;
+      --c-seen: #c9c8c3;
+      --c-grid: #ececec;
+      --c-zone: rgba(42, 120, 214, 0.07);
+      --c-panel: #f7f7f5;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --c-train: #d95926;
+        --c-test: #3987e5;
+        --c-empty: #222221;
+        --c-seen: #4a4a47;
+        --c-grid: #262626;
+        --c-zone: rgba(57, 135, 229, 0.10);
+        --c-panel: #1a1a1a;
+      }
+    }
+    :root[data-theme="dark"] {
+      --c-train: #d95926;
+      --c-test: #3987e5;
+      --c-empty: #222221;
+      --c-seen: #4a4a47;
+      --c-grid: #262626;
+      --c-zone: rgba(57, 135, 229, 0.10);
+      --c-panel: #1a1a1a;
+    }
+
+    .page main { padding-top: 8px; }
+    .page .lead { margin-bottom: 16px; font-size: 0.92rem; }
+    button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent; }
+
+    /* ── 결과 화면 ── */
+    .stage { border-top: 2px solid var(--ink); padding-top: 12px; }
+    .phase { display: flex; align-items: flex-start; gap: 10px; height: 66px; overflow: hidden; }
+    .phase .txt { flex: 1; min-width: 0; }
+    .phase .t { font-weight: 700; font-size: 1.05rem; line-height: 1.35; }
+    .phase .d { color: var(--muted); font-size: 0.82rem; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .icon-btns { display: flex; gap: 6px; flex: none; }
+    .ibtn {
+      width: 44px; height: 44px; display: grid; place-items: center; cursor: pointer;
+      border: 1px solid var(--line); background: transparent; font-size: 0.95rem;
+    }
+    .ibtn:hover { border-color: var(--ink); }
+    .ibtn:active { background: var(--c-panel); }
+
+    .tabs { display: flex; gap: 18px; border-bottom: 1px solid var(--line); margin: 8px 0 10px; }
+    .tabs button {
+      background: none; border: 0; padding: 8px 0; min-height: 40px; cursor: pointer;
+      color: var(--muted); font-size: 0.88rem; border-bottom: 2px solid transparent; margin-bottom: -1px;
+    }
+    .tabs button[aria-selected="true"] { color: var(--ink); font-weight: 600; border-color: var(--ink); }
+    .tabs .seed { margin-left: auto; align-self: center; color: var(--muted); font-size: 0.75rem; font-variant-numeric: tabular-nums; }
+
+    .viz { position: relative; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+    .viz svg { display: block; width: 100%; overflow: visible; }
+    .viz text { font-family: inherit; }
+    .viz canvas { display: block; margin: 0 auto; }
+    .legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 0.76rem; color: var(--muted); margin: 8px 0 0; }
+    .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; vertical-align: -1px; margin-right: 5px; }
+    .legend i.ln { height: 2px; border-radius: 1px; vertical-align: 3px; width: 14px; }
+    .gridstat { font-size: 0.78rem; color: var(--muted); margin: 6px 0 0; font-variant-numeric: tabular-nums; }
+    .gridstat b { color: var(--ink); }
+    .hint-touch { font-size: 0.74rem; color: var(--muted); margin: 4px 0 0; }
+
+    .tip {
+      position: absolute; pointer-events: none; z-index: 5;
+      background: var(--bg); color: var(--ink); border: 1px solid var(--line);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.14);
+      padding: 6px 9px; font-size: 0.76rem; line-height: 1.45; white-space: nowrap;
+      font-variant-numeric: tabular-nums; opacity: 0; transition: opacity 0.1s;
+    }
+    .tip.on { opacity: 1; }
+    .tip .h { font-weight: 600; margin-bottom: 1px; }
+    .tip .sw { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 5px; }
+
+    /* ── 조작 ── */
+    .control { background: var(--c-panel); border: 1px solid var(--line); padding: 14px 14px 12px; margin: 14px 0 0; }
+    .nrow { display: flex; justify-content: space-between; align-items: baseline; }
+    .nrow label { font-size: 0.88rem; }
+    .nrow output { font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+    .nrow output small { font-size: 0.8rem; font-weight: 500; color: var(--muted); margin-left: 2px; }
+    input[type=range] { width: 100%; accent-color: var(--ink); margin: 6px 0 0; height: 36px; touch-action: pan-x; }
+    .scale { position: relative; height: 14px; margin: -4px 9px 10px; font-size: 0.7rem; line-height: 1; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .scale span { position: absolute; transform: translateX(-50%); }
+
+    .ratio { display: flex; justify-content: space-between; gap: 8px; font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .ratio b { color: var(--ink); }
+    .verdict { margin: 8px 0 0; font-size: 0.84rem; line-height: 1.45; }
+
+    .presets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 12px 0 0; }
+    .chip {
+      min-height: 44px; padding: 4px 4px; cursor: pointer; line-height: 1.25;
+      border: 1px solid var(--line); background: var(--bg); font-size: 0.8rem;
+    }
+    .chip b { display: block; font-size: 0.86rem; }
+    .chip span { color: var(--muted); font-size: 0.72rem; }
+    .chip:active { border-color: var(--ink); }
+
+    details.more { margin: 12px 0 0; border-top: 1px solid var(--line); }
+    details.more summary {
+      list-style: none; cursor: pointer; display: flex; align-items: center; gap: 8px;
+      min-height: 44px; font-size: 0.86rem;
+    }
+    details.more summary::-webkit-details-marker { display: none; }
+    details.more summary .cur { margin-left: auto; color: var(--muted); font-size: 0.78rem; font-variant-numeric: tabular-nums; }
+    details.more summary::after { content: '▾'; color: var(--muted); font-size: 0.8rem; transition: transform 0.15s; }
+    details.more[open] summary::after { transform: rotate(180deg); }
+    .ctrl { margin: 4px 0 12px; }
+    .ctrl .lab { font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
+    .seg { display: flex; border: 1px solid var(--line); background: var(--bg); }
+    .seg button {
+      flex: 1; min-width: 0; min-height: 44px; padding: 4px 2px; line-height: 1.2; cursor: pointer;
+      background: transparent; color: var(--muted); border: 0; border-right: 1px solid var(--line);
+      font-size: 0.88rem; font-variant-numeric: tabular-nums;
+    }
+    .seg button:last-child { border-right: 0; }
+    .seg button small { display: block; font-size: 0.68rem; opacity: 0.8; }
+    .seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); font-weight: 600; }
+    .ctrl .hint { color: var(--muted); font-size: 0.72rem; margin-top: 4px; }
+
+    /* ── 아래 설명 ── */
+    .sec { border-top: 2px solid var(--ink); padding: 14px 0 20px; margin-top: 28px; }
+    .sec h2 { font-size: 1rem; margin: 0 0 4px; }
+    .sec .sub { color: var(--muted); font-size: 0.84rem; margin: 0 0 12px; }
+    .steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; font-size: 0.86rem; }
+    .steps li { display: grid; grid-template-columns: 22px 1fr; gap: 8px; }
+    .steps .no { font-weight: 700; }
+    .steps .s { color: var(--muted); font-size: 0.8rem; }
+    .note { color: var(--muted); font-size: 0.76rem; border-top: 1px solid var(--line); padding-top: 12px; margin-top: 8px; }
+    .note p { margin: 0 0 6px; }
+
+    @media (min-width: 600px) {
+      .page .lead { font-size: 1rem; }
+      .chip { font-size: 0.84rem; }
+    }
+  </style>
 </head>
 <body class="page">
   <div class="wrap top"><a class="back" href="../">← 처음으로</a></div>
   <main class="wrap">
     <h1>직접 체험하기</h1>
-    <p class="lead">AI에게 보여줄 문제 수를 바꿔 보며, 언제 규칙을 깨닫는지 확인해 보세요.</p>
-    <div class="empty">체험 화면을 준비하고 있습니다.</div>
+    <p class="lead">보여 줄 문제 수를 바꾸면, AI가 언제 규칙을 깨닫는지 바로 아래에서 볼 수 있어요.</p>
+
+    <!-- 결과 -->
+    <section class="stage" aria-label="학습 결과">
+      <div class="phase" aria-live="polite">
+        <div class="txt">
+          <div class="t" id="pT">준비</div>
+          <div class="d" id="pD"></div>
+        </div>
+        <div class="icon-btns">
+          <button class="ibtn" id="run" aria-label="다시 학습">↻</button>
+          <button class="ibtn" id="skip" aria-label="끝까지 보기">⏭</button>
+        </div>
+      </div>
+
+      <div class="tabs" role="tablist">
+        <button role="tab" aria-selected="true" data-tab="curve">정답률</button>
+        <button role="tab" aria-selected="false" data-tab="grid">AI 머릿속 연산 표</button>
+        <span class="seed" id="seed">seed 1</span>
+      </div>
+
+      <div id="pane-curve">
+        <div class="viz">
+          <svg id="curve" role="img" aria-label="학습 step에 따른 train, test 정답률"></svg>
+          <div class="tip" id="tip1"></div>
+        </div>
+        <div class="legend">
+          <span><i class="ln" style="background:var(--c-train)"></i>보여 준 문제 (train)</span>
+          <span><i class="ln" style="background:var(--c-test)"></i>처음 보는 문제 (test)</span>
+        </div>
+      </div>
+
+      <div id="pane-grid" hidden>
+        <div class="viz">
+          <canvas id="grid" aria-label="연산 표 칸별 학습 상태"></canvas>
+          <div class="tip" id="tip2"></div>
+        </div>
+        <div class="legend">
+          <span><i style="background:var(--c-empty);outline:1px solid var(--line)"></i>못 본 칸</span>
+          <span><i style="background:var(--c-seen)"></i>train에 나옴</span>
+          <span><i style="background:var(--c-train)"></i>외움</span>
+          <span><i style="background:var(--c-test)"></i>규칙으로 맞힘</span>
+        </div>
+        <p class="gridstat" id="gridstat"></p>
+      </div>
+    </section>
+
+    <!-- 조작 -->
+    <section class="control" aria-label="조건 바꾸기">
+      <div class="nrow">
+        <label for="nslider">보여 줄 문제 수</label>
+        <output id="nval" for="nslider">900<small>개</small></output>
+      </div>
+      <input id="nslider" type="range" min="0" max="1000" step="1" value="500">
+      <div class="scale"><span style="left:0">100</span><span style="left:48.1%">1천</span><span style="left:96.2%">1만</span></div>
+
+      <div class="ratio"><span>필요한 문제 수(예측) <b id="sN0">660</b>개</span><span>지금 <b id="sR">1.36</b>배</span></div>
+      <p class="verdict" id="verdict"></p>
+
+      <div class="presets" role="group" aria-label="빠른 선택">
+        <button class="chip" data-preset="0.7"><b>너무 적게</b><span>외우기만</span></button>
+        <button class="chip" data-preset="1.15"><b>경계 바로 위</b><span>grokking</span></button>
+        <button class="chip" data-preset="2.5"><b>넉넉하게</b><span>바로 깨달음</span></button>
+      </div>
+
+      <details class="more">
+        <summary>조건 더 바꾸기 <span class="cur" id="cond">n 50 · a+b · wd 1</span></summary>
+        <div class="ctrl">
+          <div class="lab">수의 범위 (1~n) → 연산 표 <b id="sC">1,275</b>칸</div>
+          <div class="seg" id="seg-n" role="group" aria-label="수의 범위">
+            <button data-v="23">23</button><button data-v="31">31</button><button data-v="50">50</button><button data-v="71">71</button><button data-v="101">101</button>
+          </div>
+        </div>
+        <div class="ctrl">
+          <div class="lab">배울 연산</div>
+          <div class="seg" id="seg-op" role="group" aria-label="연산">
+            <button data-v="add">a + b<small>교환법칙 있음</small></button><button data-v="add3">a + 3b<small>교환법칙 없음</small></button>
+          </div>
+        </div>
+        <div class="ctrl">
+          <div class="lab">규제 세기 (weight decay)</div>
+          <div class="seg" id="seg-wd" role="group" aria-label="weight decay">
+            <button data-v="0.3">0.3</button><button data-v="1">1</button><button data-v="3">3</button><button data-v="10">10</button>
+          </div>
+          <div class="hint">규제는 깨닫는 시점(지연)을 바꿉니다. 너무 세면(10) 필요한 문제 수도 늘어나요.</div>
+        </div>
+      </details>
+    </section>
+
+    <!-- 설명 -->
+    <section class="sec" aria-labelledby="h-how">
+      <h2 id="h-how">무슨 일이 일어나나요?</h2>
+      <p class="sub">AI는 1~n 중 서로 다른 수 5개로 된 수열을 받아, 이웃한 두 수를 연산한 수열을 내놓도록 배웁니다.</p>
+      <ol class="steps">
+        <li><span class="no">①</span><div>외우기<div class="s">보여 준 문제를 통째로 외웁니다. train 정답률만 먼저 100%가 돼요.</div></div></li>
+        <li><span class="no">②</span><div>지연<div class="s">한동안 처음 보는 문제는 거의 다 틀립니다. 외우는 방식에서 벗어나는 데 걸리는 시간이에요.</div></div></li>
+        <li><span class="no">③</span><div>깨달음 (grokking)<div class="s">갑자기 한 번도 못 본 칸까지 맞히기 시작합니다. 문제가 너무 적으면 이 단계가 오지 않아요.</div></div></li>
+      </ol>
+    </section>
+
+    <section class="sec" aria-labelledby="h-law">
+      <h2 id="h-law">우리가 찾은 법칙</h2>
+      <p class="sub">필요한 문제 수는 규칙의 대칭이 아니라 연산 표의 크기 C로 정해집니다. <b>N₀ ≈ 2.82 × C<sup>0.763</sup></b> (9개 조건, ±10%)</p>
+      <div class="viz">
+        <svg id="law" role="img" aria-label="표 칸 수 C와 필요한 문제 수 N0의 로그-로그 그래프"></svg>
+        <div class="tip" id="tip3"></div>
+      </div>
+      <div class="legend">
+        <span><i class="ln" style="background:var(--ink)"></i>법칙</span>
+        <span><i style="background:var(--muted);border-radius:50%"></i>실측 경계 (a+b, wd 1)</span>
+        <span><i style="background:transparent;border:2px solid var(--ink);border-radius:50%;width:8px;height:8px"></i>지금 내 조건</span>
+      </div>
+    </section>
+
+    <div class="note">
+      <p>이 화면은 브라우저에서 신경망을 학습시키는 것이 아니라, 약 2,400번의 실제 학습(GPU)에서 얻은 관계식과 측정 범위로 그린 <b>시뮬레이션</b>입니다.</p>
+      <p>경계 N₀ ≈ 2.82 × C<sup>0.763</sup> · 경계 근처 성공 여부는 seed마다 다름 · 지연은 칸당 관찰 수 0.4회마다 약 절반, weight decay에 반비례 · 학습 한도 10만 step · 2층 Transformer(d128).</p>
+    </div>
   </main>
   <footer><div class="wrap">2026 청소년과학탐구대회 출품작</div></footer>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const $$ = (s) => document.querySelectorAll(s);
+  const NS = 'http://www.w3.org/2000/svg';
+  const fmt = (x) => Math.round(x).toLocaleString('ko-KR');
+  const T0 = 10, LIMIT = 1e5, PAIRS = 5;
+  const WD_B = { 0.3: 1, 1: 1, 3: 1.03, 10: 1.6 };
+  const MEASURED = [ [31, 496, 298], [50, 1275, 618], [71, 2556, 1047] ];
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const S = { N: 900, n: 50, op: 'add', wd: 1 };
+  let sim = null, seedNo = 0, curT = T0, raf = 0, tab = 'curve';
+
+  /* ---------- 법칙 ---------- */
+  const Cof = (n, op) => op === 'add' ? n * (n + 1) / 2 : n * n;
+  const N0of = (C, wd) => 2.82 * Math.pow(C, 0.763) * WD_B[wd];
+  const pSucc = (r) => 1 / (1 + Math.exp(-Math.log(r) / 0.07));
+
+  /* ---------- 난수 ---------- */
+  function rng(seed) {
+    let a = seed >>> 0;
+    return () => {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  const gauss = (R) => Math.sqrt(-2 * Math.log(R() + 1e-12)) * Math.cos(2 * Math.PI * R());
+
+  /* ---------- N 슬라이더 (로그) ---------- */
+  const NMIN = 100, NMAX = 12000;
+  const v2N = (v) => { const x = NMIN * Math.pow(NMAX / NMIN, v / 1000); return x > 1000 ? Math.round(x / 10) * 10 : Math.round(x / 5) * 5; };
+  const N2v = (N) => Math.round(1000 * Math.log(N / NMIN) / Math.log(NMAX / NMIN));
+
+  /* ---------- 시뮬레이션 ---------- */
+  function simulate() {
+    seedNo++;
+    const R = rng(seedNo * 7919 + S.n * 31 + S.N);
+    const C = Cof(S.n, S.op), N0 = N0of(C, S.wd), r = S.N / N0;
+    const ok = R() < pSucc(r);
+    const tfit = 260 * Math.pow(S.N / 500, 0.55) * Math.exp(0.15 * gauss(R)) * (S.wd < 1 ? 1.3 : 1);
+    const delay = Math.max(40, 13000 * Math.pow(2, -2.3 * (r - 1) / 0.4) / S.wd * Math.exp(0.3 * gauss(R)));
+    let tgen = tfit + delay;
+    const success = ok && tgen < LIMIT * 0.9;
+    if (!success) tgen = null;
+
+    const n = S.n, cnt = new Uint16Array(n * n);
+    for (let k = 0, K = S.N * PAIRS; k < K; k++) {
+      const a = Math.floor(R() * n);
+      let b = Math.floor(R() * (n - 1)); if (b >= a) b++;
+      if (S.op === 'add') cnt[Math.min(a, b) * n + Math.max(a, b)]++;
+      else cnt[a * n + b]++;
+    }
+    const tMem = new Float32Array(n * n), tRule = new Float32Array(n * n);
+    let seen = 0, cells = 0;
+    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+      if (S.op === 'add' && j < i) continue;
+      const id = i * n + j; cells++;
+      if (cnt[id]) {
+        seen++;
+        tMem[id] = tfit * Math.pow(5, -R());
+        tRule[id] = success ? Math.max(tfit, tgen - R() * Math.min(delay * 0.5, 2000)) : Infinity;
+      } else {
+        tMem[id] = Infinity;
+        tRule[id] = success ? tgen * (0.9 + 0.2 * R()) : Infinity;
+      }
+    }
+    return { C, N0, r, tfit, tgen, delay, success, cnt, tMem, tRule, seen, cells, nseed: R() * 1000, n, op: S.op, N: S.N };
+  }
+
+  /* ---------- 곡선 ---------- */
+  const GRID_T = Array.from({ length: 401 }, (_, i) => Math.exp(Math.log(T0) + (Math.log(LIMIT) - Math.log(T0)) * i / 400));
+  const sig = (z) => 1 / (1 + Math.exp(-z));
+  function noise(t, k) {
+    const x = Math.sin(Math.round(Math.log(t) / Math.log(LIMIT / T0) * 400) * 12.9898 + k * 78.233 + sim.nseed) * 43758.5453;
+    return x - Math.floor(x) - 0.5;
+  }
+  function trainAcc(t) {
+    const v = 100 * sig((Math.log(t) - Math.log(sim.tfit * 0.5)) / 0.15);
+    return Math.max(0, Math.min(100, v - Math.abs(noise(t, 1)) * (v > 97 ? 1 : 3)));
+  }
+  function testAcc(t) {
+    const base = 2 + 2 * noise(t, 2) + 2 * sig((Math.log(t) - Math.log(sim.tfit)) / 0.4);
+    if (!sim.success) return Math.max(0, base);
+    const g = sig((Math.log(t) - Math.log(sim.tgen * 0.85)) / 0.055);
+    return Math.max(0, Math.min(100, base + (100 - base) * g - (g > 0.9 ? Math.abs(noise(t, 3)) * 1.2 : 0)));
+  }
+
+  /* ---------- 공통 ---------- */
+  function el(tag, attrs, parent, text) {
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  const kTick = (t) => ({ 10: '10', 100: '100', 1000: '1천', 10000: '1만', 100000: '10만' }[t]);
+  function placeTip(tip, X, Y, W) {
+    tip.classList.add('on');
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    let left = X - tw / 2;
+    left = Math.max(0, Math.min(W - tw, left));
+    let top = Y - th - 14;
+    if (top < 0) top = Y + 16;
+    tip.style.left = left + 'px';
+    tip.style.top = top + 'px';
+  }
+  // 터치는 손을 떼고 잠시 뒤 툴팁을 닫는다
+  function bindHover(target, onMove, onLeave) {
+    let timer = 0;
+    target.addEventListener('pointermove', (e) => { clearTimeout(timer); onMove(e); });
+    target.addEventListener('pointerdown', (e) => { clearTimeout(timer); onMove(e); });
+    target.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') onLeave(); });
+    target.addEventListener('pointerup', (e) => { if (e.pointerType !== 'mouse') { clearTimeout(timer); timer = setTimeout(onLeave, 1600); } });
+    target.addEventListener('pointercancel', () => { timer = setTimeout(onLeave, 600); });
+  }
+
+  /* ---------- 정확도 그래프 ---------- */
+  const curveSvg = $('#curve'), tip1 = $('#tip1');
+  let CG = null;
+  function drawCurve() {
+    const W = curveSvg.parentNode.clientWidth;
+    if (!W) return;
+    const H = W < 480 ? 210 : 240;
+    const m = { l: 34, r: 8, t: 24, b: 26 };
+    curveSvg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    curveSvg.setAttribute('height', H);
+    curveSvg.innerHTML = '';
+    const pw = W - m.l - m.r, ph = H - m.t - m.b;
+    const x = (t) => m.l + (Math.log(t) - Math.log(T0)) / (Math.log(LIMIT) - Math.log(T0)) * pw;
+    const y = (v) => m.t + (1 - v / 100) * ph;
+    CG = { x, y, m, W, H, pw, ph };
+
+    for (const v of [0, 50, 100]) {
+      el('line', { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), stroke: 'var(--c-grid)', 'stroke-width': 1 }, curveSvg);
+      el('text', { x: m.l - 5, y: y(v) + 4, 'text-anchor': 'end', 'font-size': 10, fill: 'var(--muted)' }, curveSvg, v + '%');
+    }
+    for (const t of [10, 100, 1000, 10000, 100000]) {
+      el('text', { x: x(t), y: H - m.b + 16, 'text-anchor': t === 10 ? 'start' : t === 1e5 ? 'end' : 'middle', 'font-size': 10, fill: 'var(--muted)' }, curveSvg, kTick(t) + (t === 1e5 ? ' step' : ''));
+    }
+    if (!sim) return;
+    const tEnd = Math.min(curT, LIMIT);
+    if (sim.success && tEnd > sim.tfit) {
+      const x1 = x(sim.tfit), x2 = x(Math.min(tEnd, sim.tgen));
+      el('rect', { x: x1, y: m.t, width: Math.max(0, x2 - x1), height: ph, fill: 'var(--c-zone)' }, curveSvg);
+    }
+    // 고정된 step 격자에서 샘플링: 이미 그린 부분은 프레임마다 바뀌지 않는다
+    const pts = (f) => {
+      let d = '';
+      for (let i = 0; i < GRID_T.length && GRID_T[i] <= tEnd; i++) d += (i ? 'L' : 'M') + x(GRID_T[i]).toFixed(1) + ',' + y(f(GRID_T[i])).toFixed(1);
+      return d + 'L' + x(tEnd).toFixed(1) + ',' + y(f(tEnd)).toFixed(1);
+    };
+    el('path', { d: pts(trainAcc), fill: 'none', stroke: 'var(--c-train)', 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, curveSvg);
+    el('path', { d: pts(testAcc), fill: 'none', stroke: 'var(--c-test)', 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, curveSvg);
+
+    const mark = (t, label, anchor) => {
+      el('line', { x1: x(t), x2: x(t), y1: m.t - 2, y2: m.t + ph, stroke: 'var(--muted)', 'stroke-width': 1, 'stroke-dasharray': '3 3' }, curveSvg);
+      let tx = x(t) + (anchor === 'end' ? -4 : 4);
+      el('text', { x: tx, y: m.t - 8, 'text-anchor': anchor, 'font-size': 10.5, 'font-weight': 600, fill: 'var(--ink)' }, curveSvg, label);
+    };
+    if (tEnd >= sim.tfit) mark(sim.tfit, '외움', 'end');
+    if (sim.success && tEnd >= sim.tgen) {
+      const gx = x(sim.tgen), close = gx - x(sim.tfit) < 46;
+      mark(sim.tgen, close ? '→ 깨달음' : '깨달음', gx > W - 60 ? 'end' : 'start');
+      if (!close) {
+        const cx = (x(sim.tfit) + gx) / 2, yy = m.t + ph * 0.55;
+        el('text', { x: cx, y: yy, 'text-anchor': 'middle', 'font-size': 10, fill: 'var(--muted)' }, curveSvg, '지연');
+        el('text', { x: cx, y: yy + 14, 'text-anchor': 'middle', 'font-size': 11, 'font-weight': 600, fill: 'var(--ink)' }, curveSvg, fmt(sim.tgen - sim.tfit));
+      }
+    }
+    const cx = x(tEnd);
+    el('circle', { cx, cy: y(trainAcc(tEnd)), r: 4, fill: 'var(--c-train)', stroke: 'var(--bg)', 'stroke-width': 2 }, curveSvg);
+    el('circle', { cx, cy: y(testAcc(tEnd)), r: 4, fill: 'var(--c-test)', stroke: 'var(--bg)', 'stroke-width': 2 }, curveSvg);
+
+    CG.cross = el('line', { y1: m.t, y2: m.t + ph, stroke: 'var(--muted)', 'stroke-width': 1, opacity: 0 }, curveSvg);
+    CG.d1 = el('circle', { r: 4, fill: 'var(--c-train)', stroke: 'var(--bg)', 'stroke-width': 2, opacity: 0 }, curveSvg);
+    CG.d2 = el('circle', { r: 4, fill: 'var(--c-test)', stroke: 'var(--bg)', 'stroke-width': 2, opacity: 0 }, curveSvg);
+  }
+  function hoverCurve(ev) {
+    if (!sim || !CG || !CG.cross) return;
+    const rect = curveSvg.getBoundingClientRect();
+    const px = ev.clientX - rect.left;
+    const { m, pw } = CG;
+    let t = Math.exp(Math.log(T0) + (px - m.l) / pw * (Math.log(LIMIT) - Math.log(T0)));
+    t = Math.max(T0, Math.min(t, curT, LIMIT));
+    const X = CG.x(t), a = trainAcc(t), b = testAcc(t);
+    CG.cross.setAttribute('x1', X); CG.cross.setAttribute('x2', X); CG.cross.setAttribute('opacity', 0.6);
+    CG.d1.setAttribute('cx', X); CG.d1.setAttribute('cy', CG.y(a)); CG.d1.setAttribute('opacity', 1);
+    CG.d2.setAttribute('cx', X); CG.d2.setAttribute('cy', CG.y(b)); CG.d2.setAttribute('opacity', 1);
+    tip1.innerHTML = `<div class="h">step ${fmt(t)}</div>
+      <div><span class="sw" style="background:var(--c-train)"></span>train ${a.toFixed(1)}%</div>
+      <div><span class="sw" style="background:var(--c-test)"></span>test ${b.toFixed(1)}%</div>`;
+    placeTip(tip1, X, Math.min(CG.y(a), CG.y(b)), CG.W);
+  }
+  function leaveCurve() {
+    tip1.classList.remove('on');
+    if (CG && CG.cross) [CG.cross, CG.d1, CG.d2].forEach((e) => e.setAttribute('opacity', 0));
+  }
+  bindHover(curveSvg, hoverCurve, leaveCurve);
+
+  /* ---------- 연산 표 ---------- */
+  const cv = $('#grid'), tip2 = $('#tip2');
+  let GG = null;
+  const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  function cellId(i, j) { const n = sim.n; return sim.op === 'add' ? (i <= j ? i * n + j : j * n + i) : i * n + j; }
+  function cellState(id) {
+    if (curT >= sim.tRule[id]) return 3;
+    if (curT >= sim.tMem[id]) return 2;
+    return sim.cnt[id] ? 1 : 0;
+  }
+  function drawGrid() {
+    if (!sim) return;
+    const box = cv.parentNode.clientWidth;
+    if (!box) return;
+    const n = sim.n, dpr = window.devicePixelRatio || 1;
+    const side = Math.min(box, 300, Math.max(160, window.innerHeight * 0.36));
+    cv.width = Math.round(side * dpr); cv.height = Math.round(side * dpr);
+    cv.style.width = side + 'px'; cv.style.height = side + 'px';
+    const ctx = cv.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const cs = side / n, gap = cs >= 5 ? 1 : 0;
+    const col = [css('--c-empty'), css('--c-seen'), css('--c-train'), css('--c-test')];
+    ctx.clearRect(0, 0, side, side);
+    let nm = 0, nr = 0, nu = 0;
+    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+      const id = cellId(i, j), st = cellState(id);
+      ctx.fillStyle = col[st];
+      ctx.fillRect(j * cs, i * cs, cs - gap, cs - gap);
+      if (sim.op !== 'add' || j >= i) { if (st === 3) { nr++; if (!sim.cnt[id]) nu++; } else if (st === 2) nm++; }
+    }
+    GG = { cs, n, side, off: (box - side) / 2, box };
+    $('#gridstat').innerHTML =
+      `${fmt(sim.cells)}칸 중 train에 나온 칸 ${(100 * sim.seen / sim.cells).toFixed(0)}% · 칸당 ${(sim.N * PAIRS / sim.cells).toFixed(1)}번 관찰<br>` +
+      `외운 칸 <b>${fmt(nm)}</b> · 규칙으로 맞힌 칸 <b>${fmt(nr)}</b> (못 본 칸 중 <b>${fmt(nu)}</b>/${fmt(sim.cells - sim.seen)})`;
+  }
+  const stName = ['한 번도 못 봄', 'train에 나옴, 아직 못 외움', '외움 (이 칸만 기억)', '규칙으로 맞힘'];
+  function hoverGrid(ev) {
+    if (!GG || !sim) return;
+    const rect = cv.getBoundingClientRect();
+    const px = ev.clientX - rect.left, py = ev.clientY - rect.top;
+    const j = Math.floor(px / GG.cs), i = Math.floor(py / GG.cs);
+    if (i < 0 || j < 0 || i >= GG.n || j >= GG.n) return leaveGrid();
+    const n = GG.n, a = i + 1, b = j + 1, id = cellId(i, j);
+    const val = sim.op === 'add' ? a + b : a + 3 * b;
+    tip2.innerHTML = `<div class="h">a = ${a}, b = ${b} → ${(val % n) + 1}</div>
+      <div>train에서 ${sim.cnt[id]}번 봄</div><div>${stName[cellState(id)]}</div>`;
+    placeTip(tip2, px + GG.off, py, GG.box);
+  }
+  function leaveGrid() { tip2.classList.remove('on'); }
+  bindHover(cv, hoverGrid, leaveGrid);
+
+  /* ---------- 법칙 그래프 ---------- */
+  const lawSvg = $('#law'), tip3 = $('#tip3');
+  function drawLaw() {
+    const W = lawSvg.parentNode.clientWidth;
+    if (!W) return;
+    const H = W < 480 ? 220 : 250;
+    const m = { l: 36, r: 10, t: 14, b: 30 };
+    lawSvg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    lawSvg.setAttribute('height', H);
+    lawSvg.innerHTML = '';
+    const pw = W - m.l - m.r, ph = H - m.t - m.b;
+    const CX = [200, 12000], NY = [60, 16000];
+    const x = (c) => m.l + Math.log(c / CX[0]) / Math.log(CX[1] / CX[0]) * pw;
+    const y = (v) => m.t + (1 - Math.log(v / NY[0]) / Math.log(NY[1] / NY[0])) * ph;
+    const law = (c) => N0of(c, S.wd);
+
+    let d = `M${x(CX[0])},${y(NY[1])}`;
+    for (let i = 0; i <= 40; i++) { const c = CX[0] * Math.pow(CX[1] / CX[0], i / 40); d += `L${x(c)},${y(Math.min(NY[1], law(c)))}`; }
+    d += `L${x(CX[1])},${y(NY[1])}Z`;
+    el('path', { d, fill: 'var(--c-zone)' }, lawSvg);
+
+    for (const v of [100, 1000, 10000]) {
+      el('line', { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), stroke: 'var(--c-grid)' }, lawSvg);
+      el('text', { x: m.l - 5, y: y(v) + 4, 'text-anchor': 'end', 'font-size': 10, fill: 'var(--muted)' }, lawSvg, kTick(v));
+    }
+    for (const c of [300, 1000, 3000, 10000]) {
+      el('text', { x: x(c), y: H - m.b + 16, 'text-anchor': c === 10000 ? 'end' : 'middle', 'font-size': 10, fill: 'var(--muted)' }, lawSvg, c >= 10000 ? '1만 칸' : c >= 1000 ? (c / 1000) + '천' : c);
+    }
+    el('text', { x: m.l + 6, y: y(9000), 'font-size': 11, 'font-weight': 600, fill: 'var(--c-test)' }, lawSvg, '깨닫는 영역');
+    el('text', { x: W - m.r - 4, y: y(110), 'text-anchor': 'end', 'font-size': 11, 'font-weight': 600, fill: 'var(--muted)' }, lawSvg, '외우기만 하는 영역');
+    el('line', { x1: x(CX[0]), y1: y(law(CX[0])), x2: x(CX[1]), y2: y(law(CX[1])), stroke: 'var(--ink)', 'stroke-width': 2 }, lawSvg);
+
+    const pts = MEASURED.map(([n, C, b]) => ({ cx: x(C), cy: y(b), html: `<div class="h">실측 경계 · n = ${n}, a+b</div><div>C = ${fmt(C)} → N₀ = ${fmt(b)}</div><div>법칙 예측 ${fmt(N0of(C, 1))}</div>` }));
+    if (sim) pts.push({ me: true, cx: x(sim.C), cy: y(Math.min(NY[1], sim.N)), html: `<div class="h">지금 내 조건</div><div>C = ${fmt(sim.C)}, N = ${fmt(sim.N)}</div><div>경계의 ${sim.r.toFixed(2)}배</div>` });
+    for (const p of pts) {
+      el('circle', p.me
+        ? { cx: p.cx, cy: p.cy, r: 6, fill: 'var(--bg)', stroke: 'var(--ink)', 'stroke-width': 2.5 }
+        : { cx: p.cx, cy: p.cy, r: 4.5, fill: 'var(--muted)', stroke: 'var(--bg)', 'stroke-width': 2 }, lawSvg);
+      const hit = el('circle', { cx: p.cx, cy: p.cy, r: 18, fill: 'transparent' }, lawSvg);
+      bindHover(hit, () => { tip3.innerHTML = p.html; placeTip(tip3, p.cx, p.cy, W); }, () => tip3.classList.remove('on'));
+    }
+    if (sim) el('text', { x: x(sim.C) + 10, y: y(Math.min(NY[1], sim.N)) + 4, 'font-size': 11, 'font-weight': 600, fill: 'var(--ink)' }, lawSvg, '나');
+  }
+
+  /* ---------- 상태 문구 ---------- */
+  function phase() {
+    const T = $('#pT'), D = $('#pD');
+    const step = 'step ' + fmt(Math.min(curT, LIMIT));
+    if (curT < sim.tfit) { T.textContent = '① 외우는 중'; D.textContent = `보여 준 문제를 통째로 외우는 중 · ${step}`; }
+    else if (sim.success && curT < sim.tgen) { T.textContent = '② 깨닫기 전 (지연)'; D.textContent = `처음 보는 문제는 아직 거의 틀림 · ${step}`; }
+    else if (sim.success) { T.textContent = '③ 깨달음!'; D.textContent = `외운 지 ${fmt(sim.tgen - sim.tfit)} step 뒤, 처음 보는 문제도 맞힘`; }
+    else if (curT < LIMIT) { T.textContent = '② 깨닫기 전…'; D.textContent = `처음 보는 문제는 아직 거의 틀림 · ${step}`; }
+    else { T.textContent = '✕ 끝내 깨닫지 못함'; D.textContent = `10만 step 동안 외우기만 했어요. 문제 수를 약 ${fmt(sim.N0)}개 위로 올려 보세요.`; }
+  }
+
+  const drawStage = () => { if (tab === 'curve') drawCurve(); else drawGrid(); phase(); };
+  const drawAll = () => { drawStage(); drawLaw(); };
+
+  /* ---------- 실행 ---------- */
+  function run() {
+    cancelAnimationFrame(raf);
+    sim = simulate();
+    $('#seed').textContent = 'seed ' + seedNo;
+    if (reduce) { curT = LIMIT; drawAll(); return; }
+    const dur = 4500, start = performance.now();
+    const a = Math.log(T0), b = Math.log(LIMIT);
+    let last = 0;
+    const tick = (now) => {
+      const u = Math.min(1, (now - start) / dur);
+      curT = Math.exp(a + (b - a) * u);
+      if (now - last > 30 || u === 1) { drawStage(); last = now; }
+      if (u < 1) raf = requestAnimationFrame(tick);
+    };
+    curT = T0; drawAll();
+    raf = requestAnimationFrame(tick);
+  }
+  function skip() { cancelAnimationFrame(raf); if (!sim) sim = simulate(); curT = LIMIT; drawStage(); }
+
+  /* ---------- 입력 ---------- */
+  function updateStats() {
+    const C = Cof(S.n, S.op), N0 = N0of(C, S.wd), r = S.N / N0, p = pSucc(r);
+    $('#nval').innerHTML = fmt(S.N) + '<small>개</small>';
+    $('#sC').textContent = fmt(C);
+    $('#sN0').textContent = fmt(N0);
+    $('#sR').textContent = r.toFixed(2);
+    $('#cond').textContent = `n ${S.n} · ${S.op === 'add' ? 'a+b' : 'a+3b'} · wd ${S.wd}`;
+    let msg;
+    if (p < 0.05) msg = '<b>경계 아래</b> · 외우기만 하고 깨닫지 못할 가능성이 커요.';
+    else if (p < 0.95) msg = `<b>경계 근처</b> · 같은 조건이라도 성공 확률 약 <b>${Math.round(p * 100)}%</b>. ↻로 여러 번 돌려 보세요.`;
+    else if (r < 1.6) msg = '<b>경계 위</b> · 외운 뒤 한참 지나서 깨달아요.';
+    else msg = '<b>경계보다 훨씬 위</b> · 거의 외우자마자 깨달아요.';
+    $('#verdict').innerHTML = msg;
+    for (const [sel, key] of [['#seg-n', 'n'], ['#seg-op', 'op'], ['#seg-wd', 'wd']])
+      $$(sel + ' button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v) === String(S[key])));
+  }
+  let deb = 0;
+  const changed = (delay) => { updateStats(); clearTimeout(deb); deb = setTimeout(run, delay || 0); };
+
+  const slider = $('#nslider');
+  slider.addEventListener('input', () => { S.N = v2N(+slider.value); changed(300); });
+  const bindSeg = (sel, key, parse) => $$(sel + ' button').forEach((b) =>
+    b.addEventListener('click', () => { S[key] = parse(b.dataset.v); changed(); }));
+  bindSeg('#seg-n', 'n', Number);
+  bindSeg('#seg-op', 'op', String);
+  bindSeg('#seg-wd', 'wd', Number);
+  $$('[data-preset]').forEach((b) => b.addEventListener('click', () => {
+    const k = +b.dataset.preset;
+    S.N = Math.max(NMIN, Math.min(NMAX, v2N(N2v(k * N0of(Cof(S.n, S.op), S.wd)))));
+    slider.value = N2v(S.N);
+    changed();
+  }));
+  $('#run').addEventListener('click', run);
+  $('#skip').addEventListener('click', skip);
+
+  $$('[data-tab]').forEach((b) => b.addEventListener('click', () => {
+    tab = b.dataset.tab;
+    $$('[data-tab]').forEach((x) => x.setAttribute('aria-selected', String(x === b)));
+    $('#pane-curve').hidden = tab !== 'curve';
+    $('#pane-grid').hidden = tab !== 'grid';
+    leaveCurve(); leaveGrid();
+    if (sim) drawStage();
+  }));
+
+  let rz = 0, lastW = innerWidth;
+  addEventListener('resize', () => {
+    if (innerWidth === lastW) return; // 모바일 주소창 높이 변화는 무시
+    lastW = innerWidth;
+    clearTimeout(rz); rz = setTimeout(() => sim && drawAll(), 100);
+  });
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => sim && drawAll());
+
+  S.N = v2N(N2v(900)); slider.value = N2v(S.N);
+  updateStats();
+  run();
+})();
+</script>
 </body>
 </html>
