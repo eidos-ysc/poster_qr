@@ -559,11 +559,11 @@
                   outline: 1px solid var(--line);
                 "
               ></i
-              >못 본 칸</span
+              >보여 준 적 없는 칸</span
             >
-            <span><i style="background: var(--c-seen)"></i>보여 준 문제에 나옴</span>
-            <span><i style="background: var(--c-train)"></i>암기</span>
-            <span><i style="background: var(--c-test)"></i>규칙으로 맞힘</span>
+            <span><i style="background: var(--c-seen)"></i>보여 준 칸</span>
+            <span><i style="background: var(--c-train)"></i>암기한 칸</span>
+            <span><i style="background: var(--c-test)"></i>규칙으로 맞힌 칸</span>
           </div>
           <p class="gridstat" id="gridstat"></p>
         </div>
@@ -589,8 +589,8 @@
         </div>
 
         <div class="ratio">
-          <span>필요한 문제 수(예측) <b id="sN0">660</b>개</span
-          ><span>지금 <b id="sR">1.36</b>배</span>
+          <span>필요한 문제 수 예측 <b id="sN0">660</b>개</span
+          ><span>경계의 <b id="sR">1.36</b>배</span>
         </div>
         <p class="verdict" id="verdict"></p>
 
@@ -599,7 +599,7 @@
             <b>경계 아래</b><span>암기에 그침</span>
           </button>
           <button class="chip" data-preset="1.15">
-            <b>경계 바로 위</b><span>grokking</span>
+            <b>경계 바로 위</b><span>늦은 일반화</span>
           </button>
           <button class="chip" data-preset="2.5">
             <b>경계의 2.5배</b><span>곧바로 일반화</span>
@@ -612,7 +612,7 @@
           </summary>
           <div class="ctrl">
             <div class="lab">
-              수의 범위 (1~n) → 연산 표 <b id="sC">1,275</b>칸
+              수의 범위 1~n · 연산 표 <b id="sC">1,275</b>칸
             </div>
             <div class="seg" id="seg-n" role="group" aria-label="수의 범위">
               <button data-v="23">23</button><button data-v="31">31</button
@@ -708,7 +708,7 @@
                 height: 8px;
               "
             ></i
-            >지금 내 조건</span
+            >현재 조건</span
           >
         </div>
       </section>
@@ -750,8 +750,8 @@
           </div>
           <div class="legend" id="nLegend">
             <span><i class="ln" style="background: var(--c-test)"></i>처음 보는 문제 정답률</span>
-            <span class="lg-noise"><i class="ln" style="background: var(--c-train)"></i>오답 자리: 암기한 오답을 냄</span>
-            <span class="lg-noise"><i class="ln" style="background: var(--c-fix)"></i>오답 자리: 원래 정답을 냄</span>
+            <span class="lg-noise"><i class="ln" style="background: var(--c-train)"></i>오답 자리 · 암기한 오답</span>
+            <span class="lg-noise"><i class="ln" style="background: var(--c-fix)"></i>오답 자리 · 원래 정답</span>
           </div>
         </section>
 
@@ -759,7 +759,7 @@
           <div class="ctrl">
             <div class="lab">오답 넣는 방식 (보여 줄 문제의 10%)</div>
             <div class="seg" id="nseg-mode" role="group" aria-label="오답 넣는 방식">
-              <button data-v="scatter">흩어진 오답<small>예제마다 한 칸</small></button>
+              <button data-v="scatter">흩어진 오답<small>문제마다 한 칸</small></button>
               <button data-v="cell">같은 칸 오답<small>같은 계산에 같은 오답</small></button>
               <button data-v="none">오답 없음<small>비교용</small></button>
             </div>
@@ -784,16 +784,16 @@
           <h2 id="h-ov">한눈에 보기</h2>
           <p class="sub" id="ovSub">칸마다 4번씩 학습한 결과입니다. 칸을 누르면 그 조건의 기록을 봅니다.</p>
           <table class="ov" id="ov"></table>
-          <p class="ov-cap">남음: 암기한 오답을 절반 이상 그대로 냄 · 고침: 10% 아래로 줄어듦 · 일부: 그 사이 · 실패: 끝에 처음 보는 문제도 90% 미만</p>
+          <p class="ov-cap">남음: 암기한 오답 50% 이상 · 고침: 10% 미만 · 일부: 그 사이 · 실패: 마지막 처음 보는 문제 정답률 90% 미만</p>
         </section>
 
         <section class="sec" aria-labelledby="h-nhow">
-          <h2 id="h-nhow">무슨 일이 일어나나요?</h2>
+          <h2 id="h-nhow">실험 내용</h2>
           <p class="sub">보여 줄 문제 중 10%에 일부러 틀린 답을 넣고 학습시킵니다.</p>
           <ol class="steps">
-            <li><span class="no">①</span><div>규칙은 배운다<div class="s">처음 보는 문제는 거의 100% 맞힙니다. 규칙을 이해했다는 뜻입니다.</div></div></li>
-            <li><span class="no">②</span><div>그런데 오답도 암기한다<div class="s">규제가 약하면(1~3) 틀리게 배운 자리에서는 암기한 오답을 끝까지 그대로 냅니다. 이해와 암기가 한 AI 안에 함께 있습니다. 같은 칸 오답은 그 칸을 쓰는 처음 보는 문제로도 번집니다.</div></div></li>
-            <li><span class="no">③</span><div>알맞은 규제가 오답을 지운다<div class="s">문제가 2,048개 이상이면 흩어진 오답은 5부터 원래 정답으로 바뀝니다. 같은 칸 오답은 7부터 줄어들고 10에서 거의 다 고쳐집니다. 15처럼 너무 세면 규칙까지 무너집니다.</div></div></li>
+            <li><span class="no">①</span><div>규칙을 배움<div class="s">처음 보는 문제는 거의 100% 맞힙니다. 규칙을 이해했다는 뜻입니다.</div></div></li>
+            <li><span class="no">②</span><div>오답도 함께 암기함<div class="s">규제가 약하면(1~3) 틀리게 배운 자리에서는 암기한 오답을 끝까지 그대로 냅니다. 이해와 암기가 한 AI 안에 함께 있습니다. 같은 칸 오답은 그 칸을 쓰는 처음 보는 문제로도 번집니다.</div></div></li>
+            <li><span class="no">③</span><div>알맞은 규제로 오답이 사라짐<div class="s">문제가 2,048개 이상이면 흩어진 오답은 5부터 원래 정답으로 바뀝니다. 같은 칸 오답은 7부터 줄어들고 10에서 거의 다 고쳐집니다. 15처럼 너무 세면 규칙까지 잃습니다.</div></div></li>
           </ol>
         </section>
 
@@ -1365,23 +1365,23 @@
             }
           GG = { cs, n, side, off: (box - side) / 2, box };
           $("#gridstat").innerHTML =
-            `${fmt(sim.cells)}칸 중 보여 준 문제에 나온 칸 ${(
+            `보여 준 칸 ${(
               (100 * sim.seen) /
               sim.cells
-            ).toFixed(0)}% · 칸당 ${((sim.N * PAIRS) / sim.cells).toFixed(
+            ).toFixed(0)}% (${fmt(sim.cells)}칸 중) · 칸당 평균 ${((sim.N * PAIRS) / sim.cells).toFixed(
               1
             )}번 관찰<br>` +
             `암기한 칸 <b>${fmt(nm)}</b> · 규칙으로 맞힌 칸 <b>${fmt(
               nr
-            )}</b> (못 본 칸 중 <b>${fmt(nu)}</b>/${fmt(
+            )}</b> (보여 준 적 없는 칸 중 <b>${fmt(nu)}</b>/${fmt(
               sim.cells - sim.seen
             )})`;
         }
         const stName = [
-          "한 번도 못 봄",
-          "보여 준 문제에 나옴, 아직 암기 못 함",
-          "암기",
-          "규칙으로 맞힘",
+          "보여 준 적 없음",
+          "보여 줬지만 아직 암기 전",
+          "암기한 칸",
+          "규칙으로 맞힌 칸",
         ];
         function hoverGrid(ev) {
           if (!GG || !sim) return;
@@ -1527,7 +1527,7 @@
               me: true,
               cx: x(sim.C),
               cy: y(Math.min(NY[1], sim.N)),
-              html: `<div class="h">지금 내 조건</div><div>C = ${fmt(
+              html: `<div class="h">현재 조건</div><div>C = ${fmt(
                 sim.C
               )}, N = ${fmt(sim.N)}</div><div>경계의 ${sim.r.toFixed(
                 2
@@ -1591,28 +1591,28 @@
           const step = "step " + fmt(Math.min(curT, LIMIT));
           if (sim.success && sim.sync && curT >= Math.max(sim.tfit, sim.tgen)) {
             T.textContent = "③ 일반화 (지연 0)";
-            D.textContent = "암기와 동시에 처음 보는 문제 정답률 95% 도달. grokking 없이 바로 일반화";
+            D.textContent = "암기와 동시에 처음 보는 문제 정답률 95% 도달 · 지연 없이 일반화";
           } else if (curT < sim.tfit || (sim.success && sim.sync)) {
             T.textContent = "① 암기 중";
             D.textContent = sim.sync && sim.success
-              ? `암기하면서 처음 보는 문제도 함께 맞히는 중 · ${step}`
-              : `보여 준 문제를 암기하는 단계 · ${step}`;
+              ? `암기와 일반화가 함께 진행되는 중 · ${step}`
+              : `보여 준 문제 암기 중 · ${step}`;
           } else if (sim.success && curT < sim.tgen) {
             T.textContent = "② 지연";
-            D.textContent = `보여 준 문제는 맞히지만 처음 보는 문제는 거의 틀림 · ${step}`;
+            D.textContent = `보여 준 문제만 맞히고 처음 보는 문제는 대부분 틀림 · ${step}`;
           } else if (sim.success) {
             T.textContent = "③ 일반화";
-            D.textContent = `암기한 지 ${fmt(
+            D.textContent = `암기 후 ${fmt(
               sim.tgen - sim.tfit
-            )} step 뒤 처음 보는 문제 정답률 95% 도달`;
+            )} step 만에 처음 보는 문제 정답률 95% 도달`;
           } else if (curT < LIMIT) {
             T.textContent = "② 지연";
-            D.textContent = `보여 준 문제는 맞히지만 처음 보는 문제는 거의 틀림 · ${step}`;
+            D.textContent = `보여 준 문제만 맞히고 처음 보는 문제는 대부분 틀림 · ${step}`;
           } else {
             T.textContent = "일반화 실패";
-            D.textContent = `10만 step 안에 일반화하지 못했습니다. 경계는 약 ${fmt(
+            D.textContent = `10만 step까지 일반화 없음 · 경계는 약 ${fmt(
               sim.N0
-            )}개입니다.`;
+            )}개`;
           }
         }
 
@@ -1861,13 +1861,13 @@
           const cnt = {};
           for (let s = 0; s < 4; s++) { const c = classify(runOf(NZ.mode, NZ.N, NZ.wd, s), NZ.mode); cnt[c] = (cnt[c] || 0) + 1; }
           const parts = [];
-          if (cnt.fail) parts.push(`규칙을 유지 못함 ${cnt.fail}번`);
-          if (cnt.kept) parts.push(`오답이 남음 ${cnt.kept}번`);
-          if (cnt.part) parts.push(`일부만 고침 ${cnt.part}번`);
-          if (cnt.fixed) parts.push(`오답을 고침 ${cnt.fixed}번`);
-          if (cnt.never) parts.push(`처음부터 오답을 거의 암기하지 않음 ${cnt.never}번`);
-          if (cnt.none) parts.push(`처음 보는 문제를 맞힘 ${cnt.none}번`);
-          $("#nVerdict").innerHTML = `<b>이 조건에서 4번 학습한 결과</b> · ${parts.join(" · ")}`;
+          if (cnt.fail) parts.push(`규칙을 배우지 못하거나 잃음 ${cnt.fail}번`);
+          if (cnt.kept) parts.push(`오답이 그대로 남음 ${cnt.kept}번`);
+          if (cnt.part) parts.push(`오답이 일부 남음 ${cnt.part}번`);
+          if (cnt.fixed) parts.push(`원래 정답으로 바뀜 ${cnt.fixed}번`);
+          if (cnt.never) parts.push(`오답 암기가 거의 없음 ${cnt.never}번`);
+          if (cnt.none) parts.push(`정상 학습 ${cnt.none}번`);
+          $("#nVerdict").innerHTML = `<b>같은 조건 4번 학습 결과</b> · ${parts.join(" · ")}`;
           drawOverview();
         }
 
@@ -1911,18 +1911,18 @@
           const c = classify(r, NZ.mode), test = r.test[L];
           if (c === "fail") {
             const peakT = Math.max(...r.test);
-            if (peakT >= 90) { T.textContent = "✕ 배운 규칙이 무너짐"; D.textContent = `처음 보는 문제를 ${peakT}%까지 맞혔다가, 규제가 너무 세서 ${test}%로 떨어집니다.`; }
-            else { T.textContent = "✕ 규칙을 배우지 못함"; D.textContent = `규제가 너무 세서 처음 보는 문제를 ${test}%만 맞힙니다.`; }
+            if (peakT >= 90) { T.textContent = "✕ 배운 규칙을 잃음"; D.textContent = `처음 보는 문제 정답률이 ${peakT}%까지 올랐다가 ${test}%로 떨어짐 (규제가 너무 셈)`; }
+            else { T.textContent = "✕ 규칙을 배우지 못함"; D.textContent = `처음 보는 문제 정답률 ${test}% (규제가 너무 셈)`; }
           }
-          else if (c === "none") { T.textContent = "규칙을 배움"; D.textContent = `오답 없이 학습했을 때 처음 보는 문제를 ${test}% 맞힙니다.`; }
-          else if (c === "kept") { T.textContent = "암기한 오답이 남음"; D.textContent = `처음 보는 문제는 ${test}% 맞히지만, 오답 자리에선 암기한 오답을 ${r.mem[L]}% 그대로 냅니다.`; }
-          else if (c === "part") { T.textContent = "오답을 일부만 고침"; D.textContent = `처음 보는 문제 ${test}% · 암기한 오답이 ${r.mem[L]}% 남았습니다.`; }
-          else if (c === "never") { T.textContent = "오답을 거의 암기하지 않음"; D.textContent = `처음 보는 문제 ${test}% · 오답 자리에서도 처음부터 원래 정답을 냅니다.`; }
+          else if (c === "none") { T.textContent = "오답 없이 정상 학습"; D.textContent = `처음 보는 문제 정답률 ${test}%`; }
+          else if (c === "kept") { T.textContent = "오답이 그대로 남음"; D.textContent = `처음 보는 문제 정답률 ${test}% · 오답 자리에서는 암기한 오답 ${r.mem[L]}%`; }
+          else if (c === "part") { T.textContent = "오답이 일부 남음"; D.textContent = `처음 보는 문제 정답률 ${test}% · 암기한 오답 ${r.mem[L]}% 남음`; }
+          else if (c === "never") { T.textContent = "오답 암기가 거의 없음"; D.textContent = `처음 보는 문제 정답률 ${test}% · 오답 자리에서도 처음부터 원래 정답`; }
           else {
             const pk = r.mem.indexOf(Math.max(...r.mem));
             let k = pk; while (k < L && r.mem[k] >= 10) k++;
-            T.textContent = "오답을 고침";
-            D.textContent = `암기한 오답이 최대 ${r.mem[pk]}%까지 갔다가 step ${fmt(steps[k])} 무렵 원래 정답으로 바뀝니다.`;
+            T.textContent = "오답이 원래 정답으로 바뀜";
+            D.textContent = `암기한 오답이 최대 ${r.mem[pk]}%까지 늘었다가 step ${fmt(steps[k])} 무렵 원래 정답으로 바뀜`;
           }
         }
 
