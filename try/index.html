@@ -530,7 +530,7 @@
             <svg
               id="curve"
               role="img"
-              aria-label="학습 step에 따른 train, test 정답률"
+              aria-label="학습 step에 따른 보여 준 문제와 처음 보는 문제의 정답률"
             ></svg>
             <div class="tip" id="tip1"></div>
           </div>
@@ -561,8 +561,8 @@
               ></i
               >못 본 칸</span
             >
-            <span><i style="background: var(--c-seen)"></i>train에 나옴</span>
-            <span><i style="background: var(--c-train)"></i>외움</span>
+            <span><i style="background: var(--c-seen)"></i>보여 준 문제에 나옴</span>
+            <span><i style="background: var(--c-train)"></i>암기</span>
             <span><i style="background: var(--c-test)"></i>규칙으로 맞힘</span>
           </div>
           <p class="gridstat" id="gridstat"></p>
@@ -651,9 +651,9 @@
           <li>
             <span class="no">①</span>
             <div>
-              외우기
+              암기
               <div class="s">
-                보여 준 문제를 통째로 외웁니다. train 정답률이 먼저 100%가 됩니다.
+                보여 준 문제를 통째로 암기합니다. 보여 준 문제의 정답률이 먼저 100%가 됩니다.
               </div>
             </div>
           </li>
@@ -662,7 +662,7 @@
             <div>
               지연
               <div class="s">
-                한동안 처음 보는 문제는 거의 다 틀립니다. 외워서 답하던 방식이 규칙으로 바뀌는 데 걸리는 시간입니다.
+                한동안 처음 보는 문제는 거의 다 틀립니다. 암기해서 답하던 방식이 규칙으로 바뀌는 데 걸리는 시간입니다.
               </div>
             </div>
           </li>
@@ -750,7 +750,7 @@
           </div>
           <div class="legend" id="nLegend">
             <span><i class="ln" style="background: var(--c-test)"></i>처음 보는 문제 정답률</span>
-            <span class="lg-noise"><i class="ln" style="background: var(--c-train)"></i>오답 자리: 외운 오답을 냄</span>
+            <span class="lg-noise"><i class="ln" style="background: var(--c-train)"></i>오답 자리: 암기한 오답을 냄</span>
             <span class="lg-noise"><i class="ln" style="background: var(--c-fix)"></i>오답 자리: 원래 정답을 냄</span>
           </div>
         </section>
@@ -775,7 +775,7 @@
             <div class="seg" id="nseg-wd" role="group" aria-label="규제 세기">
               <button data-v="1">1</button><button data-v="3">3</button><button data-v="5">5</button><button data-v="7">7</button><button data-v="10">10</button><button data-v="15">15</button>
             </div>
-            <div class="hint">규제는 AI의 가중치를 작게 유지하려는 힘입니다. 세질수록 따로 외운 예외를 지우려는 압력이 커집니다.</div>
+            <div class="hint">규제는 AI의 가중치를 작게 유지하려는 힘입니다. 세질수록 따로 암기한 예외를 지우려는 압력이 커집니다.</div>
           </div>
           <p class="verdict" id="nVerdict"></p>
         </section>
@@ -784,7 +784,7 @@
           <h2 id="h-ov">한눈에 보기</h2>
           <p class="sub" id="ovSub">칸마다 4번씩 학습한 결과입니다. 칸을 누르면 그 조건의 기록을 봅니다.</p>
           <table class="ov" id="ov"></table>
-          <p class="ov-cap">남음: 외운 오답을 절반 이상 그대로 냄 · 고침: 10% 아래로 줄어듦 · 일부: 그 사이 · 실패: 끝에 처음 보는 문제도 90% 미만</p>
+          <p class="ov-cap">남음: 암기한 오답을 절반 이상 그대로 냄 · 고침: 10% 아래로 줄어듦 · 일부: 그 사이 · 실패: 끝에 처음 보는 문제도 90% 미만</p>
         </section>
 
         <section class="sec" aria-labelledby="h-nhow">
@@ -792,7 +792,7 @@
           <p class="sub">보여 줄 문제 중 10%에 일부러 틀린 답을 넣고 학습시킵니다.</p>
           <ol class="steps">
             <li><span class="no">①</span><div>규칙은 배운다<div class="s">처음 보는 문제는 거의 100% 맞힙니다. 규칙을 이해했다는 뜻입니다.</div></div></li>
-            <li><span class="no">②</span><div>그런데 오답도 외운다<div class="s">규제가 약하면(1~3) 틀리게 배운 자리에서는 외운 오답을 끝까지 그대로 냅니다. 이해와 암기가 한 AI 안에 함께 있습니다. 같은 칸 오답은 그 칸을 쓰는 처음 보는 문제로도 번집니다.</div></div></li>
+            <li><span class="no">②</span><div>그런데 오답도 암기한다<div class="s">규제가 약하면(1~3) 틀리게 배운 자리에서는 암기한 오답을 끝까지 그대로 냅니다. 이해와 암기가 한 AI 안에 함께 있습니다. 같은 칸 오답은 그 칸을 쓰는 처음 보는 문제로도 번집니다.</div></div></li>
             <li><span class="no">③</span><div>알맞은 규제가 오답을 지운다<div class="s">문제가 2,048개 이상이면 흩어진 오답은 5부터 원래 정답으로 바뀝니다. 같은 칸 오답은 7부터 줄어들고 10에서 거의 다 고쳐집니다. 15처럼 너무 세면 규칙까지 무너집니다.</div></div></li>
           </ol>
         </section>
@@ -1163,8 +1163,8 @@
           };
           if (sim.success && sim.sync) {
             if (tEnd >= Math.max(sim.tfit, sim.tgen))
-              mark(sim.tfit, "외움 = 일반화 (지연 0)", x(sim.tfit) > W / 2 ? "end" : "start");
-          } else if (tEnd >= sim.tfit) mark(sim.tfit, "외움", "end");
+              mark(sim.tfit, "암기 = 일반화 (지연 0)", x(sim.tfit) > W / 2 ? "end" : "start");
+          } else if (tEnd >= sim.tfit) mark(sim.tfit, "암기", "end");
           if (sim.success && !sim.sync && tEnd >= sim.tgen) {
             const gx = x(sim.tgen),
               close = gx - x(sim.tfit) < 46;
@@ -1285,10 +1285,10 @@
           CG.d2.setAttribute("cy", CG.y(b));
           CG.d2.setAttribute("opacity", 1);
           tip1.innerHTML = `<div class="h">step ${fmt(t)}</div>
-      <div><span class="sw" style="background:var(--c-train)"></span>train ${a.toFixed(
+      <div><span class="sw" style="background:var(--c-train)"></span>보여 준 문제 ${a.toFixed(
         1
       )}%</div>
-      <div><span class="sw" style="background:var(--c-test)"></span>test ${b.toFixed(
+      <div><span class="sw" style="background:var(--c-test)"></span>처음 보는 문제 ${b.toFixed(
         1
       )}%</div>`;
           placeTip(tip1, X, Math.min(CG.y(a), CG.y(b)), CG.W);
@@ -1365,13 +1365,13 @@
             }
           GG = { cs, n, side, off: (box - side) / 2, box };
           $("#gridstat").innerHTML =
-            `${fmt(sim.cells)}칸 중 train에 나온 칸 ${(
+            `${fmt(sim.cells)}칸 중 보여 준 문제에 나온 칸 ${(
               (100 * sim.seen) /
               sim.cells
             ).toFixed(0)}% · 칸당 ${((sim.N * PAIRS) / sim.cells).toFixed(
               1
             )}번 관찰<br>` +
-            `외운 칸 <b>${fmt(nm)}</b> · 규칙으로 맞힌 칸 <b>${fmt(
+            `암기한 칸 <b>${fmt(nm)}</b> · 규칙으로 맞힌 칸 <b>${fmt(
               nr
             )}</b> (못 본 칸 중 <b>${fmt(nu)}</b>/${fmt(
               sim.cells - sim.seen
@@ -1379,8 +1379,8 @@
         }
         const stName = [
           "한 번도 못 봄",
-          "train에 나옴, 아직 못 외움",
-          "외움",
+          "보여 준 문제에 나옴, 아직 암기 못 함",
+          "암기",
           "규칙으로 맞힘",
         ];
         function hoverGrid(ev) {
@@ -1399,7 +1399,7 @@
           tip2.innerHTML = `<div class="h">a = ${a}, b = ${b} → ${
             (val % n) + 1
           }</div>
-      <div>train에서 ${sim.cnt[id]}번 봄</div><div>${
+      <div>보여 준 문제에서 ${sim.cnt[id]}번 봄</div><div>${
             stName[cellState(id)]
           }</div>`;
           placeTip(tip2, px + GG.off, py, GG.box);
@@ -1591,23 +1591,23 @@
           const step = "step " + fmt(Math.min(curT, LIMIT));
           if (sim.success && sim.sync && curT >= Math.max(sim.tfit, sim.tgen)) {
             T.textContent = "③ 일반화 (지연 0)";
-            D.textContent = "외우는 것과 동시에 test 정답률 95% 도달. grokking 없이 바로 일반화";
+            D.textContent = "암기와 동시에 처음 보는 문제 정답률 95% 도달. grokking 없이 바로 일반화";
           } else if (curT < sim.tfit || (sim.success && sim.sync)) {
-            T.textContent = "① 외우는 중";
+            T.textContent = "① 암기 중";
             D.textContent = sim.sync && sim.success
-              ? `외우면서 처음 보는 문제도 함께 맞히는 중 · ${step}`
-              : `보여 준 문제를 외우는 단계 · ${step}`;
+              ? `암기하면서 처음 보는 문제도 함께 맞히는 중 · ${step}`
+              : `보여 준 문제를 암기하는 단계 · ${step}`;
           } else if (sim.success && curT < sim.tgen) {
             T.textContent = "② 지연";
-            D.textContent = `train은 맞히지만 test는 거의 틀림 · ${step}`;
+            D.textContent = `보여 준 문제는 맞히지만 처음 보는 문제는 거의 틀림 · ${step}`;
           } else if (sim.success) {
             T.textContent = "③ 일반화";
-            D.textContent = `외운 지 ${fmt(
+            D.textContent = `암기한 지 ${fmt(
               sim.tgen - sim.tfit
-            )} step 뒤 test 정답률 95% 도달`;
+            )} step 뒤 처음 보는 문제 정답률 95% 도달`;
           } else if (curT < LIMIT) {
             T.textContent = "② 지연";
-            D.textContent = `train은 맞히지만 test는 거의 틀림 · ${step}`;
+            D.textContent = `보여 준 문제는 맞히지만 처음 보는 문제는 거의 틀림 · ${step}`;
           } else {
             T.textContent = "일반화 실패";
             D.textContent = `10만 step 안에 일반화하지 못했습니다. 경계는 약 ${fmt(
@@ -1682,8 +1682,8 @@
               p * 100
             )}%</b>). ↻로 다른 seed를 돌려 볼 수 있습니다.`;
           else if (r < 1.6)
-            msg = "<b>경계 위</b> · 외운 뒤 한참 지나서 일반화합니다.";
-          else msg = "<b>경계보다 훨씬 위</b> · 외우는 것과 거의 동시에 일반화합니다.";
+            msg = "<b>경계 위</b> · 암기한 뒤 한참 지나서 일반화합니다.";
+          else msg = "<b>경계보다 훨씬 위</b> · 암기와 거의 동시에 일반화합니다.";
           $("#verdict").innerHTML = msg;
           for (const [sel, key] of [
             ["#seg-n", "n"],
@@ -1865,7 +1865,7 @@
           if (cnt.kept) parts.push(`오답이 남음 ${cnt.kept}번`);
           if (cnt.part) parts.push(`일부만 고침 ${cnt.part}번`);
           if (cnt.fixed) parts.push(`오답을 고침 ${cnt.fixed}번`);
-          if (cnt.never) parts.push(`처음부터 오답을 거의 안 외움 ${cnt.never}번`);
+          if (cnt.never) parts.push(`처음부터 오답을 거의 암기하지 않음 ${cnt.never}번`);
           if (cnt.none) parts.push(`처음 보는 문제를 맞힘 ${cnt.none}번`);
           $("#nVerdict").innerHTML = `<b>이 조건에서 4번 학습한 결과</b> · ${parts.join(" · ")}`;
           drawOverview();
@@ -1905,7 +1905,7 @@
           const steps = ND.steps, L = r.test.length - 1;
           if (upto < L) {
             T.textContent = "학습 중";
-            D.textContent = `step ${fmt(steps[upto])} · 처음 보는 문제 ${r.test[upto]}%` + (NZ.mode === "none" ? "" : ` · 외운 오답 ${r.mem[upto]}%`);
+            D.textContent = `step ${fmt(steps[upto])} · 처음 보는 문제 ${r.test[upto]}%` + (NZ.mode === "none" ? "" : ` · 암기한 오답 ${r.mem[upto]}%`);
             return;
           }
           const c = classify(r, NZ.mode), test = r.test[L];
@@ -1915,14 +1915,14 @@
             else { T.textContent = "✕ 규칙을 배우지 못함"; D.textContent = `규제가 너무 세서 처음 보는 문제를 ${test}%만 맞힙니다.`; }
           }
           else if (c === "none") { T.textContent = "규칙을 배움"; D.textContent = `오답 없이 학습했을 때 처음 보는 문제를 ${test}% 맞힙니다.`; }
-          else if (c === "kept") { T.textContent = "외운 오답이 남음"; D.textContent = `새 문제는 ${test}% 맞히지만, 오답 자리에선 외운 오답을 ${r.mem[L]}% 그대로 냅니다.`; }
-          else if (c === "part") { T.textContent = "오답을 일부만 고침"; D.textContent = `처음 보는 문제 ${test}% · 외운 오답이 ${r.mem[L]}% 남았습니다.`; }
-          else if (c === "never") { T.textContent = "오답을 거의 외우지 않음"; D.textContent = `새 문제 ${test}% · 오답 자리에서도 처음부터 원래 정답을 냅니다.`; }
+          else if (c === "kept") { T.textContent = "암기한 오답이 남음"; D.textContent = `처음 보는 문제는 ${test}% 맞히지만, 오답 자리에선 암기한 오답을 ${r.mem[L]}% 그대로 냅니다.`; }
+          else if (c === "part") { T.textContent = "오답을 일부만 고침"; D.textContent = `처음 보는 문제 ${test}% · 암기한 오답이 ${r.mem[L]}% 남았습니다.`; }
+          else if (c === "never") { T.textContent = "오답을 거의 암기하지 않음"; D.textContent = `처음 보는 문제 ${test}% · 오답 자리에서도 처음부터 원래 정답을 냅니다.`; }
           else {
             const pk = r.mem.indexOf(Math.max(...r.mem));
             let k = pk; while (k < L && r.mem[k] >= 10) k++;
             T.textContent = "오답을 고침";
-            D.textContent = `외운 오답이 최대 ${r.mem[pk]}%까지 갔다가 step ${fmt(steps[k])} 무렵 원래 정답으로 바뀝니다.`;
+            D.textContent = `암기한 오답이 최대 ${r.mem[pk]}%까지 갔다가 step ${fmt(steps[k])} 무렵 원래 정답으로 바뀝니다.`;
           }
         }
 
@@ -1983,7 +1983,7 @@
           const X = NG.x(S[best]);
           NG.cross.setAttribute("x1", X); NG.cross.setAttribute("x2", X); NG.cross.setAttribute("opacity", 0.6);
           ntip.innerHTML = `<div class="h">step ${fmt(S[best])}</div><div><span class="sw" style="background:var(--c-test)"></span>처음 보는 문제 ${r.test[best]}%</div>` +
-            (NZ.mode === "none" ? "" : `<div><span class="sw" style="background:var(--c-train)"></span>외운 오답 ${r.mem[best]}%</div><div><span class="sw" style="background:var(--c-fix)"></span>원래 정답 ${r.fix[best]}%</div>`);
+            (NZ.mode === "none" ? "" : `<div><span class="sw" style="background:var(--c-train)"></span>암기한 오답 ${r.mem[best]}%</div><div><span class="sw" style="background:var(--c-fix)"></span>원래 정답 ${r.fix[best]}%</div>`);
           placeTip(ntip, X, NG.y(Math.max(r.test[best], NZ.mode === "none" ? 0 : r.mem[best])), NG.W);
         }
         function leaveNoise() { ntip.classList.remove("on"); if (NG && NG.cross) NG.cross.setAttribute("opacity", 0); }
