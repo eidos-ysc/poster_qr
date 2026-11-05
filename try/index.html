@@ -465,7 +465,7 @@
             정답률
           </button>
           <button role="tab" aria-selected="false" data-tab="grid">
-            AI 머릿속 연산 표
+            연산 표
           </button>
           <span class="seed" id="seed">seed 1</span>
         </div>
@@ -541,13 +541,13 @@
 
         <div class="presets" role="group" aria-label="빠른 선택">
           <button class="chip" data-preset="0.7">
-            <b>너무 적게</b><span>외우기만</span>
+            <b>경계 아래</b><span>암기에 그침</span>
           </button>
           <button class="chip" data-preset="1.15">
             <b>경계 바로 위</b><span>grokking</span>
           </button>
           <button class="chip" data-preset="2.5">
-            <b>넉넉하게</b><span>바로 깨달음</span>
+            <b>경계의 2.5배</b><span>곧바로 일반화</span>
           </button>
         </div>
 
@@ -579,8 +579,7 @@
               ><button data-v="3">3</button><button data-v="10">10</button>
             </div>
             <div class="hint">
-              규제는 깨닫는 시점(지연)을 바꿉니다. 너무 세면(10) 필요한 문제
-              수도 늘어나요.
+              규제는 일반화 시점(지연)을 바꿉니다. 너무 세면(10) 필요한 문제 수도 늘어납니다.
             </div>
           </div>
         </details>
@@ -588,7 +587,7 @@
 
       <!-- 설명 -->
       <section class="sec" aria-labelledby="h-how">
-        <h2 id="h-how">무슨 일이 일어나나요?</h2>
+        <h2 id="h-how">학습 단계</h2>
         <p class="sub">
           AI는 1~n 중 서로 다른 수 5개로 된 수열을 받아, 이웃한 두 수를 연산한
           수열을 내놓도록 배웁니다.
@@ -599,7 +598,7 @@
             <div>
               외우기
               <div class="s">
-                보여 준 문제를 통째로 외웁니다. train 정답률만 먼저 100%가 돼요.
+                보여 준 문제를 통째로 외웁니다. train 정답률이 먼저 100%가 됩니다.
               </div>
             </div>
           </li>
@@ -608,18 +607,16 @@
             <div>
               지연
               <div class="s">
-                한동안 처음 보는 문제는 거의 다 틀립니다. 외우는 방식에서
-                벗어나는 데 걸리는 시간이에요.
+                한동안 처음 보는 문제는 거의 다 틀립니다. 외워서 답하던 방식이 규칙으로 바뀌는 데 걸리는 시간입니다.
               </div>
             </div>
           </li>
           <li>
             <span class="no">③</span>
             <div>
-              깨달음 (grokking)
+              일반화 (grokking)
               <div class="s">
-                갑자기 한 번도 못 본 칸까지 맞히기 시작합니다. 문제가 너무
-                적으면 이 단계가 오지 않아요.
+                한 번도 못 본 칸까지 맞히기 시작합니다. 문제 수가 경계보다 적으면 이 단계에 이르지 못합니다.
               </div>
             </div>
           </li>
@@ -627,7 +624,7 @@
       </section>
 
       <section class="sec" aria-labelledby="h-law">
-        <h2 id="h-law">우리가 찾은 법칙</h2>
+        <h2 id="h-law">경계 법칙 (연구문제 1)</h2>
         <p class="sub">
           필요한 문제 수는 규칙의 대칭이 아니라 연산 표의 크기 C로 정해집니다.
           <br /><b>N₀ ≈ 2.82 × C<sup>0.763</sup></b> (9개 조건, ±10%)
@@ -1037,7 +1034,7 @@
               close = gx - x(sim.tfit) < 46;
             mark(
               sim.tgen,
-              close ? "→ 깨달음" : "깨달음",
+              close ? "→ 일반화" : "일반화",
               gx > W - 60 ? "end" : "start"
             );
             if (!close) {
@@ -1247,7 +1244,7 @@
         const stName = [
           "한 번도 못 봄",
           "train에 나옴, 아직 못 외움",
-          "외움 (이 칸만 기억)",
+          "외움",
           "규칙으로 맞힘",
         ];
         function hoverGrid(ev) {
@@ -1354,7 +1351,7 @@
               fill: "var(--c-test)",
             },
             lawSvg,
-            "깨닫는 영역"
+            "일반화"
           );
           el(
             "text",
@@ -1367,7 +1364,7 @@
               fill: "var(--muted)",
             },
             lawSvg,
-            "외우기만 하는 영역"
+            "암기에 그침"
           );
           el(
             "line",
@@ -1447,7 +1444,7 @@
                 fill: "var(--ink)",
               },
               lawSvg,
-              "나"
+              "현재"
             );
         }
 
@@ -1458,23 +1455,23 @@
           const step = "step " + fmt(Math.min(curT, LIMIT));
           if (curT < sim.tfit) {
             T.textContent = "① 외우는 중";
-            D.textContent = `보여 준 문제를 통째로 외우는 중 · ${step}`;
+            D.textContent = `보여 준 문제를 외우는 단계 · ${step}`;
           } else if (sim.success && curT < sim.tgen) {
-            T.textContent = "② 깨닫기 전 (지연)";
-            D.textContent = `처음 보는 문제는 아직 거의 틀림 · ${step}`;
+            T.textContent = "② 지연";
+            D.textContent = `train은 맞히지만 test는 거의 틀림 · ${step}`;
           } else if (sim.success) {
-            T.textContent = "③ 깨달음!";
+            T.textContent = "③ 일반화";
             D.textContent = `외운 지 ${fmt(
               sim.tgen - sim.tfit
-            )} step 뒤, 처음 보는 문제도 맞힘`;
+            )} step 뒤 test 정답률 95% 도달`;
           } else if (curT < LIMIT) {
-            T.textContent = "② 깨닫기 전…";
-            D.textContent = `처음 보는 문제는 아직 거의 틀림 · ${step}`;
+            T.textContent = "② 지연";
+            D.textContent = `train은 맞히지만 test는 거의 틀림 · ${step}`;
           } else {
-            T.textContent = "✕ 끝내 깨닫지 못함";
-            D.textContent = `10만 step 동안 외우기만 했어요. 문제 수를 약 ${fmt(
+            T.textContent = "일반화 실패";
+            D.textContent = `10만 step 안에 일반화하지 못했습니다. 경계는 약 ${fmt(
               sim.N0
-            )}개 위로 올려 보세요.`;
+            )}개입니다.`;
           }
         }
 
@@ -1538,14 +1535,14 @@
           } · wd ${S.wd}`;
           let msg;
           if (p < 0.05)
-            msg = "<b>경계 아래</b> · 외우기만 하고 깨닫지 못할 가능성이 커요.";
+            msg = "<b>경계 아래</b> · 대부분의 seed에서 암기에 그칩니다.";
           else if (p < 0.95)
-            msg = `<b>경계 근처</b> · 같은 조건이라도 성공 확률 약 <b>${Math.round(
+            msg = `<b>경계 근처</b> · seed에 따라 결과가 갈립니다(일반화 비율 약 <b>${Math.round(
               p * 100
-            )}%</b>. ↻로 여러 번 돌려 보세요.`;
+            )}%</b>). ↻로 다른 seed를 돌려 볼 수 있습니다.`;
           else if (r < 1.6)
-            msg = "<b>경계 위</b> · 외운 뒤 한참 지나서 깨달아요.";
-          else msg = "<b>경계보다 훨씬 위</b> · 거의 외우자마자 깨달아요.";
+            msg = "<b>경계 위</b> · 외운 뒤 한참 지나서 일반화합니다.";
+          else msg = "<b>경계보다 훨씬 위</b> · 외우는 것과 거의 동시에 일반화합니다.";
           $("#verdict").innerHTML = msg;
           for (const [sel, key] of [
             ["#seg-n", "n"],
