@@ -441,12 +441,92 @@
           font-size: 0.84rem;
         }
       }
+
+      /* ── 체험 고르기 (맨 위 탭) ── */
+      :root { --c-fix: #2f9461; }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) { --c-fix: #46b37b; }
+      }
+      :root[data-theme="dark"] { --c-fix: #46b37b; }
+
+      .exp-nav {
+        display: flex;
+        border: 1px solid var(--ink);
+        margin: 4px 0 18px;
+      }
+      .exp-nav button {
+        flex: 1;
+        min-width: 0;
+        min-height: 44px;
+        padding: 4px 2px;
+        background: transparent;
+        border: 0;
+        border-right: 1px solid var(--ink);
+        color: var(--ink);
+        font-size: 0.9rem;
+        cursor: pointer;
+      }
+      .exp-nav button:last-child { border-right: 0; }
+      .exp-nav button[aria-selected="true"] {
+        background: var(--ink);
+        color: var(--bg);
+        font-weight: 600;
+      }
+
+      /* ── 오답 섞기 ── */
+      .ov { width: 100%; border-collapse: collapse; font-size: 0.78rem; font-variant-numeric: tabular-nums; }
+      .ov th { color: var(--muted); font-weight: 500; padding: 4px 2px; text-align: center; }
+      .ov th[scope="row"] { text-align: left; white-space: nowrap; padding-right: 6px; }
+      .ov td { padding: 2px; }
+      .ov button {
+        width: 100%; min-height: 40px; cursor: pointer; line-height: 1.2;
+        border: 1px solid transparent; font-size: 0.76rem; color: var(--ink);
+      }
+      .ov button small { display: block; font-size: 0.68rem; opacity: 0.75; }
+      .ov .kept { background: color-mix(in srgb, var(--c-train) 22%, var(--bg)); }
+      .ov .fixed { background: color-mix(in srgb, var(--c-fix) 22%, var(--bg)); }
+      .ov .part { background: color-mix(in srgb, var(--c-train) 9%, var(--bg)); }
+      .ov .fail { background: var(--c-empty); color: var(--muted); }
+      .ov .none { background: var(--c-panel); color: var(--muted); }
+      .ov button[aria-pressed="true"] { border-color: var(--ink); border-width: 2px; font-weight: 600; }
+      .ov-cap { color: var(--muted); font-size: 0.74rem; margin: 6px 0 0; }
+
+      /* ── 예측 게임 ── */
+      .q-meta { display: flex; justify-content: space-between; color: var(--muted); font-size: 0.8rem; font-variant-numeric: tabular-nums; }
+      .q-cond { font-size: 1.05rem; font-weight: 700; margin: 8px 0 2px; line-height: 1.4; }
+      .q-cond small { display: block; font-weight: 400; color: var(--muted); font-size: 0.8rem; margin-top: 2px; }
+      .q-ask { font-size: 0.9rem; margin: 10px 0 12px; }
+      .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+      .opt {
+        min-height: 52px; cursor: pointer; border: 1px solid var(--line); background: var(--bg);
+        font-size: 1.05rem; font-weight: 600; font-variant-numeric: tabular-nums;
+      }
+      .opt:hover:not(:disabled) { border-color: var(--ink); }
+      .opt:disabled { cursor: default; }
+      .opt.right { border: 2px solid var(--c-fix); color: var(--c-fix); }
+      .opt.wrong { border: 2px solid var(--c-train); color: var(--c-train); }
+      .q-res { margin: 14px 0 0; }
+      .q-res .t { font-weight: 700; font-size: 1.05rem; }
+      .q-res .d { color: var(--muted); font-size: 0.84rem; margin: 2px 0 8px; }
+      .q-next { display: flex; gap: 6px; margin-top: 12px; }
+      .q-next button {
+        flex: 1; min-height: 44px; cursor: pointer; border: 1px solid var(--ink);
+        background: var(--ink); color: var(--bg); font-weight: 600;
+      }
+      details.hint { margin: 10px 0 0; font-size: 0.84rem; }
+      details.hint summary { cursor: pointer; color: var(--muted); min-height: 36px; display: flex; align-items: center; }
     </style>
   </head>
   <body class="page">
     <div class="wrap top"><a class="back" href="../">← 처음으로</a></div>
     <main class="wrap">
       <h1>직접 체험하기</h1>
+      <div class="exp-nav" role="tablist" aria-label="체험 고르기">
+        <button role="tab" id="xt-bound" data-exp="bound" aria-controls="exp-bound" aria-selected="true">경계 찾기</button>
+        <button role="tab" id="xt-noise" data-exp="noise" aria-controls="exp-noise" aria-selected="false" tabindex="-1">오답 섞기</button>
+        <button role="tab" id="xt-game" data-exp="game" aria-controls="exp-game" aria-selected="false" tabindex="-1">예측 게임</button>
+      </div>
+      <div id="exp-bound" role="tabpanel" aria-labelledby="xt-bound">
       <!-- 결과 -->
       <section class="stage" aria-label="학습 결과">
         <div class="phase" aria-live="polite">
@@ -669,6 +749,121 @@
           다름 · 지연은 칸당 관찰 수 0.4회마다 약 절반, weight decay에 반비례 ·
           학습 한도 10만 step · 2층 Transformer(d128).
         </p>
+      </div>
+      </div>
+
+      <!-- ───────── 오답 섞기 ───────── -->
+      <div id="exp-noise" role="tabpanel" aria-labelledby="xt-noise" hidden>
+        <section class="stage" aria-label="오답 섞기 결과">
+          <div class="phase" aria-live="polite">
+            <div class="txt">
+              <div class="t" id="nT">불러오는 중</div>
+              <div class="d" id="nD"></div>
+            </div>
+            <div class="icon-btns">
+              <button class="ibtn" id="nRun" aria-label="같은 조건의 다른 실험 보기">↻</button>
+              <button class="ibtn" id="nSkip" aria-label="끝까지 보기">⏭</button>
+            </div>
+          </div>
+          <div class="tabs">
+            <span style="padding: 8px 0; font-size: 0.88rem; font-weight: 600">실제 학습 기록</span>
+            <span class="seed" id="nSeed">실험 1 / 4</span>
+          </div>
+          <div class="viz">
+            <svg id="ncurve" role="img" aria-label="학습 step에 따른 처음 보는 문제 정답률과 오답 자리의 출력"></svg>
+            <div class="tip" id="ntip"></div>
+          </div>
+          <div class="legend" id="nLegend">
+            <span><i class="ln" style="background: var(--c-test)"></i>처음 보는 문제 정답률</span>
+            <span class="lg-noise"><i class="ln" style="background: var(--c-train)"></i>오답 자리: 외운 오답을 냄</span>
+            <span class="lg-noise"><i class="ln" style="background: var(--c-fix)"></i>오답 자리: 원래 정답을 냄</span>
+          </div>
+        </section>
+
+        <section class="control" aria-label="조건 바꾸기">
+          <div class="ctrl">
+            <div class="lab">오답 넣는 방식 (보여 줄 문제의 10%)</div>
+            <div class="seg" id="nseg-mode" role="group" aria-label="오답 넣는 방식">
+              <button data-v="scatter">흩어진 오답<small>예제마다 한 칸</small></button>
+              <button data-v="cell">같은 칸 오답<small>같은 계산에 같은 오답</small></button>
+              <button data-v="none">오답 없음<small>비교용</small></button>
+            </div>
+          </div>
+          <div class="ctrl">
+            <div class="lab">보여 줄 문제 수</div>
+            <div class="seg" id="nseg-N" role="group" aria-label="보여 줄 문제 수">
+              <button data-v="1024">1,024</button><button data-v="2048">2,048</button><button data-v="4096">4,096</button>
+            </div>
+          </div>
+          <div class="ctrl">
+            <div class="lab">규제 세기 (weight decay)</div>
+            <div class="seg" id="nseg-wd" role="group" aria-label="규제 세기">
+              <button data-v="1">1</button><button data-v="3">3</button><button data-v="5">5</button><button data-v="7">7</button><button data-v="10">10</button><button data-v="15">15</button>
+            </div>
+            <div class="hint">규제는 AI의 가중치를 작게 유지하려는 힘입니다. 세질수록 따로 외운 예외를 지우려는 압력이 커집니다.</div>
+          </div>
+          <p class="verdict" id="nVerdict"></p>
+        </section>
+
+        <section class="sec" aria-labelledby="h-ov">
+          <h2 id="h-ov">한눈에 보기</h2>
+          <p class="sub" id="ovSub">칸마다 4번씩 학습한 결과입니다. 칸을 누르면 그 조건의 기록을 봅니다.</p>
+          <table class="ov" id="ov"></table>
+          <p class="ov-cap">남음: 외운 오답을 절반 이상 그대로 냄 · 고침: 10% 아래로 줄어듦 · 일부: 그 사이 · 실패: 처음 보는 문제도 90% 미만</p>
+        </section>
+
+        <section class="sec" aria-labelledby="h-nhow">
+          <h2 id="h-nhow">무슨 일이 일어나나요?</h2>
+          <p class="sub">보여 줄 문제 중 10%에 일부러 틀린 답을 넣고 학습시킵니다.</p>
+          <ol class="steps">
+            <li><span class="no">①</span><div>규칙은 배운다<div class="s">처음 보는 문제는 거의 100% 맞힙니다. 규칙을 이해했다는 뜻입니다.</div></div></li>
+            <li><span class="no">②</span><div>그런데 오답도 외운다<div class="s">규제가 약하면(1~3) 틀리게 배운 자리에서는 외운 오답을 끝까지 그대로 냅니다. 이해와 암기가 한 AI 안에 함께 있습니다.</div></div></li>
+            <li><span class="no">③</span><div>알맞은 규제가 오답을 지운다<div class="s">문제가 2,048개 이상이면 흩어진 오답은 5부터 원래 정답으로 바뀝니다. 같은 칸 오답은 7부터 줄어들고 10에서 거의 다 고쳐집니다. 15처럼 너무 세면 규칙까지 배우지 못합니다.</div></div></li>
+          </ol>
+        </section>
+
+        <div class="note">
+          <p>이 화면의 곡선은 시뮬레이션이 아니라 <b>실제 GPU 학습 기록</b>입니다 (조건 54개 × 4회 = 216회).</p>
+          <p>수 1~50 · 이웃한 두 수 더하기 · 오답 10% · 6만 step · 2층 Transformer(d128). 정답률은 숫자 하나 단위로 셉니다.</p>
+        </div>
+      </div>
+
+      <!-- ───────── 예측 게임 ───────── -->
+      <div id="exp-game" role="tabpanel" aria-labelledby="xt-game" hidden>
+        <section class="stage" aria-label="예측 게임">
+          <div class="q-meta"><span id="gNo">문제 1 / 9</span><span id="gScore">맞힌 문제 0</span></div>
+          <div class="q-cond" id="gCond"></div>
+          <p class="q-ask">AI가 처음 보는 문제까지 맞히려면(여러 번 학습해 절반 이상 성공) 문제를 몇 개 보여 줘야 할까요?</p>
+          <div class="opts" id="gOpts"></div>
+          <details class="hint" id="gHint">
+            <summary>힌트 보기</summary>
+            <div id="gHintBody"></div>
+          </details>
+          <div class="q-res" id="gRes" hidden>
+            <div class="t" id="gResT"></div>
+            <div class="d" id="gResD"></div>
+            <div class="viz">
+              <svg id="gChart" role="img" aria-label="보여 준 문제 수별 실제 성공 횟수"></svg>
+            </div>
+            <div class="legend">
+              <span><i style="background: var(--c-test)"></i>절반 이상 성공</span>
+              <span><i style="background: var(--c-seen)"></i>절반 미만</span>
+              <span><i class="ln" style="background: var(--ink)"></i>실측 경계</span>
+              <span><i class="ln" style="background: var(--c-train)"></i>내 선택</span>
+            </div>
+          </div>
+          <div class="q-next" id="gNextWrap" hidden><button id="gNext">다음 문제</button></div>
+        </section>
+
+        <section class="sec" aria-labelledby="h-ghow">
+          <h2 id="h-ghow">이 게임의 답은 어디서 왔나요?</h2>
+          <p class="sub">9개 조건 모두 실제로 문제 수를 바꿔 가며 여러 번 학습한 결과입니다. 연구에서는 이 경계를 연산 표의 칸 수 C 하나로 미리 계산하는 식을 찾았습니다.</p>
+          <p class="sub"><b>N₀ ≈ 2.82 × C<sup>0.763</sup></b> · 9개 조건 모두 ±10% 안 (보고서 표 3)</p>
+        </section>
+
+        <div class="note">
+          <p>실측 경계: 조건마다 10회(a+3b, n=50은 배선 8종 40회) 학습해 절반이 성공하는 문제 수를 이웃한 두 점 사이에서 로그 보간한 값입니다.</p>
+        </div>
       </div>
     </main>
     <footer><div class="wrap">2026 청소년과학탐구대회 출품작</div></footer>
@@ -1622,6 +1817,7 @@
           clearTimeout(rz);
           rz = setTimeout(() => sim && drawAll(), 100);
         });
+        window.__boundRedraw = () => sim && drawAll();
         matchMedia("(prefers-color-scheme: dark)").addEventListener(
           "change",
           () => sim && drawAll()
@@ -1631,6 +1827,347 @@
         slider.value = N2v(S.N);
         updateStats();
         run();
+      })();
+    </script>
+
+    <script>
+      /* ───────── 맨 위 탭: 경계 찾기 / 오답 섞기 / 예측 게임 ───────── */
+      (() => {
+        const $ = (s) => document.querySelector(s);
+        const $$ = (s) => document.querySelectorAll(s);
+        const NS = "http://www.w3.org/2000/svg";
+        const fmt = (x) => Math.round(x).toLocaleString("ko-KR");
+        const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+        function el(tag, attrs, parent, text) {
+          const e = document.createElementNS(NS, tag);
+          for (const k in attrs) e.setAttribute(k, attrs[k]);
+          if (text != null) e.textContent = text;
+          if (parent) parent.appendChild(e);
+          return e;
+        }
+        const kTick = (t) => ({ 10: "10", 100: "100", 1000: "1천", 10000: "1만" }[t]);
+
+        /* ---------- 탭 전환 ---------- */
+        const EXPS = ["bound", "noise", "game"];
+        const xtabs = $$("[data-exp]");
+        function showExp(id, push) {
+          if (!EXPS.includes(id)) id = "bound";
+          xtabs.forEach((b) => {
+            const on = b.dataset.exp === id;
+            b.setAttribute("aria-selected", String(on));
+            b.tabIndex = on ? 0 : -1;
+            $("#exp-" + b.dataset.exp).hidden = !on;
+          });
+          if (push && location.hash !== "#" + id) history.replaceState(null, "", "#" + id);
+          if (id === "bound" && window.__boundRedraw) window.__boundRedraw();
+          if (id === "noise") noiseInit();
+          if (id === "game") gameInit();
+        }
+        xtabs.forEach((b, i) => {
+          b.addEventListener("click", () => showExp(b.dataset.exp, true));
+          b.addEventListener("keydown", (e) => {
+            const d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+            if (!d) return;
+            e.preventDefault();
+            const nb = xtabs[(i + d + xtabs.length) % xtabs.length];
+            showExp(nb.dataset.exp, true);
+            nb.focus();
+          });
+        });
+
+        /* ---------- 공통: 툴팁 ---------- */
+        function placeTip(tip, X, Y, W) {
+          tip.classList.add("on");
+          const tw = tip.offsetWidth, th = tip.offsetHeight;
+          tip.style.left = Math.max(0, Math.min(W - tw, X - tw / 2)) + "px";
+          let top = Y - th - 14;
+          if (top < 0) top = Y + 16;
+          tip.style.top = top + "px";
+        }
+
+        /* =================== 오답 섞기 =================== */
+        const NZ = { mode: "scatter", N: 2048, wd: 1, seed: 0 };
+        let ND = null, nLoaded = false, nRaf = 0, nUpto = 0, NG = null;
+        const WDS = [1, 3, 5, 7, 10, 15], NS_ = [1024, 2048, 4096];
+        const runOf = (mode, N, wd, s) => ND && ND.runs[`${mode}|${N}|${wd}|${s}`];
+
+        function classify(r, mode) {
+          const L = r.test.length - 1, test = r.test[L];
+          if (test < 90) return "fail";
+          if (mode === "none") return "none";
+          const mem = r.mem[L], peak = Math.max(...r.mem);
+          if (mem < 10) return peak < 20 ? "never" : "fixed";
+          if (mem >= 50) return "kept";
+          return "part";
+        }
+        const CLS_NAME = { kept: "남음", fixed: "고침", never: "고침", part: "일부", fail: "실패", none: "오답 없음" };
+        const CLS_CSS = { kept: "kept", fixed: "fixed", never: "fixed", part: "part", fail: "fail", none: "none" };
+
+        function noiseInit() {
+          if (nLoaded) { drawNoise(); return; }
+          nLoaded = true;
+          fetch("noise.json")
+            .then((r) => r.json())
+            .then((d) => { ND = d; syncNoiseUI(); playNoise(); })
+            .catch(() => {
+              $("#nT").textContent = "기록을 불러오지 못했습니다";
+              $("#nD").textContent = "인터넷 연결을 확인한 뒤 페이지를 새로 고치세요.";
+            });
+        }
+
+        function syncNoiseUI() {
+          for (const [sel, key] of [["#nseg-mode", "mode"], ["#nseg-N", "N"], ["#nseg-wd", "wd"]])
+            $$(sel + " button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v) === String(NZ[key])));
+          $$(".lg-noise").forEach((e) => (e.hidden = NZ.mode === "none"));
+          $("#nSeed").textContent = `실험 ${NZ.seed + 1} / 4`;
+          // 4번 중 몇 번?
+          const cnt = {};
+          for (let s = 0; s < 4; s++) { const c = classify(runOf(NZ.mode, NZ.N, NZ.wd, s), NZ.mode); cnt[c] = (cnt[c] || 0) + 1; }
+          const parts = [];
+          if (cnt.fail) parts.push(`규칙도 못 배움 ${cnt.fail}번`);
+          if (cnt.kept) parts.push(`오답이 남음 ${cnt.kept}번`);
+          if (cnt.part) parts.push(`일부만 고침 ${cnt.part}번`);
+          if (cnt.fixed) parts.push(`오답을 고침 ${cnt.fixed}번`);
+          if (cnt.never) parts.push(`처음부터 오답을 거의 안 외움 ${cnt.never}번`);
+          if (cnt.none) parts.push(`처음 보는 문제를 맞힘 ${cnt.none}번`);
+          $("#nVerdict").innerHTML = `<b>이 조건에서 4번 학습한 결과</b> · ${parts.join(" · ")}`;
+          drawOverview();
+        }
+
+        function drawOverview() {
+          const t = $("#ov");
+          let h = "<thead><tr><th scope=\"col\">규제 \\ 문제 수</th>" + NS_.map((N) => `<th scope="col">${fmt(N)}</th>`).join("") + "</tr></thead><tbody>";
+          for (const wd of WDS) {
+            h += `<tr><th scope="row">${wd}</th>`;
+            for (const N of NS_) {
+              const cnt = {};
+              for (let s = 0; s < 4; s++) { const c = classify(runOf(NZ.mode, N, wd, s), NZ.mode); cnt[c] = (cnt[c] || 0) + 1; }
+              if (cnt.never) { cnt.fixed = (cnt.fixed || 0) + cnt.never; delete cnt.never; }
+              const top = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0];
+              const on = N === NZ.N && wd === NZ.wd;
+              h += `<td><button class="${CLS_CSS[top]}" data-n="${N}" data-wd="${wd}" aria-pressed="${on}">${CLS_NAME[top]}<small>${cnt[top]}/4</small></button></td>`;
+            }
+            h += "</tr>";
+          }
+          t.innerHTML = h + "</tbody>";
+          $("#ovSub").textContent = (NZ.mode === "none"
+            ? "오답을 넣지 않은 비교 실험입니다. "
+            : NZ.mode === "scatter" ? "흩어진 오답 10%를 넣은 결과입니다. " : "같은 칸 오답 10%를 넣은 결과입니다. ") +
+            "칸마다 4번씩 학습했고, 칸을 누르면 그 조건의 기록을 봅니다.";
+          t.querySelectorAll("button").forEach((b) =>
+            b.addEventListener("click", () => {
+              NZ.N = +b.dataset.n; NZ.wd = +b.dataset.wd; NZ.seed = 0;
+              syncNoiseUI(); playNoise();
+              $("#exp-noise .stage").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+            })
+          );
+        }
+
+        function noiseStatus(r, upto) {
+          const T = $("#nT"), D = $("#nD");
+          const steps = ND.steps, L = r.test.length - 1;
+          if (upto < L) {
+            T.textContent = "학습 중";
+            D.textContent = `step ${fmt(steps[upto])} · 처음 보는 문제 ${r.test[upto]}%` + (NZ.mode === "none" ? "" : ` · 외운 오답 ${r.mem[upto]}%`);
+            return;
+          }
+          const c = classify(r, NZ.mode), test = r.test[L];
+          if (c === "fail") { T.textContent = "✕ 규칙도 배우지 못함"; D.textContent = `규제가 너무 세서 처음 보는 문제도 ${test}%만 맞힙니다.`; }
+          else if (c === "none") { T.textContent = "규칙을 배움"; D.textContent = `오답 없이 학습했을 때 처음 보는 문제를 ${test}% 맞힙니다.`; }
+          else if (c === "kept") { T.textContent = "외운 오답이 남음"; D.textContent = `새 문제는 ${test}% 맞히지만, 오답 자리에선 외운 오답을 ${r.mem[L]}% 그대로 냅니다.`; }
+          else if (c === "part") { T.textContent = "오답을 일부만 고침"; D.textContent = `처음 보는 문제 ${test}% · 외운 오답이 ${r.mem[L]}% 남았습니다.`; }
+          else if (c === "never") { T.textContent = "오답을 거의 외우지 않음"; D.textContent = `새 문제 ${test}% · 오답 자리에서도 처음부터 원래 정답을 냅니다.`; }
+          else {
+            const pk = r.mem.indexOf(Math.max(...r.mem));
+            let k = pk; while (k < L && r.mem[k] >= 10) k++;
+            T.textContent = "오답을 고침";
+            D.textContent = `외운 오답이 최대 ${r.mem[pk]}%까지 갔다가 step ${fmt(steps[k])} 무렵 원래 정답으로 바뀝니다.`;
+          }
+        }
+
+        const nsvg = $("#ncurve"), ntip = $("#ntip");
+        function drawNoise() {
+          if (!ND) return;
+          const r = runOf(NZ.mode, NZ.N, NZ.wd, NZ.seed);
+          const W = nsvg.parentNode.clientWidth;
+          if (!W) return;
+          const H = W < 480 ? 210 : 240, m = { l: 34, r: 8, t: 14, b: 26 };
+          nsvg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+          nsvg.setAttribute("height", H);
+          nsvg.innerHTML = "";
+          const pw = W - m.l - m.r, ph = H - m.t - m.b;
+          const T0 = 10, T1 = 60000;
+          const x = (t) => m.l + (Math.log(t) - Math.log(T0)) / (Math.log(T1) - Math.log(T0)) * pw;
+          const y = (v) => m.t + (1 - v / 100) * ph;
+          NG = { x, y, m, W, ph, pw, T0, T1 };
+          for (const v of [0, 50, 100]) {
+            el("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), stroke: "var(--c-grid)" }, nsvg);
+            el("text", { x: m.l - 5, y: y(v) + 4, "text-anchor": "end", "font-size": 10, fill: "var(--muted)" }, nsvg, v + "%");
+          }
+          for (const t of [10, 100, 1000, 10000]) el("text", { x: x(t), y: H - m.b + 16, "text-anchor": t === 10 ? "start" : "middle", "font-size": 10, fill: "var(--muted)" }, nsvg, kTick(t));
+          el("text", { x: W - m.r, y: H - m.b + 16, "text-anchor": "end", "font-size": 10, fill: "var(--muted)" }, nsvg, "6만 step");
+          const S = ND.steps, upto = Math.min(nUpto, r.test.length - 1);
+          const path = (arr) => { let d = ""; for (let i = 0; i <= upto; i++) d += (i ? "L" : "M") + x(S[i]).toFixed(1) + "," + y(arr[i]).toFixed(1); return d; };
+          const line = (arr, col, dash) => el("path", { d: path(arr), fill: "none", stroke: col, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round", ...(dash ? { "stroke-dasharray": "5 4" } : {}) }, nsvg);
+          if (NZ.mode !== "none") { line(r.fix, "var(--c-fix)", true); line(r.mem, "var(--c-train)"); }
+          line(r.test, "var(--c-test)");
+          const X = x(S[upto]);
+          const dot = (v, col) => el("circle", { cx: X, cy: y(v), r: 4, fill: col, stroke: "var(--bg)", "stroke-width": 2 }, nsvg);
+          if (NZ.mode !== "none") { dot(r.fix[upto], "var(--c-fix)"); dot(r.mem[upto], "var(--c-train)"); }
+          dot(r.test[upto], "var(--c-test)");
+          NG.cross = el("line", { y1: m.t, y2: m.t + ph, stroke: "var(--muted)", opacity: 0 }, nsvg);
+          noiseStatus(r, upto);
+        }
+        function playNoise() {
+          cancelAnimationFrame(nRaf);
+          const r = runOf(NZ.mode, NZ.N, NZ.wd, NZ.seed), L = r.test.length - 1;
+          if (reduce) { nUpto = L; drawNoise(); return; }
+          const start = performance.now(), dur = 3000;
+          const tick = (now) => {
+            const u = Math.min(1, (now - start) / dur);
+            const k = Math.round(u * L);
+            if (k !== nUpto || u === 1) { nUpto = k; drawNoise(); }
+            if (u < 1) nRaf = requestAnimationFrame(tick);
+          };
+          nUpto = 0; drawNoise();
+          nRaf = requestAnimationFrame(tick);
+        }
+        function hoverNoise(ev) {
+          if (!ND || !NG) return;
+          const r = runOf(NZ.mode, NZ.N, NZ.wd, NZ.seed);
+          const px = ev.clientX - nsvg.getBoundingClientRect().left, S = ND.steps;
+          const upto = Math.min(nUpto, r.test.length - 1);
+          let best = 0;
+          for (let i = 0; i <= upto; i++) if (Math.abs(NG.x(S[i]) - px) < Math.abs(NG.x(S[best]) - px)) best = i;
+          const X = NG.x(S[best]);
+          NG.cross.setAttribute("x1", X); NG.cross.setAttribute("x2", X); NG.cross.setAttribute("opacity", 0.6);
+          ntip.innerHTML = `<div class="h">step ${fmt(S[best])}</div><div><span class="sw" style="background:var(--c-test)"></span>처음 보는 문제 ${r.test[best]}%</div>` +
+            (NZ.mode === "none" ? "" : `<div><span class="sw" style="background:var(--c-train)"></span>외운 오답 ${r.mem[best]}%</div><div><span class="sw" style="background:var(--c-fix)"></span>원래 정답 ${r.fix[best]}%</div>`);
+          placeTip(ntip, X, NG.y(Math.max(r.test[best], NZ.mode === "none" ? 0 : r.mem[best])), NG.W);
+        }
+        function leaveNoise() { ntip.classList.remove("on"); if (NG && NG.cross) NG.cross.setAttribute("opacity", 0); }
+        let ntimer = 0;
+        nsvg.addEventListener("pointermove", (e) => { clearTimeout(ntimer); hoverNoise(e); });
+        nsvg.addEventListener("pointerdown", (e) => { clearTimeout(ntimer); hoverNoise(e); });
+        nsvg.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") leaveNoise(); });
+        nsvg.addEventListener("pointerup", (e) => { if (e.pointerType !== "mouse") ntimer = setTimeout(leaveNoise, 1600); });
+
+        const nBind = (sel, key, parse) => $$(sel + " button").forEach((b) =>
+          b.addEventListener("click", () => { NZ[key] = parse(b.dataset.v); NZ.seed = 0; syncNoiseUI(); playNoise(); }));
+        nBind("#nseg-mode", "mode", String);
+        nBind("#nseg-N", "N", Number);
+        nBind("#nseg-wd", "wd", Number);
+        $("#nRun").addEventListener("click", () => { if (!ND) return; NZ.seed = (NZ.seed + 1) % 4; syncNoiseUI(); playNoise(); });
+        $("#nSkip").addEventListener("click", () => { if (!ND) return; cancelAnimationFrame(nRaf); nUpto = 999; drawNoise(); });
+
+        /* =================== 예측 게임 =================== */
+        // 실측: 보고서 표 3 (b: 실측 경계, law: 관계식 값). grid = [보여 준 문제 수, 성공 횟수, 학습 횟수]
+        const Q = [
+          { n: 23, op: "a+b", b: 211, law: 206, src: "E24", grid: [[130,0,10],[160,0,10],[190,0,10],[220,7,10],[260,10,10]] },
+          { n: 31, op: "a+b", b: 329, law: 322, src: "E13", grid: [[218,0,10],[258,0,10],[298,1,10],[337,6,10]] },
+          { n: 50, op: "a+b", b: 623, law: 661, src: "E12", grid: [[561,0,10],[663,8,10],[765,10,10],[867,10,10]] },
+          { n: 61, op: "a+b", b: 880, law: 893, src: "E21", grid: [[832,3,10],[983,9,10],[1135,10,10]] },
+          { n: 71, op: "a+b", b: 1180, law: 1124, src: "E13", grid: [[1125,3,10],[1329,10,10],[1534,10,10],[1738,10,10]] },
+          { n: 101, op: "a+b", b: 2063, law: 1919, src: "E24", grid: [[1900,1,10],[2150,7,10],[2400,10,10],[2700,10,10]] },
+          { n: 31, op: "a+3b", b: 533, law: 533, src: "E13", grid: [[423,0,10],[500,1,10],[577,10,10],[654,10,10]] },
+          { n: 41, op: "a+3b", b: 827, law: 816, src: "E21", grid: [[740,1,10],[874,7,10],[1009,10,10]] },
+          { n: 50, op: "a+3b", b: 993, law: 1105, src: "E7", grid: [[768,0,40],[896,3,40],[1024,25,40],[1152,36,40],[1280,40,40]] },
+        ];
+        const Cof = (n, op) => (op === "a+b" ? (n * (n + 1)) / 2 : n * n);
+                const nice = (v) => { const p = Math.pow(10, Math.floor(Math.log10(v)) - 1); return Math.round(v / p) * p; };
+        let G = null;
+        function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+        function gameInit() { if (!G) newGame(); }
+        function newGame() { G = { order: shuffle(Q.map((_, i) => i)), k: 0, score: 0 }; showQ(); }
+        function showQ() {
+          const q = Q[G.order[G.k]], C = Cof(q.n, q.op);
+          $("#gNo").textContent = `문제 ${G.k + 1} / ${Q.length}`;
+          $("#gScore").textContent = `맞힌 문제 ${G.score}`;
+          $("#gCond").innerHTML = `수 1~${q.n}, 연산 ${q.op === "a+b" ? "a + b" : "a + 3b"}<small>AI가 익혀야 할 연산 표: ${fmt(C)}칸` +
+            (q.op === "a+b" ? " (교환법칙이 있어 a+b와 b+a는 같은 칸)" : " (교환법칙이 없어 n×n칸)") + "</small>";
+          const truth = nice(q.b);
+          const mult = shuffle([0.4, 0.55, 1.6, 2.3, 3.2]).slice(0, 3);
+          const opts = shuffle([truth, ...mult.map((k) => nice(q.b * k))]);
+          const box = $("#gOpts");
+          box.innerHTML = "";
+          opts.forEach((v) => {
+            const b = document.createElement("button");
+            b.className = "opt"; b.textContent = fmt(v) + "개"; b.dataset.v = v;
+            b.addEventListener("click", () => answer(v));
+            box.appendChild(b);
+          });
+          $("#gHint").open = false;
+          $("#gHintBody").innerHTML = `연구에서 찾은 식 N₀ ≈ 2.82 × C<sup>0.763</sup>에 C = ${fmt(C)}을 넣어 보세요. 표가 4배 커지면 필요한 문제는 약 2.9배가 됩니다.`;
+          $("#gRes").hidden = true;
+          $("#gNextWrap").hidden = true;
+          G.q = q; G.truth = truth;
+        }
+        function answer(v) {
+          const q = G.q, ok = v === G.truth, L = q.law;
+          if (ok) G.score++;
+          $$("#gOpts .opt").forEach((b) => {
+            b.disabled = true;
+            if (+b.dataset.v === G.truth) b.classList.add("right");
+            else if (+b.dataset.v === v) b.classList.add("wrong");
+          });
+          $("#gScore").textContent = `맞힌 문제 ${G.score}`;
+          $("#gResT").textContent = ok ? "정답입니다" : v < G.truth ? "너무 적습니다" : "너무 많습니다";
+          $("#gResD").innerHTML = `실제 경계 약 <b>${fmt(q.b)}개</b> · 식으로 미리 계산한 값 ${fmt(L)}개 (차이 ${Math.round(Math.abs(L / q.b - 1) * 100)}%)`;
+          $("#gRes").hidden = false;
+          const last = G.k === Q.length - 1;
+          $("#gNext").textContent = last ? "처음부터 다시" : "다음 문제";
+          $("#gNextWrap").hidden = false;
+          G.pick = v;
+          drawGame();
+          if (last) $("#gResD").innerHTML += `<br><b>${Q.length}문제 중 ${G.score}개를 맞혔습니다.</b>`;
+        }
+        function drawGame() {
+          const svg = $("#gChart"), q = G.q;
+          const W = svg.parentNode.clientWidth;
+          if (!W) return;
+          const H = 170, m = { l: 34, r: 10, t: 16, b: 28 };
+          svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("height", H); svg.innerHTML = "";
+          const pw = W - m.l - m.r, ph = H - m.t - m.b;
+          const xs = q.grid.map((g) => g[0]).concat([q.b, G.pick]);
+          const lo = Math.min(...xs) * 0.85, hi = Math.max(...xs) * 1.15;
+          const x = (v) => m.l + Math.log(v / lo) / Math.log(hi / lo) * pw;
+          const y = (f) => m.t + (1 - f) * ph;
+          for (const f of [0, 0.5, 1]) {
+            el("line", { x1: m.l, x2: W - m.r, y1: y(f), y2: y(f), stroke: "var(--c-grid)" }, svg);
+            el("text", { x: m.l - 5, y: y(f) + 4, "text-anchor": "end", "font-size": 10, fill: "var(--muted)" }, svg, f * 100 + "%");
+          }
+          const bw = Math.max(10, Math.min(26, pw / (q.grid.length * 2.2)));
+          for (const [N, k, n] of q.grid) {
+            const f = k / n, X = x(N);
+            el("rect", { x: X - bw / 2, y: y(f), width: bw, height: Math.max(1, y(0) - y(f)), fill: f >= 0.5 ? "var(--c-test)" : "var(--c-seen)" }, svg);
+            el("text", { x: X, y: y(0) + 13, "text-anchor": "middle", "font-size": 10, fill: "var(--muted)" }, svg, fmt(N));
+            el("text", { x: X, y: y(f) - 4, "text-anchor": "middle", "font-size": 10, fill: "var(--ink)" }, svg, `${k}/${n}`);
+          }
+          const vline = (v, col, label, dy) => {
+            el("line", { x1: x(v), x2: x(v), y1: m.t - 4, y2: y(0), stroke: col, "stroke-width": 2, "stroke-dasharray": col === "var(--ink)" ? "" : "4 3" }, svg);
+            el("text", { x: x(v) + 4, y: m.t + dy, "font-size": 10.5, "font-weight": 600, fill: col }, svg, label);
+          };
+          vline(q.b, "var(--ink)", "경계 " + fmt(q.b), 4);
+          if (G.pick !== G.truth) vline(G.pick, "var(--c-train)", "내 선택", 18);
+          el("text", { x: W - m.r, y: H - 2, "text-anchor": "end", "font-size": 10, fill: "var(--muted)" }, svg, "보여 준 문제 수");
+        }
+        $("#gNext").addEventListener("click", () => {
+          if (G.k === Q.length - 1) newGame();
+          else { G.k++; showQ(); }
+          $("#exp-game .stage").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+        });
+
+        /* ---------- 크기 변화 ---------- */
+        let lastW = innerWidth, rz = 0;
+        addEventListener("resize", () => {
+          if (innerWidth === lastW) return;
+          lastW = innerWidth;
+          clearTimeout(rz);
+          rz = setTimeout(() => { if (!$("#exp-noise").hidden) drawNoise(); if (!$("#exp-game").hidden && G && !$("#gRes").hidden) drawGame(); }, 100);
+        });
+
+        const start = location.hash.slice(1);
+        if (start && start !== "bound") showExp(start, false);
       })();
     </script>
   </body>
