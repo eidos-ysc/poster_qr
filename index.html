@@ -56,6 +56,12 @@
           document.documentElement.requestFullscreen?.().catch(() => {});
         });
         addEventListener("message", (e) => e.data === "loop-exit" && close());
+        // 초점이 바깥 페이지에 있어도 ← → 로 장면 이동
+        addEventListener("keydown", (e) => {
+          if (!fr || (e.key !== "ArrowRight" && e.key !== "ArrowLeft")) return;
+          e.preventDefault();
+          fr.contentWindow?.postMessage(e.key === "ArrowRight" ? "loop-next" : "loop-prev", "*");
+        });
         document.addEventListener("fullscreenchange", () => !document.fullscreenElement && close());
       })();
     </script>
