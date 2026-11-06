@@ -256,6 +256,23 @@
         font-size: 0.72rem;
         margin: 6px 0 10px;
       }
+      .tabs .vh {
+        padding: 8px 0;
+        font-size: 0.88rem;
+        font-weight: 600;
+      }
+      #view-law {
+        margin-top: 18px;
+      }
+      .lawsub {
+        color: var(--muted);
+        font-size: 0.8rem;
+        line-height: 1.45;
+        margin: 0 0 8px;
+      }
+      .lawsub b {
+        color: var(--ink);
+      }
       .ratio {
         display: flex;
         justify-content: space-between;
@@ -409,11 +426,17 @@
       }
 
       /* ── 체험 고르기 (맨 위 탭) ── */
-      :root { --c-fix: #2f9461; }
-      @media (prefers-color-scheme: dark) {
-        :root:not([data-theme="light"]) { --c-fix: #46b37b; }
+      :root {
+        --c-fix: #2f9461;
       }
-      :root[data-theme="dark"] { --c-fix: #46b37b; }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --c-fix: #46b37b;
+        }
+      }
+      :root[data-theme="dark"] {
+        --c-fix: #46b37b;
+      }
 
       .exp-nav {
         display: flex;
@@ -432,7 +455,9 @@
         font-size: 0.9rem;
         cursor: pointer;
       }
-      .exp-nav button:last-child { border-right: 0; }
+      .exp-nav button:last-child {
+        border-right: 0;
+      }
       .exp-nav button[aria-selected="true"] {
         background: var(--ink);
         color: var(--bg);
@@ -440,206 +465,372 @@
       }
 
       /* ── 오답 섞기 ── */
-      .ov { width: 100%; border-collapse: collapse; font-size: 0.78rem; font-variant-numeric: tabular-nums; }
-      .ov th { color: var(--muted); font-weight: 500; padding: 4px 2px; text-align: center; }
-      .ov th[scope="row"] { text-align: left; white-space: nowrap; padding-right: 6px; }
-      .ov td { padding: 2px; }
-      .ov button {
-        width: 100%; min-height: 40px; cursor: pointer; line-height: 1.2;
-        border: 1px solid transparent; font-size: 0.76rem; color: var(--ink);
+      .ov {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.78rem;
+        font-variant-numeric: tabular-nums;
       }
-      .ov button small { display: block; font-size: 0.68rem; opacity: 0.75; }
-      .ov .kept { background: color-mix(in srgb, var(--c-train) 22%, var(--bg)); }
-      .ov .fixed { background: color-mix(in srgb, var(--c-fix) 22%, var(--bg)); }
-      .ov .part { background: color-mix(in srgb, var(--c-train) 9%, var(--bg)); }
-      .ov .fail { background: var(--c-empty); color: var(--muted); }
-      .ov .none { background: var(--c-panel); color: var(--muted); }
-      .ov button[aria-pressed="true"] { border-color: var(--ink); border-width: 2px; font-weight: 600; }
-      .ov-cap { color: var(--muted); font-size: 0.74rem; margin: 6px 0 0; }
+      .ov th {
+        color: var(--muted);
+        font-weight: 500;
+        padding: 4px 2px;
+        text-align: center;
+      }
+      .ov th[scope="row"] {
+        text-align: left;
+        white-space: nowrap;
+        padding-right: 6px;
+      }
+      .ov td {
+        padding: 2px;
+      }
+      .ov button {
+        width: 100%;
+        min-height: 40px;
+        cursor: pointer;
+        line-height: 1.2;
+        border: 1px solid transparent;
+        font-size: 0.76rem;
+        color: var(--ink);
+      }
+      .ov button small {
+        display: block;
+        font-size: 0.68rem;
+        opacity: 0.75;
+      }
+      .ov .kept {
+        background: color-mix(in srgb, var(--c-train) 22%, var(--bg));
+      }
+      .ov .fixed {
+        background: color-mix(in srgb, var(--c-fix) 22%, var(--bg));
+      }
+      .ov .part {
+        background: color-mix(in srgb, var(--c-train) 9%, var(--bg));
+      }
+      .ov .fail {
+        background: var(--c-empty);
+        color: var(--muted);
+      }
+      .ov .none {
+        background: var(--c-panel);
+        color: var(--muted);
+      }
+      .ov button[aria-pressed="true"] {
+        border-color: var(--ink);
+        border-width: 2px;
+        font-weight: 600;
+      }
+      .ov-cap {
+        color: var(--muted);
+        font-size: 0.74rem;
+        margin: 6px 0 0;
+      }
 
+      /* ── 넓은 화면 (노트북) ── */
+      @media (min-width: 1024px) {
+        .wrap {
+          max-width: 1200px;
+          padding: 0 32px;
+        }
+        .head {
+          display: flex;
+          align-items: center;
+          gap: 32px;
+          margin: 0 0 18px;
+        }
+        .head h1 {
+          margin: 0;
+        }
+        .head .exp-nav {
+          margin: 0;
+          width: 360px;
+          margin-left: auto;
+        }
+        /* 경계 찾기: 곡선 | 법칙 나란히, 조작판은 아래 두 칸 */
+        #exp-bound .stage {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          column-gap: 40px;
+        }
+        #exp-bound .phase {
+          grid-column: 1 / -1;
+        }
+        #view-law {
+          margin-top: 0;
+        }
+        #exp-bound .control {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          column-gap: 40px;
+          padding: 16px 20px;
+        }
+        #exp-bound details.more {
+          margin: 0;
+          border-top: 0;
+        }
+        #exp-bound details.more summary {
+          display: none;
+        }
+        .nstrip {
+          grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+        }
+        #exp-bound .sec .steps {
+          grid-template-columns: repeat(3, 1fr);
+          gap: 24px;
+        }
+        /* 오답 섞기: 곡선 | 조작판, 아래에 표 | 설명 */
+        #exp-noise:not([hidden]) {
+          display: grid;
+          grid-template-columns: 1.35fr 1fr;
+          column-gap: 40px;
+          align-items: start;
+        }
+        #exp-noise .control {
+          margin-top: 0;
+        }
+        #exp-noise .ov {
+          table-layout: fixed;
+        }
+        #exp-noise .ov thead th:first-child {
+          width: 110px;
+        }
+        #exp-noise .note {
+          grid-column: 1 / -1;
+        }
+      }
     </style>
   </head>
   <body class="page">
     <div class="wrap top"><a class="back" href="../">← 처음으로</a></div>
     <main class="wrap">
+      <div class="head">
       <h1>직접 체험하기</h1>
       <div class="exp-nav" role="tablist" aria-label="체험 고르기">
-        <button role="tab" id="xt-bound" data-exp="bound" aria-controls="exp-bound" aria-selected="true">경계 찾기</button>
-        <button role="tab" id="xt-noise" data-exp="noise" aria-controls="exp-noise" aria-selected="false" tabindex="-1">오답 섞기</button>
+        <button
+          role="tab"
+          id="xt-bound"
+          data-exp="bound"
+          aria-controls="exp-bound"
+          aria-selected="true"
+        >
+          경계 찾기
+        </button>
+        <button
+          role="tab"
+          id="xt-noise"
+          data-exp="noise"
+          aria-controls="exp-noise"
+          aria-selected="false"
+          tabindex="-1"
+        >
+          오답 섞기
+        </button>
+      </div>
       </div>
       <div id="exp-bound" role="tabpanel" aria-labelledby="xt-bound">
-      <!-- 결과 -->
-      <section class="stage" aria-label="학습 결과">
-        <div class="phase" aria-live="polite">
-          <div class="txt">
-            <div class="t" id="pT">불러오는 중</div>
-            <div class="d" id="pD"></div>
-          </div>
-          <div class="icon-btns">
-            <button class="ibtn" id="run" aria-label="같은 조건의 다른 실험 보기">↻</button>
-            <button class="ibtn" id="skip" aria-label="끝까지 보기">⏭</button>
-          </div>
-        </div>
-
-        <div class="tabs">
-          <span style="padding: 8px 0; font-size: 0.88rem; font-weight: 600">실제 학습 기록</span>
-          <span class="seed" id="seed"></span>
-        </div>
-
-        <div class="viz">
-          <svg
-            id="curve"
-            role="img"
-            aria-label="학습 step에 따른 보여 준 문제와 처음 보는 문제의 정답률"
-          ></svg>
-          <div class="tip" id="tip1"></div>
-        </div>
-        <div class="legend">
-          <span
-            ><i class="ln" style="background: var(--c-train)"></i>보여 준 문제
-            (train)</span
-          >
-          <span
-            ><i class="ln" style="background: var(--c-test)"></i>처음 보는
-            문제 (test)</span
-          >
-        </div>
-      </section>
-
-      <!-- 조작 -->
-      <section class="control" aria-label="조건 바꾸기">
-        <div class="nrow">
-          <span class="nlab">보여 준 문제 수</span>
-          <output id="nval">665<small>개</small></output>
-        </div>
-        <div class="nstrip" id="nstrip" role="group" aria-label="보여 준 문제 수"></div>
-        <p class="nstrip-cap">일반화한 횟수 / 학습한 횟수</p>
-
-        <div class="ratio">
-          <span>실측 경계 <b id="sB">–</b></span
-          ><span id="sLawWrap">예측값 <b id="sN0">–</b></span>
-        </div>
-        <p class="verdict" id="verdict"></p>
-
-        <details class="more">
-          <summary>
-            조건 더 바꾸기 <span class="cur" id="cond">n 50 · a+b · wd 1</span>
-          </summary>
-          <div class="ctrl">
-            <div class="lab">
-              수의 범위 1~n · 연산 표 <b id="sC">1,275</b>칸
+        <!-- 결과 -->
+        <section class="stage" aria-label="학습 결과">
+          <div class="phase" aria-live="polite">
+            <div class="txt">
+              <div class="t" id="pT">불러오는 중</div>
+              <div class="d" id="pD"></div>
             </div>
-            <div class="seg" id="seg-n" role="group" aria-label="수의 범위">
-              <button data-v="23">23</button><button data-v="31">31</button
-              ><button data-v="41">41</button><button data-v="50">50</button
-              ><button data-v="61">61</button><button data-v="71">71</button
-              ><button data-v="101">101</button>
+            <div class="icon-btns">
+              <button
+                class="ibtn"
+                id="run"
+                aria-label="같은 조건의 다른 실험 보기"
+              >
+                ↻
+              </button>
+              <button class="ibtn" id="skip" aria-label="끝까지 보기">⏭</button>
             </div>
           </div>
-          <div class="ctrl">
-            <div class="lab">배울 연산</div>
-            <div class="seg" id="seg-op" role="group" aria-label="연산">
-              <button data-v="add">a + b<small>교환법칙 있음</small></button
-              ><button data-v="add3">a + 3b<small>교환법칙 없음</small></button>
-            </div>
-          </div>
-          <div class="ctrl">
-            <div class="lab">규제 세기 (weight decay)</div>
-            <div class="seg" id="seg-wd" role="group" aria-label="weight decay">
-              <button data-v="0.3">0.3</button><button data-v="1">1</button
-              ><button data-v="3">3</button><button data-v="7">7</button
-              ><button data-v="10">10</button><button data-v="15">15</button>
-            </div>
-            <div class="hint">
-              규제는 지연 길이를 바꿉니다. 10 이상에서는 필요한 문제 수도 늘어납니다.
-            </div>
-          </div>
-        </details>
-      </section>
 
-      <!-- 설명 -->
-      <section class="sec" aria-labelledby="h-how">
-        <h2 id="h-how">학습 단계</h2>
-        <p class="sub">
-          AI는 1~n 중 서로 다른 수 5개로 된 수열을 받아, 이웃한 두 수를 연산한
-          수열을 내놓도록 배웁니다.
-        </p>
-        <ol class="steps">
-          <li>
-            <span class="no">①</span>
-            <div>
-              암기
-              <div class="s">
-                보여 준 문제를 통째로 암기합니다. 보여 준 문제의 정답률이 먼저 99%에 이릅니다.
+          <div id="view-curve">
+            <div class="tabs">
+              <span class="vh">실제 학습 기록</span>
+              <span class="seed" id="seed"></span>
+            </div>
+            <div class="viz">
+              <svg
+                id="curve"
+                role="img"
+                aria-label="학습 step에 따른 보여 준 문제와 처음 보는 문제의 정답률"
+              ></svg>
+              <div class="tip" id="tip1"></div>
+            </div>
+            <div class="legend">
+              <span
+                ><i class="ln" style="background: var(--c-train)"></i>보여 준
+                문제 (train)</span
+              >
+              <span
+                ><i class="ln" style="background: var(--c-test)"></i>처음 보는
+                문제 (test)</span
+              >
+            </div>
+          </div>
+
+          <div id="view-law">
+            <div class="tabs">
+              <span class="vh">경계 법칙 (연구문제 1)</span>
+            </div>
+            <p class="lawsub">
+              필요한 문제 수는 연산 표의 크기 C로 정해진다.
+              <b>N₀ ≈ 2.82 × C<sup>0.763</sup></b> (9개 조건, ±10%)
+            </p>
+            <div class="viz">
+              <svg
+                id="law"
+                role="img"
+                aria-label="표 칸 수 C와 필요한 문제 수 N0의 로그-로그 그래프"
+              ></svg>
+              <div class="tip" id="tip3"></div>
+            </div>
+            <div class="legend">
+              <span><i class="ln" style="background: var(--ink)"></i>법칙</span>
+              <span
+                ><i style="background: var(--muted); border-radius: 50%"></i
+                >실측 경계 (보고서 표, wd 1)</span
+              >
+              <span
+                ><i
+                  style="
+                    background: transparent;
+                    border: 2px solid var(--ink);
+                    border-radius: 50%;
+                    width: 8px;
+                    height: 8px;
+                  "
+                ></i
+                >현재 조건</span
+              >
+            </div>
+          </div>
+        </section>
+
+        <!-- 조작 -->
+        <section class="control" aria-label="조건 바꾸기">
+          <div class="cmain">
+          <div class="nrow">
+            <span class="nlab">보여 준 문제 수</span>
+            <output id="nval">665<small>개</small></output>
+          </div>
+          <div
+            class="nstrip"
+            id="nstrip"
+            role="group"
+            aria-label="보여 준 문제 수"
+          ></div>
+          <p class="nstrip-cap">일반화한 횟수 / 학습한 횟수</p>
+
+          <div class="ratio">
+            <span>실측 경계 <b id="sB">–</b></span
+            ><span id="sLawWrap">예측값 <b id="sN0">–</b></span>
+          </div>
+          <p class="verdict" id="verdict"></p>
+          </div>
+
+          <details class="more">
+            <summary>
+              조건 더 바꾸기
+              <span class="cur" id="cond">n 50 · a+b · wd 1</span>
+            </summary>
+            <div class="ctrl">
+              <div class="lab">
+                수의 범위 1~n · 연산 표 <b id="sC">1,275</b>칸
+              </div>
+              <div class="seg" id="seg-n" role="group" aria-label="수의 범위">
+                <button data-v="23">23</button><button data-v="31">31</button
+                ><button data-v="41">41</button><button data-v="50">50</button
+                ><button data-v="61">61</button><button data-v="71">71</button
+                ><button data-v="101">101</button>
               </div>
             </div>
-          </li>
-          <li>
-            <span class="no">②</span>
-            <div>
-              지연
-              <div class="s">
-                한동안 처음 보는 문제는 거의 다 틀립니다. 암기해서 답하던 방식이 규칙으로 바뀌는 데 걸리는 시간입니다.
+            <div class="ctrl">
+              <div class="lab">배울 연산</div>
+              <div class="seg" id="seg-op" role="group" aria-label="연산">
+                <button data-v="add">a + b<small>교환법칙 있음</small></button
+                ><button data-v="add3">
+                  a + 3b<small>교환법칙 없음</small>
+                </button>
               </div>
             </div>
-          </li>
-          <li>
-            <span class="no">③</span>
-            <div>
-              일반화 (grokking)
-              <div class="s">
-                처음 보는 문제의 정답률이 95%를 넘습니다. 문제 수가 경계보다 적으면 이 단계에 이르지 못합니다.
+            <div class="ctrl">
+              <div class="lab">규제 세기 (weight decay)</div>
+              <div
+                class="seg"
+                id="seg-wd"
+                role="group"
+                aria-label="weight decay"
+              >
+                <button data-v="0.3">0.3</button><button data-v="1">1</button
+                ><button data-v="3">3</button><button data-v="7">7</button
+                ><button data-v="10">10</button><button data-v="15">15</button>
+              </div>
+              <div class="hint">
+                규제는 지연 길이를 바꿉니다. 10 이상에서는 필요한 문제 수도
+                늘어납니다.
               </div>
             </div>
-          </li>
-        </ol>
-      </section>
+          </details>
+        </section>
 
-      <section class="sec" aria-labelledby="h-law">
-        <h2 id="h-law">경계 법칙 (연구문제 1)</h2>
-        <p class="sub">
-          필요한 문제 수는 규칙의 대칭이 아니라 연산 표의 크기 C로 정해진다.
-          <br /><b>N₀ ≈ 2.82 × C<sup>0.763</sup></b> (9개 조건, ±10%)
-        </p>
-        <div class="viz">
-          <svg
-            id="law"
-            role="img"
-            aria-label="표 칸 수 C와 필요한 문제 수 N0의 로그-로그 그래프"
-          ></svg>
-          <div class="tip" id="tip3"></div>
-        </div>
-        <div class="legend">
-          <span><i class="ln" style="background: var(--ink)"></i>법칙</span>
-          <span
-            ><i style="background: var(--muted); border-radius: 50%"></i>실측
-            경계 (보고서 표, wd 1)</span
-          >
-          <span
-            ><i
-              style="
-                background: transparent;
-                border: 2px solid var(--ink);
-                border-radius: 50%;
-                width: 8px;
-                height: 8px;
-              "
-            ></i
-            >현재 조건</span
-          >
-        </div>
-      </section>
+        <!-- 설명 -->
+        <section class="sec" aria-labelledby="h-how">
+          <h2 id="h-how">학습 단계</h2>
+          <p class="sub">
+            AI는 1~n 중 서로 다른 수 5개로 된 수열을 받아, 이웃한 두 수를 연산한
+            수열을 내놓도록 배웁니다.
+          </p>
+          <ol class="steps">
+            <li>
+              <span class="no">①</span>
+              <div>
+                암기
+                <div class="s">
+                  보여 준 문제를 통째로 암기합니다. 보여 준 문제의 정답률이 먼저
+                  99%에 이릅니다.
+                </div>
+              </div>
+            </li>
+            <li>
+              <span class="no">②</span>
+              <div>
+                지연
+                <div class="s">
+                  한동안 처음 보는 문제는 거의 다 틀립니다. 암기해서 답하던
+                  방식이 규칙으로 바뀌는 데 걸리는 시간입니다.
+                </div>
+              </div>
+            </li>
+            <li>
+              <span class="no">③</span>
+              <div>
+                일반화 (grokking)
+                <div class="s">
+                  처음 보는 문제의 정답률이 95%를 넘습니다. 문제 수가 경계보다
+                  적으면 이 단계에 이르지 못합니다.
+                </div>
+              </div>
+            </li>
+          </ol>
+        </section>
 
-      <div class="note">
-        <p>
-          이 탭의 곡선은 시뮬레이션이 아니라 <b>실제 GPU 학습 기록</b>입니다(조건
-          <span id="nConds">28</span>개, <span id="nRuns">1,113</span>회).
-        </p>
-        <p>
-          정답률은 수열 전체를 맞힌 비율 · 암기: 보여 준 문제 99% · 일반화: 처음 보는
-          문제 95% · 일반화 후 1,000 step이후 학습 종료 · 학습 한도 6만 step · 2층 Transformer(d128).
-        </p>
-      </div>
+        <div class="note">
+          <p>
+            이 탭의 곡선은 시뮬레이션이 아니라
+            <b>실제 GPU 학습 기록</b>입니다(조건 <span id="nConds">28</span>개,
+            <span id="nRuns">1,113</span>회).
+          </p>
+          <p>
+            정답률은 수열 전체를 맞힌 비율 · 암기: 보여 준 문제 99% · 일반화:
+            처음 보는 문제 95% · 일반화 후 1,000 step이후 학습 종료 · 학습 한도
+            6만 step · 2층 Transformer(d128).
+          </p>
+        </div>
       </div>
 
       <!-- ───────── 오답 섞기 ───────── -->
@@ -651,73 +842,156 @@
               <div class="d" id="nD"></div>
             </div>
             <div class="icon-btns">
-              <button class="ibtn" id="nRun" aria-label="같은 조건의 다른 실험 보기">↻</button>
-              <button class="ibtn" id="nSkip" aria-label="끝까지 보기">⏭</button>
+              <button
+                class="ibtn"
+                id="nRun"
+                aria-label="같은 조건의 다른 실험 보기"
+              >
+                ↻
+              </button>
+              <button class="ibtn" id="nSkip" aria-label="끝까지 보기">
+                ⏭
+              </button>
             </div>
           </div>
           <div class="tabs">
-            <span style="padding: 8px 0; font-size: 0.88rem; font-weight: 600">실제 학습 기록</span>
+            <span style="padding: 8px 0; font-size: 0.88rem; font-weight: 600"
+              >실제 학습 기록</span
+            >
             <span class="seed" id="nSeed">실험 1 / 4</span>
           </div>
           <div class="viz">
-            <svg id="ncurve" role="img" aria-label="학습 step에 따른 처음 보는 문제 정답률과 오답 자리의 출력"></svg>
+            <svg
+              id="ncurve"
+              role="img"
+              aria-label="학습 step에 따른 처음 보는 문제 정답률과 오답 자리의 출력"
+            ></svg>
             <div class="tip" id="ntip"></div>
           </div>
           <div class="legend" id="nLegend">
-            <span><i class="ln" style="background: var(--c-test)"></i>처음 보는 문제 정답률</span>
-            <span class="lg-noise"><i class="ln" style="background: var(--c-train)"></i>오답 자리 · 암기한 오답</span>
-            <span class="lg-noise"><i class="ln" style="background: var(--c-fix)"></i>오답 자리 · 원래 정답</span>
+            <span
+              ><i class="ln" style="background: var(--c-test)"></i>처음 보는
+              문제 정답률</span
+            >
+            <span class="lg-noise"
+              ><i class="ln" style="background: var(--c-train)"></i>오답 자리 ·
+              암기한 오답</span
+            >
+            <span class="lg-noise"
+              ><i class="ln" style="background: var(--c-fix)"></i>오답 자리 ·
+              원래 정답</span
+            >
           </div>
         </section>
 
         <section class="control" aria-label="조건 바꾸기">
           <div class="ctrl">
             <div class="lab">오답 넣는 방식 (보여 줄 문제의 10%)</div>
-            <div class="seg" id="nseg-mode" role="group" aria-label="오답 넣는 방식">
-              <button data-v="scatter">흩어진 오답<small>문제마다 한 칸</small></button>
-              <button data-v="cell">같은 칸 오답<small>같은 계산에 같은 오답</small></button>
+            <div
+              class="seg"
+              id="nseg-mode"
+              role="group"
+              aria-label="오답 넣는 방식"
+            >
+              <button data-v="scatter">
+                흩어진 오답<small>문제마다 한 칸</small>
+              </button>
+              <button data-v="cell">
+                같은 칸 오답<small>같은 계산에 같은 오답</small>
+              </button>
               <button data-v="none">오답 없음<small>비교용</small></button>
             </div>
           </div>
           <div class="ctrl">
             <div class="lab">보여 줄 문제 수</div>
-            <div class="seg" id="nseg-N" role="group" aria-label="보여 줄 문제 수">
-              <button data-v="1024">1,024</button><button data-v="2048">2,048</button><button data-v="4096">4,096</button>
+            <div
+              class="seg"
+              id="nseg-N"
+              role="group"
+              aria-label="보여 줄 문제 수"
+            >
+              <button data-v="1024">1,024</button
+              ><button data-v="2048">2,048</button
+              ><button data-v="4096">4,096</button>
             </div>
           </div>
           <div class="ctrl">
             <div class="lab">규제 세기 (weight decay)</div>
             <div class="seg" id="nseg-wd" role="group" aria-label="규제 세기">
-              <button data-v="1">1</button><button data-v="3">3</button><button data-v="5">5</button><button data-v="7">7</button><button data-v="10">10</button><button data-v="15">15</button>
+              <button data-v="1">1</button><button data-v="3">3</button
+              ><button data-v="5">5</button><button data-v="7">7</button
+              ><button data-v="10">10</button><button data-v="15">15</button>
             </div>
-            <div class="hint">규제는 가중치가 커지지 않도록 거는 제약입니다. 클수록 따로 암기한 예외가 지워지기 쉽습니다.</div>
+            <div class="hint">
+              규제는 가중치가 커지지 않도록 거는 제약입니다. 클수록 따로 암기한
+              예외가 지워지기 쉽습니다.
+            </div>
           </div>
           <p class="verdict" id="nVerdict"></p>
         </section>
 
         <section class="sec" aria-labelledby="h-ov">
           <h2 id="h-ov">조건별 결과</h2>
-          <p class="sub" id="ovSub">칸마다 4번씩 학습한 결과입니다. 칸을 누르면 해당 조건의 기록이 위에 표시됩니다.</p>
+          <p class="sub" id="ovSub">
+            칸마다 4번씩 학습한 결과입니다. 칸을 누르면 해당 조건의 기록이 위에
+            표시됩니다.
+          </p>
           <table class="ov" id="ov"></table>
-          <p class="ov-cap">남음: 암기한 오답 50% 이상 · 고침: 10% 미만 · 일부: 그 사이 · 실패: 마지막 처음 보는 문제 정답률 90% 미만</p>
+          <p class="ov-cap">
+            남음: 암기한 오답 50% 이상 · 고침: 10% 미만 · 일부: 그 사이 · 실패:
+            마지막 처음 보는 문제 정답률 90% 미만
+          </p>
         </section>
 
         <section class="sec" aria-labelledby="h-nhow">
           <h2 id="h-nhow">실험 내용</h2>
           <p class="sub">보여 줄 문제의 10%에 틀린 답을 넣고 학습시켰습니다.</p>
           <ol class="steps">
-            <li><span class="no">①</span><div>규칙 학습<div class="s">오답이 섞여 있어도 처음 보는 문제는 거의 100% 맞힙니다.</div></div></li>
-            <li><span class="no">②</span><div>오답 암기<div class="s">규제가 약하면(1~3) 오답을 넣은 문제에서는 암기한 오답을 끝까지 그대로 냅니다. 규칙과 예외를 함께 기억하는 셈입니다. 같은 칸 오답은 그 칸이 들어간 처음 보는 문제에도 나타납니다.</div></div></li>
-            <li><span class="no">③</span><div>규제에 따른 교정<div class="s">문제가 2,048개 이상이면 흩어진 오답은 규제 5부터 원래 정답으로 바뀝니다. 같은 칸 오답은 7부터 줄어들어 10에서 대부분 고쳐집니다. 15에서는 규칙까지 무너집니다.</div></div></li>
+            <li>
+              <span class="no">①</span>
+              <div>
+                규칙 학습
+                <div class="s">
+                  오답이 섞여 있어도 처음 보는 문제는 거의 100% 맞힙니다.
+                </div>
+              </div>
+            </li>
+            <li>
+              <span class="no">②</span>
+              <div>
+                오답 암기
+                <div class="s">
+                  규제가 약하면(1~3) 오답을 넣은 문제에서는 암기한 오답을 끝까지
+                  그대로 냅니다. 규칙과 예외를 함께 기억하는 셈입니다. 같은 칸
+                  오답은 그 칸이 들어간 처음 보는 문제에도 나타납니다.
+                </div>
+              </div>
+            </li>
+            <li>
+              <span class="no">③</span>
+              <div>
+                규제에 따른 교정
+                <div class="s">
+                  문제가 2,048개 이상이면 흩어진 오답은 규제 5부터 원래 정답으로
+                  바뀝니다. 같은 칸 오답은 7부터 줄어들어 10에서 대부분
+                  고쳐집니다. 15에서는 규칙까지 무너집니다.
+                </div>
+              </div>
+            </li>
           </ol>
         </section>
 
         <div class="note">
-          <p>이 탭의 곡선은 시뮬레이션이 아니라 <b>실제 GPU 학습 기록</b>입니다(조건 54개 × 4회 = 216회).</p>
-          <p>수 1~50 · 이웃한 두 수 더하기 · 오답 10% · 6만 step · 2층 Transformer(d128). 정답률은 숫자 하나 단위로 셉니다.</p>
+          <p>
+            이 탭의 곡선은 시뮬레이션이 아니라
+            <b>실제 GPU 학습 기록</b>입니다(조건 54개 × 4회 = 216회).
+          </p>
+          <p>
+            수 1~50 · 이웃한 두 수 더하기 · 오답 10% · 6만 step · 2층
+            Transformer(d128). 정답률은 숫자 하나 단위로 셉니다.
+          </p>
         </div>
       </div>
-
     </main>
     <footer><div class="wrap">2026 청소년과학탐구대회 · EIDOS</div></footer>
 
@@ -755,17 +1029,26 @@
         /* ---------- 기록 ---------- */
         const keyOf = (op, n, wd) => `${op}|${n}|${wd}`;
         const cond = () => D && D.conds[keyOf(S.op, S.n, S.wd)];
-        const Ns = () => Object.keys(cond().N).map(Number).sort((a, b) => a - b);
+        const Ns = () =>
+          Object.keys(cond().N)
+            .map(Number)
+            .sort((a, b) => a - b);
         const runs = () => cond().N[S.N];
         const cur = () => runs()[S.k];
         const okOf = (r) => r.tg != null;
         const syncOf = (r) =>
-          r.tg != null && r.tf != null && r.tg - r.tf <= Math.max(200, 0.2 * r.tf);
+          r.tg != null &&
+          r.tf != null &&
+          r.tg - r.tf <= Math.max(200, 0.2 * r.tf);
         // 공통 격자 step + 마지막 점은 실제 마지막 기록 step
         const stepsOf = (r) =>
           r._st || (r._st = D.steps.slice(0, r.te.length - 1).concat([r.last]));
         const stepLabel = (v) =>
-          v >= 10000 ? v / 10000 + "만" : v >= 1000 ? v / 1000 + "천" : String(v);
+          v >= 10000
+            ? v / 10000 + "만"
+            : v >= 1000
+            ? v / 1000 + "천"
+            : String(v);
 
         /* ---------- 공통 ---------- */
         function el(tag, attrs, parent, text) {
@@ -824,7 +1107,7 @@
             u = Math.min(upto, L),
             tNow = ST[u];
           const T1 = r.lim;
-          const H = W < 480 ? 210 : 240;
+          const H = W < 480 ? 210 : 260;
           const m = { l: 34, r: 8, t: 24, b: 26 };
           curveSvg.setAttribute("viewBox", `0 0 ${W} ${H}`);
           curveSvg.setAttribute("height", H);
@@ -832,68 +1115,259 @@
           const pw = W - m.l - m.r,
             ph = H - m.t - m.b;
           const x = (t) =>
-            m.l + ((Math.log(t) - Math.log(T0)) / (Math.log(T1) - Math.log(T0))) * pw;
+            m.l +
+            ((Math.log(t) - Math.log(T0)) / (Math.log(T1) - Math.log(T0))) * pw;
           const y = (v) => m.t + (1 - v / 100) * ph;
           CG = { x, y, m, W, H, pw, ph };
 
           for (const v of [0, 50, 100]) {
-            el("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), stroke: "var(--c-grid)", "stroke-width": 1 }, curveSvg);
-            el("text", { x: m.l - 5, y: y(v) + 4, "text-anchor": "end", "font-size": 10, fill: "var(--muted)" }, curveSvg, v + "%");
+            el(
+              "line",
+              {
+                x1: m.l,
+                x2: W - m.r,
+                y1: y(v),
+                y2: y(v),
+                stroke: "var(--c-grid)",
+                "stroke-width": 1,
+              },
+              curveSvg
+            );
+            el(
+              "text",
+              {
+                x: m.l - 5,
+                y: y(v) + 4,
+                "text-anchor": "end",
+                "font-size": 10,
+                fill: "var(--muted)",
+              },
+              curveSvg,
+              v + "%"
+            );
           }
-          const ticks = [100, 1000, 10000, 100000].filter((t) => x(t) < x(T1) - 40);
+          const ticks = [100, 1000, 10000, 100000].filter(
+            (t) => x(t) < x(T1) - 40
+          );
           for (const t of ticks)
-            el("text", { x: x(t), y: H - m.b + 16, "text-anchor": t === 100 ? "start" : "middle", "font-size": 10, fill: "var(--muted)" }, curveSvg, stepLabel(t));
-          el("text", { x: W - m.r, y: H - m.b + 16, "text-anchor": "end", "font-size": 10, fill: "var(--muted)" }, curveSvg, stepLabel(T1) + " step");
+            el(
+              "text",
+              {
+                x: x(t),
+                y: H - m.b + 16,
+                "text-anchor": t === 100 ? "start" : "middle",
+                "font-size": 10,
+                fill: "var(--muted)",
+              },
+              curveSvg,
+              stepLabel(t)
+            );
+          el(
+            "text",
+            {
+              x: W - m.r,
+              y: H - m.b + 16,
+              "text-anchor": "end",
+              "font-size": 10,
+              fill: "var(--muted)",
+            },
+            curveSvg,
+            stepLabel(T1) + " step"
+          );
 
           const sync = syncOf(r);
           if (r.tg != null && r.tf != null && !sync && tNow > r.tf) {
             const x1 = x(r.tf),
               x2 = x(Math.min(tNow, r.tg));
-            el("rect", { x: x1, y: m.t, width: Math.max(0, x2 - x1), height: ph, fill: "var(--c-zone)" }, curveSvg);
+            el(
+              "rect",
+              {
+                x: x1,
+                y: m.t,
+                width: Math.max(0, x2 - x1),
+                height: ph,
+                fill: "var(--c-zone)",
+              },
+              curveSvg
+            );
           }
           const path = (arr) => {
             let d = "";
-            for (let i = 0; i <= u; i++) d += (i ? "L" : "M") + x(ST[i]).toFixed(1) + "," + y(arr[i]).toFixed(1);
+            for (let i = 0; i <= u; i++)
+              d +=
+                (i ? "L" : "M") +
+                x(ST[i]).toFixed(1) +
+                "," +
+                y(arr[i]).toFixed(1);
             return d;
           };
           const line = (arr, col) =>
-            el("path", { d: path(arr), fill: "none", stroke: col, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }, curveSvg);
+            el(
+              "path",
+              {
+                d: path(arr),
+                fill: "none",
+                stroke: col,
+                "stroke-width": 2,
+                "stroke-linejoin": "round",
+                "stroke-linecap": "round",
+              },
+              curveSvg
+            );
           line(r.te, "var(--c-test)");
           line(r.tr, "var(--c-train)");
 
           const mark = (t, label, anchor) => {
-            el("line", { x1: x(t), x2: x(t), y1: m.t - 2, y2: m.t + ph, stroke: "var(--muted)", "stroke-width": 1, "stroke-dasharray": "3 3" }, curveSvg);
-            el("text", { x: x(t) + (anchor === "end" ? -4 : 4), y: m.t - 8, "text-anchor": anchor, "font-size": 10.5, "font-weight": 600, fill: "var(--ink)" }, curveSvg, label);
+            el(
+              "line",
+              {
+                x1: x(t),
+                x2: x(t),
+                y1: m.t - 2,
+                y2: m.t + ph,
+                stroke: "var(--muted)",
+                "stroke-width": 1,
+                "stroke-dasharray": "3 3",
+              },
+              curveSvg
+            );
+            el(
+              "text",
+              {
+                x: x(t) + (anchor === "end" ? -4 : 4),
+                y: m.t - 8,
+                "text-anchor": anchor,
+                "font-size": 10.5,
+                "font-weight": 600,
+                fill: "var(--ink)",
+              },
+              curveSvg,
+              label
+            );
           };
           if (sync) {
             if (tNow >= Math.max(r.tf, r.tg))
-              mark(r.tf, "암기 ≈ 일반화 (지연 거의 0)", x(r.tf) > W / 2 ? "end" : "start");
+              mark(
+                r.tf,
+                "암기 ≈ 일반화 (지연 거의 0)",
+                x(r.tf) > W / 2 ? "end" : "start"
+              );
           } else {
             if (r.tf != null && tNow >= r.tf) mark(r.tf, "암기", "end");
             if (r.tg != null && tNow >= r.tg) {
               const gx = x(r.tg),
                 close = gx - x(r.tf) < 46;
-              mark(r.tg, close ? "→ 일반화" : "일반화", gx > W - 60 ? "end" : "start");
+              mark(
+                r.tg,
+                close ? "→ 일반화" : "일반화",
+                gx > W - 60 ? "end" : "start"
+              );
               if (!close) {
                 const cx = (x(r.tf) + gx) / 2,
                   yy = m.t + ph * 0.55;
-                el("text", { x: cx, y: yy, "text-anchor": "middle", "font-size": 10, fill: "var(--muted)" }, curveSvg, "지연");
-                el("text", { x: cx, y: yy + 14, "text-anchor": "middle", "font-size": 11, "font-weight": 600, fill: "var(--ink)" }, curveSvg, fmt(r.tg - r.tf));
+                el(
+                  "text",
+                  {
+                    x: cx,
+                    y: yy,
+                    "text-anchor": "middle",
+                    "font-size": 10,
+                    fill: "var(--muted)",
+                  },
+                  curveSvg,
+                  "지연"
+                );
+                el(
+                  "text",
+                  {
+                    x: cx,
+                    y: yy + 14,
+                    "text-anchor": "middle",
+                    "font-size": 11,
+                    "font-weight": 600,
+                    fill: "var(--ink)",
+                  },
+                  curveSvg,
+                  fmt(r.tg - r.tf)
+                );
               }
             }
           }
           // 일반화 뒤 학습을 멈춘 run: 끝난 자리를 표시
           if (u === L && r.last < T1) {
             const ex = x(ST[L]);
-            el("text", { x: Math.min(ex + 6, W - m.r), y: y(100) + 14, "text-anchor": ex + 6 > W - 70 ? "end" : "start", "font-size": 10, fill: "var(--muted)" }, curveSvg, "학습 종료");
+            el(
+              "text",
+              {
+                x: Math.min(ex + 6, W - m.r),
+                y: y(100) + 14,
+                "text-anchor": ex + 6 > W - 70 ? "end" : "start",
+                "font-size": 10,
+                fill: "var(--muted)",
+              },
+              curveSvg,
+              "학습 종료"
+            );
           }
           const cx = x(tNow);
-          el("circle", { cx, cy: y(r.tr[u]), r: 4, fill: "var(--c-train)", stroke: "var(--bg)", "stroke-width": 2 }, curveSvg);
-          el("circle", { cx, cy: y(r.te[u]), r: 4, fill: "var(--c-test)", stroke: "var(--bg)", "stroke-width": 2 }, curveSvg);
+          el(
+            "circle",
+            {
+              cx,
+              cy: y(r.tr[u]),
+              r: 4,
+              fill: "var(--c-train)",
+              stroke: "var(--bg)",
+              "stroke-width": 2,
+            },
+            curveSvg
+          );
+          el(
+            "circle",
+            {
+              cx,
+              cy: y(r.te[u]),
+              r: 4,
+              fill: "var(--c-test)",
+              stroke: "var(--bg)",
+              "stroke-width": 2,
+            },
+            curveSvg
+          );
 
-          CG.cross = el("line", { y1: m.t, y2: m.t + ph, stroke: "var(--muted)", "stroke-width": 1, opacity: 0 }, curveSvg);
-          CG.d1 = el("circle", { r: 4, fill: "var(--c-train)", stroke: "var(--bg)", "stroke-width": 2, opacity: 0 }, curveSvg);
-          CG.d2 = el("circle", { r: 4, fill: "var(--c-test)", stroke: "var(--bg)", "stroke-width": 2, opacity: 0 }, curveSvg);
+          CG.cross = el(
+            "line",
+            {
+              y1: m.t,
+              y2: m.t + ph,
+              stroke: "var(--muted)",
+              "stroke-width": 1,
+              opacity: 0,
+            },
+            curveSvg
+          );
+          CG.d1 = el(
+            "circle",
+            {
+              r: 4,
+              fill: "var(--c-train)",
+              stroke: "var(--bg)",
+              "stroke-width": 2,
+              opacity: 0,
+            },
+            curveSvg
+          );
+          CG.d2 = el(
+            "circle",
+            {
+              r: 4,
+              fill: "var(--c-test)",
+              stroke: "var(--bg)",
+              "stroke-width": 2,
+              opacity: 0,
+            },
+            curveSvg
+          );
         }
         function hoverCurve(ev) {
           if (!D || !CG || !CG.cross) return;
@@ -903,7 +1377,8 @@
           const px = ev.clientX - curveSvg.getBoundingClientRect().left;
           let best = 0;
           for (let i = 0; i <= u; i++)
-            if (Math.abs(CG.x(ST[i]) - px) < Math.abs(CG.x(ST[best]) - px)) best = i;
+            if (Math.abs(CG.x(ST[i]) - px) < Math.abs(CG.x(ST[best]) - px))
+              best = i;
           const X = CG.x(ST[best]),
             a = r.tr[best],
             b = r.te[best];
@@ -923,7 +1398,10 @@
         }
         function leaveCurve() {
           tip1.classList.remove("on");
-          if (CG && CG.cross) [CG.cross, CG.d1, CG.d2].forEach((e) => e.setAttribute("opacity", 0));
+          if (CG && CG.cross)
+            [CG.cross, CG.d1, CG.d2].forEach((e) =>
+              e.setAttribute("opacity", 0)
+            );
         }
         bindHover(curveSvg, hoverCurve, leaveCurve);
 
@@ -933,8 +1411,8 @@
         function drawLaw() {
           const W = lawSvg.parentNode.clientWidth;
           if (!W) return;
-          const H = W < 480 ? 220 : 250;
-          const m = { l: 36, r: 10, t: 14, b: 30 };
+          const H = W < 480 ? 180 : 260;
+          const m = { l: 36, r: 10, t: 10, b: 28 };
           lawSvg.setAttribute("viewBox", `0 0 ${W} ${H}`);
           lawSvg.setAttribute("height", H);
           lawSvg.innerHTML = "";
@@ -942,8 +1420,10 @@
             ph = H - m.t - m.b;
           const CX = [200, 12000],
             NY = [60, 16000];
-          const x = (c) => m.l + (Math.log(c / CX[0]) / Math.log(CX[1] / CX[0])) * pw;
-          const y = (v) => m.t + (1 - Math.log(v / NY[0]) / Math.log(NY[1] / NY[0])) * ph;
+          const x = (c) =>
+            m.l + (Math.log(c / CX[0]) / Math.log(CX[1] / CX[0])) * pw;
+          const y = (v) =>
+            m.t + (1 - Math.log(v / NY[0]) / Math.log(NY[1] / NY[0])) * ph;
 
           let d = `M${x(CX[0])},${y(NY[1])}`;
           for (let i = 0; i <= 40; i++) {
@@ -954,19 +1434,89 @@
           el("path", { d, fill: "var(--c-zone)" }, lawSvg);
 
           for (const v of [100, 1000, 10000]) {
-            el("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), stroke: "var(--c-grid)" }, lawSvg);
-            el("text", { x: m.l - 5, y: y(v) + 4, "text-anchor": "end", "font-size": 10, fill: "var(--muted)" }, lawSvg, stepLabel(v));
+            el(
+              "line",
+              {
+                x1: m.l,
+                x2: W - m.r,
+                y1: y(v),
+                y2: y(v),
+                stroke: "var(--c-grid)",
+              },
+              lawSvg
+            );
+            el(
+              "text",
+              {
+                x: m.l - 5,
+                y: y(v) + 4,
+                "text-anchor": "end",
+                "font-size": 10,
+                fill: "var(--muted)",
+              },
+              lawSvg,
+              stepLabel(v)
+            );
           }
           for (const c of [300, 1000, 3000, 10000])
-            el("text", { x: x(c), y: H - m.b + 16, "text-anchor": c === 10000 ? "end" : "middle", "font-size": 10, fill: "var(--muted)" }, lawSvg, c >= 10000 ? "1만 칸" : c >= 1000 ? c / 1000 + "천" : c);
-          el("text", { x: m.l + 6, y: y(9000), "font-size": 11, "font-weight": 600, fill: "var(--c-test)" }, lawSvg, "일반화");
-          el("text", { x: W - m.r - 4, y: y(110), "text-anchor": "end", "font-size": 11, "font-weight": 600, fill: "var(--muted)" }, lawSvg, "암기에 그침");
-          el("line", { x1: x(CX[0]), y1: y(LAW(CX[0])), x2: x(CX[1]), y2: y(LAW(CX[1])), stroke: "var(--ink)", "stroke-width": 2 }, lawSvg);
+            el(
+              "text",
+              {
+                x: x(c),
+                y: H - m.b + 16,
+                "text-anchor": c === 10000 ? "end" : "middle",
+                "font-size": 10,
+                fill: "var(--muted)",
+              },
+              lawSvg,
+              c >= 10000 ? "1만 칸" : c >= 1000 ? c / 1000 + "천" : c
+            );
+          el(
+            "text",
+            {
+              x: m.l + 6,
+              y: y(9000),
+              "font-size": 11,
+              "font-weight": 600,
+              fill: "var(--c-test)",
+            },
+            lawSvg,
+            "일반화"
+          );
+          el(
+            "text",
+            {
+              x: W - m.r - 4,
+              y: y(110),
+              "text-anchor": "end",
+              "font-size": 11,
+              "font-weight": 600,
+              fill: "var(--muted)",
+            },
+            lawSvg,
+            "암기에 그침"
+          );
+          el(
+            "line",
+            {
+              x1: x(CX[0]),
+              y1: y(LAW(CX[0])),
+              x2: x(CX[1]),
+              y2: y(LAW(CX[1])),
+              stroke: "var(--ink)",
+              "stroke-width": 2,
+            },
+            lawSvg
+          );
 
           const pts = MEASURED.map(([op, n, C, b]) => ({
             cx: x(C),
             cy: y(b),
-            html: `<div class="h">실측 경계 · n = ${n}, ${OPN[op]}</div><div>C = ${fmt(C)} → N₀ = ${fmt(b)}</div><div>법칙 예측 ${fmt(LAW(C))}</div>`,
+            html: `<div class="h">실측 경계 · n = ${n}, ${
+              OPN[op]
+            }</div><div>C = ${fmt(C)} → N₀ = ${fmt(
+              b
+            )}</div><div>법칙 예측 ${fmt(LAW(C))}</div>`,
           }));
           const c = cond();
           if (c) {
@@ -977,19 +1527,64 @@
               me: true,
               cx: x(C),
               cy: y(Math.min(NY[1], S.N)),
-              html: `<div class="h">현재 조건 · n = ${S.n}, ${OPN[S.op]}, wd ${S.wd}</div><div>C = ${fmt(C)}, N = ${fmt(S.N)}</div><div>${rs.length}회 중 ${g}회 일반화</div>` +
+              html:
+                `<div class="h">현재 조건 · n = ${S.n}, ${OPN[S.op]}, wd ${
+                  S.wd
+                }</div><div>C = ${fmt(C)}, N = ${fmt(S.N)}</div><div>${
+                  rs.length
+                }회 중 ${g}회 일반화</div>` +
                 (c.b ? `<div>이 조건의 실측 경계 ${fmt(c.b)}</div>` : ""),
             });
           }
           for (const p of pts) {
-            el("circle", p.me
-              ? { cx: p.cx, cy: p.cy, r: 6, fill: "var(--bg)", stroke: "var(--ink)", "stroke-width": 2.5 }
-              : { cx: p.cx, cy: p.cy, r: 4.5, fill: "var(--muted)", stroke: "var(--bg)", "stroke-width": 2 }, lawSvg);
-            const hit = el("circle", { cx: p.cx, cy: p.cy, r: 18, fill: "transparent" }, lawSvg);
-            bindHover(hit, () => { tip3.innerHTML = p.html; placeTip(tip3, p.cx, p.cy, W); }, () => tip3.classList.remove("on"));
+            el(
+              "circle",
+              p.me
+                ? {
+                    cx: p.cx,
+                    cy: p.cy,
+                    r: 6,
+                    fill: "var(--bg)",
+                    stroke: "var(--ink)",
+                    "stroke-width": 2.5,
+                  }
+                : {
+                    cx: p.cx,
+                    cy: p.cy,
+                    r: 4.5,
+                    fill: "var(--muted)",
+                    stroke: "var(--bg)",
+                    "stroke-width": 2,
+                  },
+              lawSvg
+            );
+            const hit = el(
+              "circle",
+              { cx: p.cx, cy: p.cy, r: 18, fill: "transparent" },
+              lawSvg
+            );
+            bindHover(
+              hit,
+              () => {
+                tip3.innerHTML = p.html;
+                placeTip(tip3, p.cx, p.cy, W);
+              },
+              () => tip3.classList.remove("on")
+            );
           }
           if (c)
-            el("text", { x: x(Cof(S.n, S.op)) + 10, y: y(Math.min(NY[1], S.N)) + 4, "font-size": 11, "font-weight": 600, fill: "var(--ink)" }, lawSvg, "현재");
+            el(
+              "text",
+              {
+                x: x(Cof(S.n, S.op)) + 10,
+                y: y(Math.min(NY[1], S.N)) + 4,
+                "font-size": 11,
+                "font-weight": 600,
+                fill: "var(--ink)",
+              },
+              lawSvg,
+              "현재"
+            );
         }
 
         /* ---------- 상태 문구 ---------- */
@@ -1001,7 +1596,9 @@
             u = Math.min(upto, L),
             t = stepsOf(r)[u],
             sync = syncOf(r);
-          const now = `보여 준 문제 ${r.tr[u]}% · 처음 보는 문제 ${r.te[u]}% · step ${fmt(t)}`;
+          const now = `보여 준 문제 ${r.tr[u]}% · 처음 보는 문제 ${
+            r.te[u]
+          }% · step ${fmt(t)}`;
           if (u < L) {
             if (r.tg != null && t >= r.tg) {
               T.textContent = "③ 일반화";
@@ -1020,27 +1617,42 @@
           if (r.tg != null && endTe < 90) {
             // 규제가 지나치게 셀 때: 일반화했다가 무너지는 도중에 학습이 끝난 기록
             T.textContent = "③ 일반화 후 붕괴";
-            Dd.textContent = `step ${fmt(r.tg)}에 처음 보는 문제 95% 도달 후 ${endTe}%로 하락 · 규제가 지나치게 셈`;
+            Dd.textContent = `step ${fmt(
+              r.tg
+            )}에 처음 보는 문제 95% 도달 후 ${endTe}%로 하락 · 규제가 지나치게 셈`;
           } else if (r.tg != null && sync) {
             T.textContent = "③ 일반화 (지연 거의 0)";
-            Dd.textContent = `step ${fmt(r.tf)}에 암기, step ${fmt(r.tg)}에 처음 보는 문제 95% 도달`;
+            Dd.textContent = `step ${fmt(r.tf)}에 암기, step ${fmt(
+              r.tg
+            )}에 처음 보는 문제 95% 도달`;
           } else if (r.tg != null) {
             T.textContent = "③ 일반화";
-            Dd.textContent = r.tf != null
-              ? `step ${fmt(r.tf)}에 암기, ${fmt(r.tg - r.tf)} step 뒤 처음 보는 문제 95% 도달`
-              : `step ${fmt(r.tg)}에 처음 보는 문제 95% 도달`;
+            Dd.textContent =
+              r.tf != null
+                ? `step ${fmt(r.tf)}에 암기, ${fmt(
+                    r.tg - r.tf
+                  )} step 뒤 처음 보는 문제 95% 도달`
+                : `step ${fmt(r.tg)}에 처음 보는 문제 95% 도달`;
           } else {
             const c = cond();
             T.textContent = "일반화 실패";
             if (r.tf == null)
-              Dd.textContent = `${stepLabel(r.lim)} step까지 보여 준 문제도 암기 실패(최고 ${Math.max(...r.tr)}%)`;
+              Dd.textContent = `${stepLabel(
+                r.lim
+              )} step까지 보여 준 문제도 암기 실패(최고 ${Math.max(...r.tr)}%)`;
             else if (peak >= 50 && endTe >= peak - 5)
               // 한도에 걸릴 때 아직 오르는 중이던 기록
-              Dd.textContent = `${stepLabel(r.lim)} step 한도에서 학습 종료 · 처음 보는 문제 ${endTe}%까지 오르는 중이었음`;
+              Dd.textContent = `${stepLabel(
+                r.lim
+              )} step 한도에서 학습 종료 · 처음 보는 문제 ${endTe}%까지 오르는 중이었음`;
             else if (peak >= 50)
-              Dd.textContent = `처음 보는 문제가 ${peak}%까지 올랐다가 ${endTe}%로 하락 · ${stepLabel(r.lim)} step까지 95% 미달`;
+              Dd.textContent = `처음 보는 문제가 ${peak}%까지 올랐다가 ${endTe}%로 하락 · ${stepLabel(
+                r.lim
+              )} step까지 95% 미달`;
             else
-              Dd.textContent = `${stepLabel(r.lim)} step까지 처음 보는 문제 최고 ${peak}%` + (c.b ? ` · 이 조건의 경계 약 ${fmt(c.b)}개` : "");
+              Dd.textContent =
+                `${stepLabel(r.lim)} step까지 처음 보는 문제 최고 ${peak}%` +
+                (c.b ? ` · 이 조건의 경계 약 ${fmt(c.b)}개` : "");
           }
         }
 
@@ -1054,27 +1666,39 @@
             K = rs.length;
           $("#nval").innerHTML = fmt(S.N) + "<small>개</small>";
           $("#sC").textContent = fmt(C);
-          $("#sN0").textContent = fmt(LAW(C)) + "개" + (S.wd === 1 ? "" : " (wd 1 기준)");
+          $("#sN0").textContent =
+            fmt(LAW(C)) + "개" + (S.wd === 1 ? "" : " (wd 1 기준)");
           // 실측 경계 (이 화면의 기록으로 계산)
           const rate = (N) => c.N[N].filter(okOf).length / c.N[N].length;
           let bTxt;
           if (c.b) bTxt = `약 ${fmt(c.b)}개`;
           else if (rate(list[0]) >= 0.5) bTxt = `${fmt(list[0])}개 이하`;
-          else if (rate(list[list.length - 1]) < 0.5) bTxt = `${fmt(list[list.length - 1])}개 넘음`;
+          else if (rate(list[list.length - 1]) < 0.5)
+            bTxt = `${fmt(list[list.length - 1])}개 넘음`;
           else bTxt = "–";
           $("#sB").textContent = bTxt;
           $("#cond").textContent = `n ${S.n} · ${OPN[S.op]} · wd ${S.wd}`;
-          $("#seed").textContent = `실험 ${S.k + 1} / ${K} · seed ${cur().seed}` + (cur().ds ? ` · 표본 ${cur().ds}` : "");
+          $("#seed").textContent =
+            `실험 ${S.k + 1} / ${K} · seed ${cur().seed}` +
+            (cur().ds ? ` · 표본 ${cur().ds}` : "");
 
           let msg;
-          if (g === 0) msg = `<b>경계 아래</b> · 같은 조건 ${K}번 모두 암기에 그쳤습니다.`;
+          if (g === 0)
+            msg = `<b>경계 아래</b> · 같은 조건 ${K}번 모두 암기에 그쳤습니다.`;
           else if (g < K)
             msg = `<b>경계 근처</b> · ${K}번 중 <b>${g}번</b>만 일반화했습니다. 학습 seed에 따라 결과가 갈립니다. ↻로 다른 실험을 볼 수 있습니다.`;
           else {
             const ns = rs.filter(syncOf).length;
-            const delays = rs.filter((r) => !syncOf(r) && r.tf != null).map((r) => r.tg - r.tf).sort((a, b) => a - b);
-            if (ns * 2 > K) msg = `<b>경계보다 훨씬 위</b> · ${K}번 모두 일반화했고, ${ns}번은 암기와 거의 동시에 일반화했습니다.`;
-            else msg = `<b>경계 위</b> · ${K}번 모두 일반화했습니다. 암기한 뒤 일반화까지 지연은 중앙값 약 <b>${fmt(delays[Math.floor(delays.length / 2)])}</b> step입니다.`;
+            const delays = rs
+              .filter((r) => !syncOf(r) && r.tf != null)
+              .map((r) => r.tg - r.tf)
+              .sort((a, b) => a - b);
+            if (ns * 2 > K)
+              msg = `<b>경계보다 훨씬 위</b> · ${K}번 모두 일반화했고, ${ns}번은 암기와 거의 동시에 일반화했습니다.`;
+            else
+              msg = `<b>경계 위</b> · ${K}번 모두 일반화했습니다. 암기한 뒤 일반화까지 지연은 중앙값 약 <b>${fmt(
+                delays[Math.floor(delays.length / 2)]
+              )}</b> step입니다.`;
           }
           $("#verdict").innerHTML = msg;
 
@@ -1085,7 +1709,11 @@
               const rr = c.N[N],
                 gg = rr.filter(okOf).length;
               const pct = Math.round((gg / rr.length) * 32);
-              return `<button data-n="${N}" aria-pressed="${N === S.N}" style="background:color-mix(in srgb, var(--c-test) ${pct}%, var(--bg))">${fmt(N)}<small>${gg}/${rr.length}</small></button>`;
+              return `<button data-n="${N}" aria-pressed="${
+                N === S.N
+              }" style="background:color-mix(in srgb, var(--c-test) ${pct}%, var(--bg))">${fmt(
+                N
+              )}<small>${gg}/${rr.length}</small></button>`;
             })
             .join("");
           strip.querySelectorAll("button").forEach((b) =>
@@ -1107,7 +1735,10 @@
           for (const [sel, key, ok] of segs) {
             let lastV = null;
             $$(sel + " button").forEach((b) => {
-              b.setAttribute("aria-pressed", String(b.dataset.v) === String(S[key]));
+              b.setAttribute(
+                "aria-pressed",
+                String(b.dataset.v) === String(S[key])
+              );
               b.hidden = !ok(b.dataset.v);
               b.classList.remove("lastv");
               if (!b.hidden) lastV = b;
@@ -1125,7 +1756,10 @@
             const [op, n, wd] = k.split("|");
             const c = { op, n: +n, wd: +wd };
             if (String(c[fixedKey]) !== String(S[fixedKey])) continue;
-            const dist = (op !== S.op ? 3 : 0) + Math.abs(Math.log(c.n / S.n)) * 2 + Math.abs(Math.log(c.wd / S.wd));
+            const dist =
+              (op !== S.op ? 3 : 0) +
+              Math.abs(Math.log(c.n / S.n)) * 2 +
+              Math.abs(Math.log(c.wd / S.wd));
             if (dist < bd) (bd = dist), (best = c);
           }
           if (best) Object.assign(S, best);
@@ -1133,7 +1767,9 @@
         function snapN() {
           const list = Ns();
           if (list.includes(S.N)) return;
-          S.N = list.reduce((a, b) => (Math.abs(Math.log(b / S.N)) < Math.abs(Math.log(a / S.N)) ? b : a));
+          S.N = list.reduce((a, b) =>
+            Math.abs(Math.log(b / S.N)) < Math.abs(Math.log(a / S.N)) ? b : a
+          );
         }
 
         const drawAll = () => {
@@ -1218,7 +1854,16 @@
           rz = setTimeout(() => D && drawAll(), 100);
         });
         window.__boundRedraw = () => D && drawAll();
-        matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => D && drawAll());
+        const wideMQ = matchMedia("(min-width: 1024px)");
+        const syncWide = () => {
+          if (wideMQ.matches) $("details.more").open = true;
+        };
+        wideMQ.addEventListener("change", syncWide);
+        syncWide();
+        matchMedia("(prefers-color-scheme: dark)").addEventListener(
+          "change",
+          () => D && drawAll()
+        );
 
         fetch("bound.json")
           .then((r) => r.json())
@@ -1233,7 +1878,8 @@
           })
           .catch(() => {
             $("#pT").textContent = "기록을 불러오지 못했습니다";
-            $("#pD").textContent = "인터넷 연결을 확인하고 페이지를 새로 고쳐 주세요.";
+            $("#pD").textContent =
+              "인터넷 연결을 확인하고 페이지를 새로 고쳐 주세요.";
           });
       })();
     </script>
@@ -1253,7 +1899,8 @@
           if (parent) parent.appendChild(e);
           return e;
         }
-        const kTick = (t) => ({ 10: "10", 100: "100", 1000: "1천", 10000: "1만" }[t]);
+        const kTick = (t) =>
+          ({ 10: "10", 100: "100", 1000: "1천", 10000: "1만" }[t]);
 
         /* ---------- 탭 전환 ---------- */
         const EXPS = ["bound", "noise"];
@@ -1266,14 +1913,16 @@
             b.tabIndex = on ? 0 : -1;
             $("#exp-" + b.dataset.exp).hidden = !on;
           });
-          if (push && location.hash !== "#" + id) history.replaceState(null, "", "#" + id);
+          if (push && location.hash !== "#" + id)
+            history.replaceState(null, "", "#" + id);
           if (id === "bound" && window.__boundRedraw) window.__boundRedraw();
           if (id === "noise") noiseInit();
         }
         xtabs.forEach((b, i) => {
           b.addEventListener("click", () => showExp(b.dataset.exp, true));
           b.addEventListener("keydown", (e) => {
-            const d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+            const d =
+              e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
             if (!d) return;
             e.preventDefault();
             const nb = xtabs[(i + d + xtabs.length) % xtabs.length];
@@ -1285,7 +1934,8 @@
         /* ---------- 공통: 툴팁 ---------- */
         function placeTip(tip, X, Y, W) {
           tip.classList.add("on");
-          const tw = tip.offsetWidth, th = tip.offsetHeight;
+          const tw = tip.offsetWidth,
+            th = tip.offsetHeight;
           tip.style.left = Math.max(0, Math.min(W - tw, X - tw / 2)) + "px";
           let top = Y - th - 14;
           if (top < 0) top = Y + 16;
@@ -1294,42 +1944,84 @@
 
         /* =================== 오답 섞기 =================== */
         const NZ = { mode: "scatter", N: 2048, wd: 1, seed: 0 };
-        let ND = null, nLoaded = false, nRaf = 0, nUpto = 0, NG = null;
-        const WDS = [1, 3, 5, 7, 10, 15], NS_ = [1024, 2048, 4096];
-        const runOf = (mode, N, wd, s) => ND && ND.runs[`${mode}|${N}|${wd}|${s}`];
+        let ND = null,
+          nLoaded = false,
+          nRaf = 0,
+          nUpto = 0,
+          NG = null;
+        const WDS = [1, 3, 5, 7, 10, 15],
+          NS_ = [1024, 2048, 4096];
+        const runOf = (mode, N, wd, s) =>
+          ND && ND.runs[`${mode}|${N}|${wd}|${s}`];
 
         function classify(r, mode) {
-          const L = r.test.length - 1, test = r.test[L];
+          const L = r.test.length - 1,
+            test = r.test[L];
           if (test < 90) return "fail";
           if (mode === "none") return "none";
-          const mem = r.mem[L], peak = Math.max(...r.mem);
+          const mem = r.mem[L],
+            peak = Math.max(...r.mem);
           if (mem < 10) return peak < 20 ? "never" : "fixed";
           if (mem >= 50) return "kept";
           return "part";
         }
-        const CLS_NAME = { kept: "남음", fixed: "고침", never: "고침", part: "일부", fail: "실패", none: "오답 없음" };
-        const CLS_CSS = { kept: "kept", fixed: "fixed", never: "fixed", part: "part", fail: "fail", none: "none" };
+        const CLS_NAME = {
+          kept: "남음",
+          fixed: "고침",
+          never: "고침",
+          part: "일부",
+          fail: "실패",
+          none: "오답 없음",
+        };
+        const CLS_CSS = {
+          kept: "kept",
+          fixed: "fixed",
+          never: "fixed",
+          part: "part",
+          fail: "fail",
+          none: "none",
+        };
 
         function noiseInit() {
-          if (nLoaded) { drawNoise(); return; }
+          if (nLoaded) {
+            drawNoise();
+            return;
+          }
           nLoaded = true;
           fetch("noise.json")
             .then((r) => r.json())
-            .then((d) => { ND = d; syncNoiseUI(); playNoise(); })
+            .then((d) => {
+              ND = d;
+              syncNoiseUI();
+              playNoise();
+            })
             .catch(() => {
               $("#nT").textContent = "기록을 불러오지 못했습니다";
-              $("#nD").textContent = "인터넷 연결을 확인하고 페이지를 새로 고쳐 주세요.";
+              $("#nD").textContent =
+                "인터넷 연결을 확인하고 페이지를 새로 고쳐 주세요.";
             });
         }
 
         function syncNoiseUI() {
-          for (const [sel, key] of [["#nseg-mode", "mode"], ["#nseg-N", "N"], ["#nseg-wd", "wd"]])
-            $$(sel + " button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v) === String(NZ[key])));
+          for (const [sel, key] of [
+            ["#nseg-mode", "mode"],
+            ["#nseg-N", "N"],
+            ["#nseg-wd", "wd"],
+          ])
+            $$(sel + " button").forEach((b) =>
+              b.setAttribute(
+                "aria-pressed",
+                String(b.dataset.v) === String(NZ[key])
+              )
+            );
           $$(".lg-noise").forEach((e) => (e.hidden = NZ.mode === "none"));
           $("#nSeed").textContent = `실험 ${NZ.seed + 1} / 4`;
           // 4번 중 몇 번?
           const cnt = {};
-          for (let s = 0; s < 4; s++) { const c = classify(runOf(NZ.mode, NZ.N, NZ.wd, s), NZ.mode); cnt[c] = (cnt[c] || 0) + 1; }
+          for (let s = 0; s < 4; s++) {
+            const c = classify(runOf(NZ.mode, NZ.N, NZ.wd, s), NZ.mode);
+            cnt[c] = (cnt[c] || 0) + 1;
+          }
           const parts = [];
           if (cnt.fail) parts.push(`규칙 학습 실패·붕괴 ${cnt.fail}번`);
           if (cnt.kept) parts.push(`오답 유지 ${cnt.kept}번`);
@@ -1337,19 +2029,30 @@
           if (cnt.fixed) parts.push(`정답으로 교정 ${cnt.fixed}번`);
           if (cnt.never) parts.push(`오답 암기 거의 없음 ${cnt.never}번`);
           if (cnt.none) parts.push(`오답 없음 ${cnt.none}번`);
-          $("#nVerdict").innerHTML = `<b>같은 조건 4회</b> · ${parts.join(" · ")}`;
+          $("#nVerdict").innerHTML = `<b>같은 조건 4회</b> · ${parts.join(
+            " · "
+          )}`;
           drawOverview();
         }
 
         function drawOverview() {
           const t = $("#ov");
-          let h = "<thead><tr><th scope=\"col\">규제 \\ 문제 수</th>" + NS_.map((N) => `<th scope="col">${fmt(N)}</th>`).join("") + "</tr></thead><tbody>";
+          let h =
+            '<thead><tr><th scope="col">규제 \\ 문제 수</th>' +
+            NS_.map((N) => `<th scope="col">${fmt(N)}</th>`).join("") +
+            "</tr></thead><tbody>";
           for (const wd of WDS) {
             h += `<tr><th scope="row">${wd}</th>`;
             for (const N of NS_) {
               const cnt = {};
-              for (let s = 0; s < 4; s++) { const c = classify(runOf(NZ.mode, N, wd, s), NZ.mode); cnt[c] = (cnt[c] || 0) + 1; }
-              if (cnt.never) { cnt.fixed = (cnt.fixed || 0) + cnt.never; delete cnt.never; }
+              for (let s = 0; s < 4; s++) {
+                const c = classify(runOf(NZ.mode, N, wd, s), NZ.mode);
+                cnt[c] = (cnt[c] || 0) + 1;
+              }
+              if (cnt.never) {
+                cnt.fixed = (cnt.fixed || 0) + cnt.never;
+                delete cnt.never;
+              }
               const top = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0];
               const on = N === NZ.N && wd === NZ.wd;
               h += `<td><button class="${CLS_CSS[top]}" data-n="${N}" data-wd="${wd}" aria-pressed="${on}">${CLS_NAME[top]}<small>${cnt[top]}/4</small></button></td>`;
@@ -1357,127 +2060,311 @@
             h += "</tr>";
           }
           t.innerHTML = h + "</tbody>";
-          $("#ovSub").textContent = (NZ.mode === "none"
-            ? "오답을 넣지 않은 비교 실험입니다. "
-            : NZ.mode === "scatter" ? "흩어진 오답 10%를 넣은 결과입니다. " : "같은 칸 오답 10%를 넣은 결과입니다. ") +
+          $("#ovSub").textContent =
+            (NZ.mode === "none"
+              ? "오답을 넣지 않은 비교 실험입니다. "
+              : NZ.mode === "scatter"
+              ? "흩어진 오답 10%를 넣은 결과입니다. "
+              : "같은 칸 오답 10%를 넣은 결과입니다. ") +
             "칸마다 4번씩 학습했고, 칸을 누르면 해당 조건의 기록이 위에 표시됩니다.";
           t.querySelectorAll("button").forEach((b) =>
             b.addEventListener("click", () => {
-              NZ.N = +b.dataset.n; NZ.wd = +b.dataset.wd; NZ.seed = 0;
-              syncNoiseUI(); playNoise();
-              $("#exp-noise .stage").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+              NZ.N = +b.dataset.n;
+              NZ.wd = +b.dataset.wd;
+              NZ.seed = 0;
+              syncNoiseUI();
+              playNoise();
+              $("#exp-noise .stage").scrollIntoView({
+                behavior: reduce ? "auto" : "smooth",
+                block: "start",
+              });
             })
           );
         }
 
         function noiseStatus(r, upto) {
-          const T = $("#nT"), D = $("#nD");
-          const steps = ND.steps, L = r.test.length - 1;
+          const T = $("#nT"),
+            D = $("#nD");
+          const steps = ND.steps,
+            L = r.test.length - 1;
           if (upto < L) {
             T.textContent = "학습 중";
-            D.textContent = `step ${fmt(steps[upto])} · 처음 보는 문제 ${r.test[upto]}%` + (NZ.mode === "none" ? "" : ` · 암기한 오답 ${r.mem[upto]}%`);
+            D.textContent =
+              `step ${fmt(steps[upto])} · 처음 보는 문제 ${r.test[upto]}%` +
+              (NZ.mode === "none" ? "" : ` · 암기한 오답 ${r.mem[upto]}%`);
             return;
           }
-          const c = classify(r, NZ.mode), test = r.test[L];
+          const c = classify(r, NZ.mode),
+            test = r.test[L];
           if (c === "fail") {
             const peakT = Math.max(...r.test);
-            if (peakT >= 90) { T.textContent = "규칙 붕괴"; D.textContent = `처음 보는 문제 정답률이 ${peakT}%까지 올랐다가 ${test}%로 떨어짐. 규제가 지나치게 셈`; }
-            else { T.textContent = "규칙 학습 실패"; D.textContent = `처음 보는 문제 정답률 ${test}%. 규제가 지나치게 셈`; }
-          }
-          else if (c === "none") { T.textContent = "오답 없음 (비교)"; D.textContent = `처음 보는 문제 정답률 ${test}%`; }
-          else if (c === "kept") { T.textContent = "오답 유지"; D.textContent = `처음 보는 문제 정답률 ${test}% · 오답을 넣은 자리에서는 암기한 오답 ${r.mem[L]}%`; }
-          else if (c === "part") { T.textContent = "오답 일부 유지"; D.textContent = `처음 보는 문제 정답률 ${test}% · 암기한 오답 ${r.mem[L]}%`; }
-          else if (c === "never") { T.textContent = "오답 암기 거의 없음"; D.textContent = `처음 보는 문제 정답률 ${test}% · 오답을 넣은 자리에서도 처음부터 원래 정답을 냄`; }
-          else {
+            if (peakT >= 90) {
+              T.textContent = "규칙 붕괴";
+              D.textContent = `처음 보는 문제 정답률이 ${peakT}%까지 올랐다가 ${test}%로 떨어짐. 규제가 지나치게 셈`;
+            } else {
+              T.textContent = "규칙 학습 실패";
+              D.textContent = `처음 보는 문제 정답률 ${test}%. 규제가 지나치게 셈`;
+            }
+          } else if (c === "none") {
+            T.textContent = "오답 없음 (비교)";
+            D.textContent = `처음 보는 문제 정답률 ${test}%`;
+          } else if (c === "kept") {
+            T.textContent = "오답 유지";
+            D.textContent = `처음 보는 문제 정답률 ${test}% · 오답을 넣은 자리에서는 암기한 오답 ${r.mem[L]}%`;
+          } else if (c === "part") {
+            T.textContent = "오답 일부 유지";
+            D.textContent = `처음 보는 문제 정답률 ${test}% · 암기한 오답 ${r.mem[L]}%`;
+          } else if (c === "never") {
+            T.textContent = "오답 암기 거의 없음";
+            D.textContent = `처음 보는 문제 정답률 ${test}% · 오답을 넣은 자리에서도 처음부터 원래 정답을 냄`;
+          } else {
             const pk = r.mem.indexOf(Math.max(...r.mem));
-            let k = pk; while (k < L && r.mem[k] >= 10) k++;
+            let k = pk;
+            while (k < L && r.mem[k] >= 10) k++;
             T.textContent = "정답으로 교정";
-            D.textContent = `암기한 오답이 최대 ${r.mem[pk]}%까지 늘었다가 step ${fmt(steps[k])} 무렵 원래 정답으로 바뀜`;
+            D.textContent = `암기한 오답이 최대 ${
+              r.mem[pk]
+            }%까지 늘었다가 step ${fmt(steps[k])} 무렵 원래 정답으로 바뀜`;
           }
         }
 
-        const nsvg = $("#ncurve"), ntip = $("#ntip");
+        const nsvg = $("#ncurve"),
+          ntip = $("#ntip");
         function drawNoise() {
           if (!ND) return;
           const r = runOf(NZ.mode, NZ.N, NZ.wd, NZ.seed);
           const W = nsvg.parentNode.clientWidth;
           if (!W) return;
-          const H = W < 480 ? 210 : 240, m = { l: 34, r: 8, t: 14, b: 26 };
+          const H = W < 480 ? 210 : 240,
+            m = { l: 34, r: 8, t: 14, b: 26 };
           nsvg.setAttribute("viewBox", `0 0 ${W} ${H}`);
           nsvg.setAttribute("height", H);
           nsvg.innerHTML = "";
-          const pw = W - m.l - m.r, ph = H - m.t - m.b;
-          const T0 = 10, T1 = 60000;
-          const x = (t) => m.l + (Math.log(t) - Math.log(T0)) / (Math.log(T1) - Math.log(T0)) * pw;
+          const pw = W - m.l - m.r,
+            ph = H - m.t - m.b;
+          const T0 = 10,
+            T1 = 60000;
+          const x = (t) =>
+            m.l +
+            ((Math.log(t) - Math.log(T0)) / (Math.log(T1) - Math.log(T0))) * pw;
           const y = (v) => m.t + (1 - v / 100) * ph;
           NG = { x, y, m, W, ph, pw, T0, T1 };
           for (const v of [0, 50, 100]) {
-            el("line", { x1: m.l, x2: W - m.r, y1: y(v), y2: y(v), stroke: "var(--c-grid)" }, nsvg);
-            el("text", { x: m.l - 5, y: y(v) + 4, "text-anchor": "end", "font-size": 10, fill: "var(--muted)" }, nsvg, v + "%");
+            el(
+              "line",
+              {
+                x1: m.l,
+                x2: W - m.r,
+                y1: y(v),
+                y2: y(v),
+                stroke: "var(--c-grid)",
+              },
+              nsvg
+            );
+            el(
+              "text",
+              {
+                x: m.l - 5,
+                y: y(v) + 4,
+                "text-anchor": "end",
+                "font-size": 10,
+                fill: "var(--muted)",
+              },
+              nsvg,
+              v + "%"
+            );
           }
-          for (const t of [10, 100, 1000, 10000]) el("text", { x: x(t), y: H - m.b + 16, "text-anchor": t === 10 ? "start" : "middle", "font-size": 10, fill: "var(--muted)" }, nsvg, kTick(t));
-          el("text", { x: W - m.r, y: H - m.b + 16, "text-anchor": "end", "font-size": 10, fill: "var(--muted)" }, nsvg, "6만 step");
-          const S = ND.steps, upto = Math.min(nUpto, r.test.length - 1);
-          const path = (arr) => { let d = ""; for (let i = 0; i <= upto; i++) d += (i ? "L" : "M") + x(S[i]).toFixed(1) + "," + y(arr[i]).toFixed(1); return d; };
-          const line = (arr, col, dash) => el("path", { d: path(arr), fill: "none", stroke: col, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round", ...(dash ? { "stroke-dasharray": "5 4" } : {}) }, nsvg);
-          if (NZ.mode !== "none") { line(r.fix, "var(--c-fix)", true); line(r.mem, "var(--c-train)"); }
+          for (const t of [10, 100, 1000, 10000])
+            el(
+              "text",
+              {
+                x: x(t),
+                y: H - m.b + 16,
+                "text-anchor": t === 10 ? "start" : "middle",
+                "font-size": 10,
+                fill: "var(--muted)",
+              },
+              nsvg,
+              kTick(t)
+            );
+          el(
+            "text",
+            {
+              x: W - m.r,
+              y: H - m.b + 16,
+              "text-anchor": "end",
+              "font-size": 10,
+              fill: "var(--muted)",
+            },
+            nsvg,
+            "6만 step"
+          );
+          const S = ND.steps,
+            upto = Math.min(nUpto, r.test.length - 1);
+          const path = (arr) => {
+            let d = "";
+            for (let i = 0; i <= upto; i++)
+              d +=
+                (i ? "L" : "M") +
+                x(S[i]).toFixed(1) +
+                "," +
+                y(arr[i]).toFixed(1);
+            return d;
+          };
+          const line = (arr, col, dash) =>
+            el(
+              "path",
+              {
+                d: path(arr),
+                fill: "none",
+                stroke: col,
+                "stroke-width": 2,
+                "stroke-linejoin": "round",
+                "stroke-linecap": "round",
+                ...(dash ? { "stroke-dasharray": "5 4" } : {}),
+              },
+              nsvg
+            );
+          if (NZ.mode !== "none") {
+            line(r.fix, "var(--c-fix)", true);
+            line(r.mem, "var(--c-train)");
+          }
           line(r.test, "var(--c-test)");
           const X = x(S[upto]);
-          const dot = (v, col) => el("circle", { cx: X, cy: y(v), r: 4, fill: col, stroke: "var(--bg)", "stroke-width": 2 }, nsvg);
-          if (NZ.mode !== "none") { dot(r.fix[upto], "var(--c-fix)"); dot(r.mem[upto], "var(--c-train)"); }
+          const dot = (v, col) =>
+            el(
+              "circle",
+              {
+                cx: X,
+                cy: y(v),
+                r: 4,
+                fill: col,
+                stroke: "var(--bg)",
+                "stroke-width": 2,
+              },
+              nsvg
+            );
+          if (NZ.mode !== "none") {
+            dot(r.fix[upto], "var(--c-fix)");
+            dot(r.mem[upto], "var(--c-train)");
+          }
           dot(r.test[upto], "var(--c-test)");
-          NG.cross = el("line", { y1: m.t, y2: m.t + ph, stroke: "var(--muted)", opacity: 0 }, nsvg);
+          NG.cross = el(
+            "line",
+            { y1: m.t, y2: m.t + ph, stroke: "var(--muted)", opacity: 0 },
+            nsvg
+          );
           noiseStatus(r, upto);
         }
         function playNoise() {
           cancelAnimationFrame(nRaf);
-          const r = runOf(NZ.mode, NZ.N, NZ.wd, NZ.seed), L = r.test.length - 1;
-          if (reduce) { nUpto = L; drawNoise(); return; }
-          const start = performance.now(), dur = 3000;
+          const r = runOf(NZ.mode, NZ.N, NZ.wd, NZ.seed),
+            L = r.test.length - 1;
+          if (reduce) {
+            nUpto = L;
+            drawNoise();
+            return;
+          }
+          const start = performance.now(),
+            dur = 3000;
           const tick = (now) => {
             const u = Math.min(1, (now - start) / dur);
             const k = Math.round(u * L);
-            if (k !== nUpto || u === 1) { nUpto = k; drawNoise(); }
+            if (k !== nUpto || u === 1) {
+              nUpto = k;
+              drawNoise();
+            }
             if (u < 1) nRaf = requestAnimationFrame(tick);
           };
-          nUpto = 0; drawNoise();
+          nUpto = 0;
+          drawNoise();
           nRaf = requestAnimationFrame(tick);
         }
         function hoverNoise(ev) {
           if (!ND || !NG) return;
           const r = runOf(NZ.mode, NZ.N, NZ.wd, NZ.seed);
-          const px = ev.clientX - nsvg.getBoundingClientRect().left, S = ND.steps;
+          const px = ev.clientX - nsvg.getBoundingClientRect().left,
+            S = ND.steps;
           const upto = Math.min(nUpto, r.test.length - 1);
           let best = 0;
-          for (let i = 0; i <= upto; i++) if (Math.abs(NG.x(S[i]) - px) < Math.abs(NG.x(S[best]) - px)) best = i;
+          for (let i = 0; i <= upto; i++)
+            if (Math.abs(NG.x(S[i]) - px) < Math.abs(NG.x(S[best]) - px))
+              best = i;
           const X = NG.x(S[best]);
-          NG.cross.setAttribute("x1", X); NG.cross.setAttribute("x2", X); NG.cross.setAttribute("opacity", 0.6);
-          ntip.innerHTML = `<div class="h">step ${fmt(S[best])}</div><div><span class="sw" style="background:var(--c-test)"></span>처음 보는 문제 ${r.test[best]}%</div>` +
-            (NZ.mode === "none" ? "" : `<div><span class="sw" style="background:var(--c-train)"></span>암기한 오답 ${r.mem[best]}%</div><div><span class="sw" style="background:var(--c-fix)"></span>원래 정답 ${r.fix[best]}%</div>`);
-          placeTip(ntip, X, NG.y(Math.max(r.test[best], NZ.mode === "none" ? 0 : r.mem[best])), NG.W);
+          NG.cross.setAttribute("x1", X);
+          NG.cross.setAttribute("x2", X);
+          NG.cross.setAttribute("opacity", 0.6);
+          ntip.innerHTML =
+            `<div class="h">step ${fmt(
+              S[best]
+            )}</div><div><span class="sw" style="background:var(--c-test)"></span>처음 보는 문제 ${
+              r.test[best]
+            }%</div>` +
+            (NZ.mode === "none"
+              ? ""
+              : `<div><span class="sw" style="background:var(--c-train)"></span>암기한 오답 ${r.mem[best]}%</div><div><span class="sw" style="background:var(--c-fix)"></span>원래 정답 ${r.fix[best]}%</div>`);
+          placeTip(
+            ntip,
+            X,
+            NG.y(Math.max(r.test[best], NZ.mode === "none" ? 0 : r.mem[best])),
+            NG.W
+          );
         }
-        function leaveNoise() { ntip.classList.remove("on"); if (NG && NG.cross) NG.cross.setAttribute("opacity", 0); }
+        function leaveNoise() {
+          ntip.classList.remove("on");
+          if (NG && NG.cross) NG.cross.setAttribute("opacity", 0);
+        }
         let ntimer = 0;
-        nsvg.addEventListener("pointermove", (e) => { clearTimeout(ntimer); hoverNoise(e); });
-        nsvg.addEventListener("pointerdown", (e) => { clearTimeout(ntimer); hoverNoise(e); });
-        nsvg.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") leaveNoise(); });
-        nsvg.addEventListener("pointerup", (e) => { if (e.pointerType !== "mouse") ntimer = setTimeout(leaveNoise, 1600); });
+        nsvg.addEventListener("pointermove", (e) => {
+          clearTimeout(ntimer);
+          hoverNoise(e);
+        });
+        nsvg.addEventListener("pointerdown", (e) => {
+          clearTimeout(ntimer);
+          hoverNoise(e);
+        });
+        nsvg.addEventListener("pointerleave", (e) => {
+          if (e.pointerType === "mouse") leaveNoise();
+        });
+        nsvg.addEventListener("pointerup", (e) => {
+          if (e.pointerType !== "mouse") ntimer = setTimeout(leaveNoise, 1600);
+        });
 
-        const nBind = (sel, key, parse) => $$(sel + " button").forEach((b) =>
-          b.addEventListener("click", () => { NZ[key] = parse(b.dataset.v); NZ.seed = 0; syncNoiseUI(); playNoise(); }));
+        const nBind = (sel, key, parse) =>
+          $$(sel + " button").forEach((b) =>
+            b.addEventListener("click", () => {
+              NZ[key] = parse(b.dataset.v);
+              NZ.seed = 0;
+              syncNoiseUI();
+              playNoise();
+            })
+          );
         nBind("#nseg-mode", "mode", String);
         nBind("#nseg-N", "N", Number);
         nBind("#nseg-wd", "wd", Number);
-        $("#nRun").addEventListener("click", () => { if (!ND) return; NZ.seed = (NZ.seed + 1) % 4; syncNoiseUI(); playNoise(); });
-        $("#nSkip").addEventListener("click", () => { if (!ND) return; cancelAnimationFrame(nRaf); nUpto = 999; drawNoise(); });
+        $("#nRun").addEventListener("click", () => {
+          if (!ND) return;
+          NZ.seed = (NZ.seed + 1) % 4;
+          syncNoiseUI();
+          playNoise();
+        });
+        $("#nSkip").addEventListener("click", () => {
+          if (!ND) return;
+          cancelAnimationFrame(nRaf);
+          nUpto = 999;
+          drawNoise();
+        });
 
         /* ---------- 크기 변화 ---------- */
-        let lastW = innerWidth, rz = 0;
+        let lastW = innerWidth,
+          rz = 0;
         addEventListener("resize", () => {
           if (innerWidth === lastW) return;
           lastW = innerWidth;
           clearTimeout(rz);
-          rz = setTimeout(() => { if (!$("#exp-noise").hidden) drawNoise(); }, 100);
+          rz = setTimeout(() => {
+            if (!$("#exp-noise").hidden) drawNoise();
+          }, 100);
         });
 
         const start = location.hash.slice(1);

@@ -35,5 +35,29 @@
         </li>
       </ul>
     </main>
+    <script>
+      // L 키: 전시용 반복 화면을 전체 화면으로 띄운다 (Esc로 닫기)
+      (() => {
+        let fr = null;
+        const close = () => {
+          if (!fr) return;
+          fr.remove();
+          fr = null;
+          if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+        };
+        addEventListener("keydown", (e) => {
+          if (e.code !== "KeyL" || fr || e.ctrlKey || e.metaKey || e.altKey) return;
+          fr = document.createElement("iframe");
+          fr.src = "loop/";
+          fr.allow = "screen-wake-lock; fullscreen";
+          fr.style.cssText = "position:fixed;inset:0;width:100%;height:100%;border:0;z-index:99;background:#0e0e0e";
+          document.body.appendChild(fr);
+          fr.addEventListener("load", () => fr && fr.focus());
+          document.documentElement.requestFullscreen?.().catch(() => {});
+        });
+        addEventListener("message", (e) => e.data === "loop-exit" && close());
+        document.addEventListener("fullscreenchange", () => !document.fullscreenElement && close());
+      })();
+    </script>
   </body>
 </html>
