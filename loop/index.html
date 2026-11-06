@@ -6,14 +6,14 @@
     <title>전시 화면</title>
     <style>
       :root {
-        --bg: #0e0e0e;
-        --ink: #f0f0f0;
-        --muted: #8f8f8f;
-        --line: #2c2c2c;
-        --grid: #222;
-        --train: #f07a3e;
-        --test: #4a95ef;
-        --fix: #46b37b;
+        --bg: #ffffff;
+        --ink: #111111;
+        --muted: #6e6e6e;
+        --line: #dcdcdc;
+        --grid: #ececec;
+        --train: #eb6834;
+        --test: #2a78d6;
+        --fix: #2f9461;
       }
       html,
       body {
@@ -263,7 +263,7 @@
           const { lx, ly } = axes(box, [100, 60000], [[100, "100"], [1000, "1천"], [10000, "1만"], [60000, "6만 step"]],
             (v) => v + "%", false, [0, 100], [0, 50, 100]);
           legend([["var(--train)", "보여 준 문제 정답률"], ["var(--test)", "처음 보는 문제 정답률"]], box.x, box.y + box.h + 80);
-          const zone = el("rect", { x: 0, y: box.y, width: 0, height: box.h, fill: "rgba(74,149,239,0.10)" });
+          const zone = el("rect", { x: 0, y: box.y, width: 0, height: box.h, fill: "rgba(42,120,214,0.08)" });
           // 처음 보는 문제 곡선이 위에 오게 (둘 다 100%일 때 가려지지 않도록)
           const pTr = el("path", lineStyle("var(--train)"));
           const pTe = el("path", lineStyle("var(--test)"));
@@ -420,7 +420,7 @@
         async function sQR() {
           await head("", "", "");
           const size = 420, n = QR.length, q = 4, cell = size / (n + 2 * q), X = 1000, Y = 230;
-          el("rect", { x: X, y: Y, width: size, height: size, fill: "#fff", rx: 8 });
+          el("rect", { x: X, y: Y, width: size, height: size, fill: "#fff", rx: 8, stroke: "var(--line)", "stroke-width": 2 });
           let d = "";
           QR.forEach((row, i) => [...row].forEach((b, j) => {
             if (b === "1") d += `M${(X + (j + q) * cell).toFixed(2)},${(Y + (i + q) * cell).toFixed(2)}h${cell.toFixed(2)}v${cell.toFixed(2)}h-${cell.toFixed(2)}z`;
