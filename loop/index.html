@@ -45,6 +45,20 @@
         top: 64px;
         transition: opacity 0.35s;
       }
+      .cap {
+        position: absolute;
+        left: 120px;
+        right: 120px;
+        bottom: 64px;
+        text-align: center;
+        font-size: 30px;
+        line-height: 1.4;
+        color: var(--ink);
+        transition: opacity 0.25s;
+      }
+      .cap.off {
+        opacity: 0;
+      }
       .head.off {
         opacity: 0;
       }
@@ -54,7 +68,7 @@
         margin: 0 0 10px;
       }
       .title {
-        font-size: 58px;
+        font-size: 52px;
         font-weight: 700;
         line-height: 1.22;
         letter-spacing: -0.02em;
@@ -104,7 +118,7 @@
       .qr {
         position: absolute;
         right: 40px;
-        top: 36px;
+        top: 14px;
         width: 150px;
         text-align: center;
       }
@@ -129,7 +143,7 @@
       .brand {
         position: absolute;
         right: 40px;
-        bottom: 20px;
+        bottom: 6px;
         font-size: 20px;
         color: var(--muted);
       }
@@ -152,9 +166,10 @@
         <p class="sub" id="sub"></p>
       </div>
       <svg id="g" viewBox="0 0 1600 900" aria-hidden="true"></svg>
+      <div class="cap" id="cap"></div>
       <div class="dots" id="dots"></div>
       <div class="qr" id="qr"></div>
-      <div class="brand">2026 청소년과학탐구대회 · EIDOS</div>
+      <div class="brand">2026 청소년과학탐구대회 | EIDOS</div>
     </div>
 
     <script>
@@ -219,8 +234,10 @@
         async function clear() {
           G.classList.add("off");
           $("#head").classList.add("off");
+          $("#cap").classList.add("off");
           await sleep(550);
           G.innerHTML = "";
+          $("#cap").innerHTML = "";
           G.classList.remove("off");
         }
 
@@ -295,17 +312,37 @@
         let B = null, Nz = null;
         const runsOf = (N) => B.conds["add|50|1"].N[N];
         const stepsOf = (r) => B.steps.slice(0, r.te.length - 1).concat([r.last]);
+        const rule = (s) => s.map((a, i) => ((a + s[(i + 1) % s.length]) % 50) + 1);
+
+        /* ---------- 자막 ---------- */
+        // 글자 수에 맞춰 읽을 시간을 준다 (전시장 관람객 기준으로 넉넉하게)
+        const readMs = (h) => Math.max(2800, h.replace(/<[^>]+>/g, "").length * 130);
+        async function say(h, wait = true) {
+          const c = $("#cap");
+          c.classList.add("off");
+          await sleep(250);
+          c.innerHTML = h || "";
+          c.classList.remove("off");
+          if (wait) await sleep(readMs(h || ""));
+        }
+        function axTitle(box, xt, yt, note) {
+          if (xt) el("text", { x: box.x + box.w / 2, y: box.y + box.h + 74, "text-anchor": "middle", "font-size": 22, fill: "var(--ink)" }, null, xt);
+          if (yt) el("text", { x: 0, y: 0, transform: `translate(${box.x - 86},${box.y + box.h / 2}) rotate(-90)`, "text-anchor": "middle", "font-size": 22, fill: "var(--ink)" }, null, yt);
+          if (note) el("text", { x: box.x + box.w, y: box.y + box.h + 74, "text-anchor": "end", "font-size": 18, fill: "var(--muted)" }, null, note);
+        }
+        const LOGNOTE = "로그 눈금 (한 칸에 10배)";
+        const SCALENOTE = "로그 눈금";
 
         /* ---------- 장면 ---------- */
         async function sTitle() {
           await head(
-            "2026 청소년과학탐구대회 · EIDOS",
-            "AI는 문제를 몇 개 봐야<br>규칙을 깨닫는가",
-            "수열 규칙을 배우는 Transformer, <b>실제 GPU 학습 기록</b>으로 봅니다"
+            "2026 청소년과학탐구대회",
+            "외우기만 하던 AI가<br>어느 순간 규칙을 깨우칩니다",
+            "이 현상을 <b>Grokking</b>이라고 합니다. 그래프는 실제 학습 기록을 사용했습니다."
           );
-          // 장식: 학습 곡선 한 줄이 천천히 그려진다
+          // 장식: 실제 학습 곡선 한 줄이 천천히 그려진다
           const r = runsOf("665")[1], ST = stepsOf(r);
-          const box = { x: 120, y: 470, w: 1360, h: 300 };
+          const box = { x: 120, y: 500, w: 1360, h: 270 };
           const lx = (v) => box.x + ((Math.log(v) - Math.log(100)) / (Math.log(r.last) - Math.log(100))) * box.w;
           const ly = (v) => box.y + (1 - v / 100) * box.h;
           const pTr = el("path", { ...lineStyle("var(--train)"), opacity: 0.55 });
@@ -315,62 +352,139 @@
             pTr.setAttribute("d", curve(ST, r.tr, t, lx, ly));
             pTe.setAttribute("d", curve(ST, r.te, t, lx, ly));
           });
-          await sleep(2500);
+          await sleep(4500);
         }
 
-        async function sCurve(N, idx, before, after) {
+        // AI가 풀어야 하는 규칙을 예시 하나로 차근차근 보여 준다
+        async function sRule() {
+          await head("AI가 푼 문제", "위 수열을 넣으면 아래 수열이 나옵니다", "");
+          const IN = [3, 17, 8, 42, 25], OUT = rule(IN);
+          const w = 130, gap = 40, x0 = (1600 - (5 * w + 4 * gap)) / 2, h = 110, yi = 290, yo = 590;
+          const cx = (i) => x0 + i * (w + gap) + w / 2;
+          el("text", { x: x0 - 34, y: yi + h / 2 + 10, "text-anchor": "end", "font-size": 26, fill: "var(--muted)" }, null, "입력");
+          el("text", { x: x0 - 34, y: yo + h / 2 + 10, "text-anchor": "end", "font-size": 26, fill: "var(--muted)" }, null, "출력");
+          const ib = IN.map((v, i) => {
+            const r = el("rect", { x: cx(i) - w / 2, y: yi, width: w, height: h, rx: 14, fill: "#f1f1f1", stroke: "var(--bg)", "stroke-width": 4 });
+            el("text", { x: cx(i), y: yi + h / 2 + 17, "text-anchor": "middle", "font-size": 48, "font-weight": 700 }, null, v);
+            return r;
+          });
+          const ob = OUT.map((v, i) => {
+            const r = el("rect", { x: cx(i) - w / 2, y: yo, width: w, height: h, rx: 14, fill: "#fbe3d6", stroke: "var(--bg)", "stroke-width": 4 });
+            el("text", { x: cx(i), y: yo + h / 2 + 17, "text-anchor": "middle", "font-size": 48, "font-weight": 700, fill: "var(--train)" }, null, v);
+            return r;
+          });
+          await say("어떤 규칙인지 먼저 찾아보세요");
+          await sleep(5000);
+          const mid = yi + h + (yo - yi - h) / 2;
+          let g = null;
+          for (let i = 0; i < 5; i++) {
+            const j = (i + 1) % 5, a = IN[i], b = IN[j];
+            ib.forEach((r, k) => r.setAttribute("fill", k === i || k === j ? "#d6e6f8" : "#f1f1f1"));
+            ob.forEach((r, k) => r.setAttribute("stroke", k === i ? "var(--train)" : "var(--bg)"));
+            if (g) g.remove();
+            g = el("g", {});
+            for (const k of [i, j])
+              el("line", { x1: cx(k), y1: yi + h + 6, x2: cx(i), y2: yo - 6, stroke: "var(--test)", "stroke-width": 3, opacity: 0.5 }, g);
+            const t = el("text", { x: cx(i) + (i === 4 ? -20 : 90), y: mid + 12, "text-anchor": i === 4 ? "end" : "start", "font-size": 32, "font-weight": 700, fill: "var(--ink)" }, g);
+            t.innerHTML = `${a} + ${b} = ${a + b}  <tspan fill="var(--muted)">→</tspan>  <tspan fill="var(--train)">${OUT[i]}</tspan>`;
+            el("rect", { x: t.getBBox().x - 14, y: mid - 26, width: t.getBBox().width + 28, height: 52, rx: 10, fill: "var(--bg)" }, g).after(t);
+            if (i === 0) await say("이웃한 두 수를 더해 50으로 나눈 나머지에 1을 더합니다");
+            else if (i === 4) {
+              say("마지막 수는 첫 수와 계산합니다", false);
+              await sleep(2200);
+            } else await sleep(1100);
+          }
+          g.remove();
+          ib.forEach((r) => r.setAttribute("fill", "#f1f1f1"));
+          ob.forEach((r) => r.setAttribute("stroke", "var(--bg)"));
+          el("rect", { x: x0, y: mid - 34, width: 5 * w + 4 * gap, height: 68, rx: 12, fill: "#1f2f5c" });
+          el("text", { x: 800, y: mid + 11, "text-anchor": "middle", "font-size": 30, "font-weight": 700, fill: "#fff" }, null, "AI (작은 Transformer)");
+          await head("AI가 푼 문제", "AI에게 규칙은 알려 주지 않았습니다", "");
+          await say("문제와 정답만 보여 주고, 규칙은 스스로 찾게 했습니다");
+        }
+
+        // 공부용 문제와 시험 문제를 나누는 이유
+        async function sSetup() {
+          await head("학습 문제와 평가 문제", "외운 것과 이해한 것을 구분하는 법", "");
+          const SEQ = [[12, 40, 7, 33, 9], [48, 2, 19, 26, 31], [5, 44, 38, 11, 20], [27, 13, 50, 6, 35], [1, 29, 46, 22, 14], [39, 8, 17, 45, 30]];
+          const P = [
+            { x: 140, col: "var(--train)", name: "학습 문제", desc: "정답과 함께 보여 준 문제", seqs: SEQ.slice(0, 3) },
+            { x: 840, col: "var(--test)", name: "평가 문제", desc: "한 번도 보여 주지 않은 문제", seqs: SEQ.slice(3) },
+          ];
+          const W = 620, y0 = 280, cw = 50;
+          const ans = [];
+          for (const p of P) {
+            el("rect", { x: p.x, y: y0, width: W, height: 420, rx: 18, fill: "#f6f6f6" });
+            el("text", { x: p.x + 32, y: y0 + 54, "font-size": 34, "font-weight": 700, fill: p.col }, null, p.name);
+            el("text", { x: p.x + 32, y: y0 + 92, "font-size": 22, fill: "var(--muted)" }, null, p.desc);
+            p.seqs.forEach((s, k) => {
+              const y = y0 + 152 + k * 56, o = rule(s);
+              s.forEach((v, i) => el("text", { x: p.x + 50 + i * cw, y, "text-anchor": "middle", "font-size": 26 }, null, v));
+              el("text", { x: p.x + 50 + 5 * cw, y, "text-anchor": "middle", "font-size": 26, fill: "var(--muted)" }, null, "→");
+              o.forEach((v, i) => {
+                const t = el("text", { x: p.x + 50 + (6 + i) * cw + 10, y, "text-anchor": "middle", "font-size": 26, "font-weight": 700, fill: p.col }, null, p === P[0] ? v : "?");
+                if (p !== P[0]) ans.push([t, v]);
+              });
+            });
+          }
+          await say("문제를 둘로 나눴습니다. 한쪽은 학습에만, 다른 쪽은 평가에만 씁니다");
+          const verdict = (p, a, b) => {
+            el("text", { x: p.x + 32, y: y0 + 352, "font-size": 26, fill: "var(--ink)" }, null, a);
+            el("text", { x: p.x + 32, y: y0 + 392, "font-size": 28, "font-weight": 700, fill: p.col }, null, b);
+          };
+          verdict(P[0], "학습 문제만 맞히면", "답을 외운 것 (암기)");
+          await say("학습 문제만 맞힌다면 답을 외웠을 뿐입니다. 이것을 암기라고 합니다");
+          for (const [t, v] of ans) t.textContent = v;
+          verdict(P[1], "평가 문제까지 맞히면", "규칙을 알아낸 것 (일반화)");
+          await say("처음 보는 문제까지 맞힌다면 규칙을 알아낸 것입니다. 이것을 일반화라고 합니다");
+          await sleep(1500);
+        }
+
+        async function sCurve(N, idx) {
           const rs = runsOf(N), r = rs[idx], ST = stepsOf(r);
           const g = rs.filter((x) => x.tg != null).length;
-          await head(`수 1~50 · 이웃한 두 수 더하기 · 보여 준 문제 ${fmt(+N)}개`, before, "");
-          const box = { x: 160, y: 330, w: 1320, h: 420 };
-          const { lx, ly } = axes(box, [100, 60000], [[100, "100"], [1000, "1천"], [10000, "1만"], [60000, "6만 step"]],
+          const kick = `학습 문제 ${fmt(+N)}개`;
+          await head(kick, `문제 ${fmt(+N)}개로 학습시킨 기록`, "");
+          const box = { x: 170, y: 290, w: 1310, h: 360 };
+          const { lx, ly } = axes(box, [100, 60000], [[100, "100"], [1000, "1천"], [10000, "1만"], [60000, "6만"]],
             (v) => v + "%", false, [0, 100], [0, 50, 100]);
-          legend([["var(--train)", "보여 준 문제 정답률"], ["var(--test)", "처음 보는 문제 정답률"]], box.x, box.y + box.h + 80);
-          const zone = el("rect", { x: 0, y: box.y, width: 0, height: box.h, fill: "rgba(42,120,214,0.08)" });
-          // 처음 보는 문제 곡선이 위에 오게 (둘 다 100%일 때 가려지지 않도록)
+          axTitle(box, "학습 단계 (step)", "정답률", LOGNOTE);
+          legend([["var(--train)", "학습 문제 정답률"], ["var(--test)", "처음 보는 문제 정답률"]], box.x, box.y - 66);
+          const zone = el("rect", { x: lx(r.tf), y: box.y, width: 0, height: box.h, fill: "rgba(42,120,214,0.08)" });
+          // 시험 문제 곡선이 위에 오게 (둘 다 100%일 때 가려지지 않도록)
           const pTr = el("path", lineStyle("var(--train)"));
           const pTe = el("path", lineStyle("var(--test)"));
-          const sync = r.tg != null && r.tg - r.tf <= Math.max(200, 0.2 * r.tf);
-          let mf = false, mg = false;
-          const a = Math.log(100), end = Math.log(r.last);
-          const dur = Math.max(2500, 8000 * (end - a) / (Math.log(60000) - a));
-          await tween(dur, (u) => {
-            const t = u === 1 ? r.last : Math.exp(a + (end - a) * u);
+          const draw = (t) => {
             pTe.setAttribute("d", curve(ST, r.te, t, lx, ly));
             pTr.setAttribute("d", curve(ST, r.tr, t, lx, ly));
-            if (!mf && t >= r.tf) {
-              mf = true;
-              if (!sync) vmark(lx(r.tf), box.y, box.y + box.h, "암기");
-            }
-            if (r.tg != null && !sync && t > r.tf) {
-              const x2 = lx(Math.min(t, r.tg));
-              zone.setAttribute("x", lx(r.tf));
-              zone.setAttribute("width", Math.max(0, x2 - lx(r.tf)));
-            }
-            if (r.tg != null && !mg && t >= r.tg) {
-              mg = true;
-              vmark(lx(r.tg), box.y, box.y + box.h, sync ? "암기 = 깨달음" : "깨달음");
-            }
-          });
-          if (r.tg != null && !sync) {
-            const cx = (lx(r.tf) + lx(r.tg)) / 2;
-            el("text", { x: cx, y: box.y + box.h * 0.6, "text-anchor": "middle", "font-size": 24, fill: "var(--muted)" }, null, "지연");
-            el("text", { x: cx, y: box.y + box.h * 0.6 + 40, "text-anchor": "middle", "font-size": 34, "font-weight": 700, fill: "var(--ink)" }, null, fmt(r.tg - r.tf) + " step");
-          }
-          if (r.last < 60000)
-            el("text", { x: lx(r.last) + 14, y: ly(100) + 40, "font-size": 20, fill: "var(--muted)" }, null, "학습 종료");
-          await sleep(500);
-          await head(`수 1~50 · 이웃한 두 수 더하기 · 보여 준 문제 ${fmt(+N)}개`, after(r),
-            `같은 조건으로 ${rs.length}번 학습 → <b>${g}번</b> 깨달음`);
-          await sleep(5000);
+            if (t > r.tf) zone.setAttribute("width", Math.max(0, lx(Math.min(t, r.tg)) - lx(r.tf)));
+          };
+          const run = (a, b, ms) => tween(ms, (u) => draw(u === 1 ? b : Math.exp(Math.log(a) + u * (Math.log(b) - Math.log(a)))));
+          await say("주황 선은 학습 문제, 파란 선은 처음 보는 문제의 정답률입니다");
+          await run(100, r.tf, 2400);
+          vmark(lx(r.tf), box.y, box.y + box.h, "암기");
+          const teAtF = r.te[ST.indexOf(r.tf)] ?? 0;
+          await say(`${fmt(r.tf)} step에서 학습 문제는 100%, 처음 보는 문제는 ${Math.round(teAtF)}%. 답만 외운 상태입니다`);
+          say("학습을 계속해도 한동안 변화가 없습니다", false);
+          await run(r.tf, r.tg * 0.85, 7000);
+          await say("중간에 주황 선이 떨어지는 것은 학습 중에 생기는 일시적인 흔들림입니다");
+          await run(r.tg * 0.85, r.last, 2400);
+          vmark(lx(r.tg), box.y, box.y + box.h, "일반화");
+          el("text", { x: lx(r.last) + 14, y: ly(100) + 40, "font-size": 20, fill: "var(--muted)" }, null, "학습 종료");
+          await say(`${fmt(r.tg)} step 무렵, 처음 보는 문제의 정답률이 갑자기 100%로 오릅니다`);
+          const cx = (lx(r.tf) + lx(r.tg)) / 2;
+          el("text", { x: cx, y: box.y + box.h * 0.6, "text-anchor": "middle", "font-size": 24, fill: "var(--muted)" }, null, "지연");
+          el("text", { x: cx, y: box.y + box.h * 0.6 + 40, "text-anchor": "middle", "font-size": 34, "font-weight": 700, fill: "var(--ink)" }, null, `약 ${fmt(r.tg - r.tf)} step`);
+          await head(kick, `외운 뒤 <span style="color:var(--test)">한참 지나서</span> 규칙을 알아냈습니다`, "");
+          await say("암기와 일반화 사이의 이 간격을 지연이라고 부릅니다");
+          await say(`같은 조건으로 ${rs.length}번 학습시켰을 때 일반화한 것은 ${g}번이었습니다`);
         }
 
         async function sMulti() {
           const Ns = ["561", "665", "765", "2048"];
-          const total = Ns.reduce((a, N) => a + runsOf(N).length, 0);
-          await head("수 1~50 · 이웃한 두 수 더하기", "문제 수를 바꿔 가며 여러 번 학습하면?",
-            "선 하나가 학습 한 번 · 같은 조건마다 5~20번씩 학습");
-          const w = 320, gap = 50, x0 = (1600 - (4 * w + 3 * gap)) / 2 + 20, y = 400, h = 300;
+          const kick = "학습 문제 수 바꾸기";
+          await head(kick, "문제 수를 바꿔 가며 여러 번 학습시켰습니다", "");
+          const w = 320, gap = 50, x0 = (1600 - (4 * w + 3 * gap)) / 2 + 20, y = 320, h = 250;
           const panels = Ns.map((N, i) => {
             const box = { x: x0 + i * (w + gap), y, w, h }, rs = runsOf(N);
             const lx = (v) => box.x + ((Math.log(v) - Math.log(100)) / (Math.log(60000) - Math.log(100))) * box.w;
@@ -381,13 +495,17 @@
             }
             for (const [v, lab] of [[100, "100"], [1000, "1천"], [10000, "1만"], [60000, "6만"]])
               el("text", { x: lx(v), y: box.y + box.h + 30, "text-anchor": v === 100 ? "start" : v === 60000 ? "end" : "middle", "font-size": 18, fill: "var(--muted)" }, null, lab);
-            el("text", { x: box.x, y: box.y - 26, "font-size": 36, "font-weight": 700, fill: "var(--ink)" }, null, `${fmt(+N)}개`);
+            el("text", { x: box.x, y: box.y - 26, "font-size": 32, "font-weight": 700, fill: "var(--ink)" }, null, `문제 ${fmt(+N)}개`);
             const tr = rs.map(() => el("path", { fill: "none", stroke: "var(--train)", "stroke-width": 2.5, opacity: 0.22 }));
             const te = rs.map(() => el("path", { fill: "none", stroke: "var(--test)", "stroke-width": 3, opacity: 0.75, "stroke-linejoin": "round" }));
             return { N, box, rs, lx, ly, tr, te, hit: rs.map(() => false) };
           });
-          legend([["var(--train)", "보여 준 문제"], ["var(--test)", "처음 보는 문제"]], x0, y + h + 84);
-          await tween(8000, (u) => {
+          legend([["var(--train)", "학습 문제"], ["var(--test)", "처음 보는 문제"]], x0, y + h + 140);
+          el("circle", { cx: x0 + 500, cy: y + h + 140, r: 8, fill: "var(--test)" });
+          el("text", { x: x0 + 518, y: y + h + 148, "font-size": 22, fill: "var(--muted)" }, null, "일반화 시점");
+          await say("선 하나가 학습 한 번입니다. 문제 수마다 처음부터 여러 번 학습시켰습니다");
+          say('<span style="color:var(--test)">●</span> 표시가 일반화 시점입니다', false);
+          await tween(9000, (u) => {
             const t = u === 1 ? 60000 : Math.exp(Math.log(100) + u * (Math.log(60000) - Math.log(100)));
             for (const p of panels)
               p.rs.forEach((r, j) => {
@@ -400,19 +518,22 @@
                 }
               });
           });
-          for (const p of panels) {
+          const res = panels.map((p) => {
             const g = p.rs.filter((r) => r.tg != null).length, K = p.rs.length;
-            el("text", { x: p.box.x, y: p.box.y + p.box.h + 140, "font-size": 30, "font-weight": 700,
-              fill: g === 0 ? "var(--muted)" : g === K ? "var(--test)" : "var(--ink)" }, null, `${K}번 중 ${g}번 깨달음`);
-          }
-          await head("수 1~50 · 이웃한 두 수 더하기", "문제가 적으면 매번 실패, 많으면 매번 깨닫는다",
-            `학습 ${total}번의 실제 기록 · 문제가 많을수록 더 일찍 깨닫는다 (● 깨달은 순간)`);
-          await sleep(6500);
+            el("text", { x: p.box.x, y: p.box.y + p.box.h + 84, "font-size": 28, "font-weight": 700,
+              fill: g === 0 ? "var(--muted)" : g === K ? "var(--test)" : "var(--ink)" }, null, `${K}번 중 ${g}번 일반화`);
+            return { N: +p.N, g, K };
+          });
+          await head(kick, "문제가 많을수록 더 자주, 빨리 일반화합니다", "");
+          const lo = res[0], hi = res[res.length - 1];
+          await say(`${fmt(lo.N)}개는 ${lo.K}번 중 ${lo.g}번, ${fmt(hi.N)}개는 ${hi.K}번 중 ${hi.g}번 일반화했습니다`);
+          await say('문제가 많을수록 <span style="color:var(--test)">●</span>가 왼쪽에 찍힙니다. 그만큼 빨리 일반화했다는 뜻입니다');
         }
 
         async function sBoundary() {
           const c = B.conds["add|50|1"];
-          await head("수 1~50 · 이웃한 두 수 더하기", "몇 개부터 깨달을까?", "문제 수마다 3~20번씩 학습한 결과");
+          const kick = "학습 문제 수 바꾸기";
+          await head(kick, "몇 개부터 일반화할까요?", "");
           // 가까운 문제 수(5% 이내)는 한 점으로 합친다
           const pts = [];
           for (const N of Object.keys(c.N).map(Number).sort((a, b) => a - b)) {
@@ -421,10 +542,11 @@
             if (p && N / p.N0 < 1.05) { p.g += g; p.k += rs.length; p.N1 = N; }
             else pts.push({ N0: N, N1: N, g, k: rs.length });
           }
-          const box = { x: 180, y: 330, w: 1300, h: 400 };
+          const box = { x: 190, y: 290, w: 1290, h: 360 };
           const { lx, ly } = axes(box, [220, 4600], [[300, "300"], [500, "500"], [1000, "1,000"], [2000, "2,000"], [4000, "4,000개"]],
             (v) => v + "%", false, [0, 100], [0, 50, 100]);
-          el("text", { x: box.x - 14, y: box.y - 26, "text-anchor": "end", "font-size": 20, fill: "var(--muted)" }, null, "깨달은 비율");
+          axTitle(box, "학습 문제 수", "일반화한 비율", SCALENOTE);
+          await say("점 하나가 문제 수 하나입니다. 위에 있을수록 일반화한 비율이 높습니다");
           const line = el("path", { fill: "none", stroke: "var(--test)", "stroke-width": 4, opacity: 0.6 });
           let d = "";
           for (const p of pts) {
@@ -438,13 +560,36 @@
               : { x, y: y + (p.g ? 46 : -26), "text-anchor": "middle", "font-size": 20, fill: "var(--muted)" }, null, `${p.g}/${p.k}`);
             await sleep(380 * DRAW);
           }
-          await sleep(400);
+          say("점 옆 숫자는 일반화한 횟수 / 학습시킨 횟수입니다", false);
+          await sleep(3500);
           vmark(lx(c.b), box.y, box.y + box.h);
-          el("text", { x: lx(c.b) - 18, y: box.y + box.h * 0.42, "text-anchor": "end", "font-size": 30, "font-weight": 700, fill: "var(--ink)" }, null, `경계 ≈ ${fmt(c.b)}개`);
-          await sleep(400);
-          await head("수 1~50 · 이웃한 두 수 더하기", `약 ${fmt(c.b)}개를 넘어야 깨닫는다`,
-            "경계 아래에서는 한 번도 깨닫지 못하고, 조금만 넘어도 대부분 깨닫는다");
-          await sleep(5500);
+          el("text", { x: lx(c.b) - 18, y: box.y + box.h * 0.42, "text-anchor": "end", "font-size": 30, "font-weight": 700, fill: "var(--ink)" }, null, `경계 약 ${fmt(c.b)}개`);
+          await head(kick, `경계는 약 ${fmt(c.b)}개입니다`, "");
+          await say("경계보다 적으면 외우기만 하고, 조금만 넘어도 대부분 일반화합니다");
+        }
+
+        // 덧셈표의 칸 수가 무엇인지 그림으로 보여 준다
+        async function sTable() {
+          const kick = "연구문제 1 | 숫자 범위 바꾸기";
+          await head(kick, "숫자 범위가 넓어지면 덧셈표도 커집니다", "");
+          const T = [
+            { n: 23, rows: 6, s: 30, cx: 360 },
+            { n: 50, rows: 10, s: 24, cx: 800 },
+            { n: 101, rows: 16, s: 18, cx: 1240 },
+          ];
+          await say("이 규칙을 풀려면 두 수의 덧셈표를 익혀야 합니다");
+          for (const t of T) {
+            const W = t.rows * t.s, x0 = t.cx - W / 2, y0 = 300 + (300 - W) / 2;
+            for (let i = 0; i < t.rows; i++)
+              for (let j = i; j < t.rows; j++)
+                el("rect", { x: x0 + j * t.s + 1, y: y0 + i * t.s + 1, width: t.s - 2, height: t.s - 2, fill: t.n === 50 ? "#c9dcf3" : "#e3ebf6" });
+            el("text", { x: t.cx, y: 660, "text-anchor": "middle", "font-size": 30, "font-weight": 700, fill: "var(--ink)" }, null, `숫자 1~${t.n}`);
+            el("text", { x: t.cx, y: 704, "text-anchor": "middle", "font-size": 30, "font-weight": 700, fill: "var(--test)" }, null, `${fmt((t.n * (t.n + 1)) / 2)}칸`);
+            await sleep(900);
+          }
+          el("text", { x: 1480, y: 290, "text-anchor": "end", "font-size": 18, fill: "var(--muted)" }, null, "그림은 축소");
+          await say("3 + 17과 17 + 3은 같은 칸이라서 표가 삼각형이 됩니다");
+          await say("범위가 넓어지면 칸 수는 훨씬 빠르게 늘어납니다. 필요한 문제 수도 그만큼 늘어날까요?");
         }
 
         const MEASURED = [
@@ -452,11 +597,17 @@
           ["add", 71, 2556, 1180], ["add", 101, 5151, 2063], ["add3", 31, 961, 533], ["add3", 41, 1681, 827], ["add3", 50, 2500, 993],
         ];
         async function sLaw() {
-          await head("연구문제 1", "수의 범위를 바꾸면 경계는?", "수 1~n, 덧셈 a+b와 a+3b · 연산 표의 칸 수 C를 바꿔 가며 경계를 쟀다");
-          const box = { x: 180, y: 330, w: 1300, h: 400 };
+          const kick = "연구문제 1 | 숫자 범위 바꾸기";
+          await head(kick, "덧셈표 칸 수와 경계의 관계", "");
+          const box = { x: 190, y: 290, w: 1290, h: 360 };
           const { lx, ly } = axes(box, [200, 7000], [[300, "300"], [1000, "1천"], [3000, "3천"], [6000, "6천 칸"]],
             (v) => fmt(v), true, [150, 3000], [200, 500, 1000, 2000]);
-          el("text", { x: box.x - 14, y: box.y - 26, "text-anchor": "end", "font-size": 20, fill: "var(--muted)" }, null, "경계 (문제 수)");
+          axTitle(box, "덧셈표 칸 수", "필요한 문제 수 (경계)", SCALENOTE);
+          el("circle", { cx: box.x + 20, cy: box.y - 40, r: 10, fill: "var(--ink)" });
+          el("text", { x: box.x + 42, y: box.y - 32, "font-size": 22, fill: "var(--muted)" }, null, "a + b");
+          el("circle", { cx: box.x + 150, cy: box.y - 40, r: 10, fill: "var(--bg)", stroke: "var(--ink)", "stroke-width": 3 });
+          el("text", { x: box.x + 172, y: box.y - 32, "font-size": 22, fill: "var(--muted)" }, null, "a + 3b (변형 덧셈)");
+          await say("숫자 범위와 계산식을 바꿔 가며 조건마다 경계를 쟀습니다");
           const law = (C) => 2.82 * Math.pow(C, 0.763);
           for (const [op, n, C, b] of MEASURED.slice().sort((a, b) => a[2] - b[2])) {
             el("circle", { cx: lx(C), cy: ly(b), r: 13, fill: op === "add" ? "var(--ink)" : "var(--bg)", stroke: "var(--ink)", "stroke-width": 4 });
@@ -464,37 +615,38 @@
               ? { x: lx(C) + 24, y: ly(b) - 10, "font-size": 19, fill: "var(--muted)" }
               : op === "add"
               ? { x: lx(C), y: ly(b) + 46, "text-anchor": "middle", "font-size": 19, fill: "var(--muted)" }
-              : { x: lx(C) - 24, y: ly(b) - 14, "text-anchor": "end", "font-size": 19, fill: "var(--muted)" }, null, `n=${n}`);
+              : { x: lx(C) - 24, y: ly(b) - 14, "text-anchor": "end", "font-size": 19, fill: "var(--muted)" }, null, `1~${n}`);
             await sleep(420 * DRAW);
           }
+          say("9개 조건이 거의 한 직선 위에 놓입니다", false);
           const ln = el("line", { x1: lx(200), y1: ly(law(200)), x2: lx(200), y2: ly(law(200)), stroke: "var(--test)", "stroke-width": 5 });
           await tween(1600, (u) => {
             const C = Math.exp(Math.log(200) + ease(u) * (Math.log(7000) - Math.log(200)));
             ln.setAttribute("x2", lx(C));
             ln.setAttribute("y2", ly(law(C)));
           });
-          el("circle", { cx: box.x + 20, cy: box.y + box.h + 76, r: 10, fill: "var(--ink)" });
-          el("text", { x: box.x + 42, y: box.y + box.h + 84, "font-size": 22, fill: "var(--muted)" }, null, "a+b");
-          el("circle", { cx: box.x + 130, cy: box.y + box.h + 76, r: 10, fill: "var(--bg)", stroke: "var(--ink)", "stroke-width": 3 });
-          el("text", { x: box.x + 152, y: box.y + box.h + 84, "font-size": 22, fill: "var(--muted)" }, null, "a+3b");
-          legend([["var(--test)", "법칙"]], box.x + 290, box.y + box.h + 76);
-          await head("연구문제 1", "N₀ ≈ 2.82 × C<sup>0.763</sup>",
-            "9개 조건이 한 법칙의 ±10% 안 · 표가 2배 커지면 필요한 문제는 약 <b>1.7배</b>");
-          await sleep(6000);
+          await sleep(3000);
+          await head(kick, "필요한 문제 수 ≈ 2.8 × (칸 수)<sup>0.76</sup>", "");
+          await say("정비례할 것이라 예상했지만 실제로는 그보다 덜 늘었습니다");
+          await say("가설 1은 기각되었습니다");
+          await say("칸이 2배가 되면 필요한 문제는 약 1.7배가 됩니다");
+          await say("실험하지 않은 조건도 이 식으로 예측할 수 있습니다");
         }
 
         async function sNoise() {
-          await head("오답 섞기 · 문제 2,048개 · 같은 계산에 늘 같은 오답", "정답 10%를 일부러 틀리게 가르치면?", "");
+          const kick = "오답 섞어 학습시키기";
+          await head(kick, "정답의 10%를 일부러 틀리게 가르쳤습니다", "");
+          await say("학습 문제 2,048개 중 10%에 틀린 답을 붙였습니다. 같은 문제에는 항상 같은 오답을 줬습니다");
           const ST = Nz.steps;
           const panels = [
-            { x: 160, key: "cell|2048|1|0", name: "규제 약함 (weight decay 1)" },
-            { x: 880, key: "cell|2048|10|0", name: "규제 강함 (weight decay 10)" },
+            { x: 170, key: "cell|2048|1|0", name: "규제 약하게 (weight decay 1)" },
+            { x: 900, key: "cell|2048|10|0", name: "규제 세게 (weight decay 10)" },
           ];
           const P = panels.map((p) => {
-            const box = { x: p.x, y: 360, w: 580, h: 360 };
+            const box = { x: p.x, y: 310, w: 580, h: 280 };
             const { lx, ly } = axes(box, [10, 60000], [[10, "10"], [100, "100"], [1000, "1천"], [10000, "1만"], [60000, "6만"]],
               (v) => v + "%", false, [0, 100], [0, 50, 100]);
-            el("text", { x: box.x, y: box.y - 28, "font-size": 26, "font-weight": 700, fill: "var(--ink)" }, null, p.name);
+            el("text", { x: box.x, y: box.y - 30, "font-size": 26, "font-weight": 700, fill: "var(--ink)" }, null, p.name);
             const r = Nz.runs[p.key];
             return {
               r, lx, ly,
@@ -503,7 +655,9 @@
               te: el("path", lineStyle("var(--test)")),
             };
           });
-          legend([["var(--test)", "처음 보는 문제 정답률"], ["var(--train)", "오답 자리: 외운 오답"], ["var(--fix)", "오답 자리: 원래 정답", true]], 160, 820);
+          el("text", { x: 1480, y: 666, "text-anchor": "end", "font-size": 20, fill: "var(--muted)" }, null, "가로 학습 단계, 세로 비율");
+          legend([["var(--test)", "처음 보는 문제 정답률"], ["var(--train)", "오답을 그대로 외운 비율"], ["var(--fix)", "오답 대신 정답을 쓴 비율", true]], 170, 694);
+          await say("weight decay는 외운 것을 조금씩 잊게 만드는 규제입니다. 세기만 다르게 했습니다");
           await tween(7000, (u) => {
             const t = Math.exp(Math.log(10) + u * (Math.log(60000) - Math.log(10)));
             const tt = u === 1 ? 60000 : t;
@@ -514,9 +668,28 @@
               q.te.setAttribute("d", curve(xs, q.r.test, tt, q.lx, q.ly));
             }
           });
-          await head("오답 섞기 · 문제 2,048개 · 같은 계산에 늘 같은 오답", "규칙을 깨쳐도 외운 오답은 남는다",
-            "규제가 약하면 오답을 끝까지 기억하고, 세면 깨닫는 순간 오답도 고친다");
-          await sleep(6000);
+          await say("두 경우 모두 처음 보는 문제는 거의 다 맞힙니다. 규칙은 알아낸 것입니다");
+          await head(kick, "규칙을 알아도 외운 오답은 남습니다", "");
+          await say("규제가 약하면 오답을 끝까지 기억하고, 세면 정답으로 고칩니다");
+          await say("규칙의 이해와 답의 암기가 AI 안에 함께 있을 수 있다는 뜻입니다");
+        }
+
+        async function sEnd() {
+          await head("정리", "외운 뒤에도 규칙을 알아낼 수 있습니다", "");
+          const L = [
+            ["1", "암기는 금방 되지만, 일반화는 한참 뒤에 올 수 있습니다"],
+            ["2", "일반화하려면 경계 이상의 문제가 필요하고, 경계는 미리 계산할 수 있습니다"],
+            ["3", "일반화한 뒤에도 외운 오답이 남을 수 있습니다"],
+          ];
+          for (let i = 0; i < L.length; i++) {
+            const y = 330 + i * 120;
+            el("circle", { cx: 160, cy: y, r: 30, fill: "var(--test)" });
+            el("text", { x: 160, y: y + 12, "text-anchor": "middle", "font-size": 32, "font-weight": 700, fill: "#fff" }, null, L[i][0]);
+            el("text", { x: 220, y: y + 11, "font-size": 30, fill: "var(--ink)" }, null, L[i][1]);
+            await sleep(2500);
+          }
+          await say("오른쪽 위 QR로 직접 실험해 보실 수 있습니다");
+          await sleep(5000);
         }
 
         const QR = "11111110001111100010001111111,10000010111111000000101000001,10111010101110010011001011101,10111010011101010100101011101,10111010010011011111001011101,10000010001010100001101000001,11111110101010101010101111111,00000000011101010101000000000,01110110000111111000100000110,01011100001100001011111111001,00000110110111001110101000010,10001101111100110001000100001,01001011000000001100010100111,10011000110000100001001101111,01011111010111111111010111011,00011000101011110110010011011,00110111010100011110000111011,01101101011011101000100100000,10101011011010011000101101000,00111101000111000110111101111,01111010100101000111111110100,00000000100111101001100011011,11111110000011001101101010100,10000010110100101010100010000,10111010010011110010111111110,10111010111101001111000010110,10111010110101011100100101101,10000010110011101010101011010,11111110001111111011101100010".split(",");
@@ -531,14 +704,7 @@
         })();
 
         /* ---------- 순서 ---------- */
-        const SCENES = [
-          sTitle,
-          () => sCurve("665", 1, "665개를 보여 주면?", (r) => `외운 뒤 한참 지나 <span style="color:var(--test)">갑자기</span> 깨닫는다`),
-          sMulti,
-          sBoundary,
-          sLaw,
-          sNoise,
-        ];
+        const SCENES = [sTitle, sRule, sSetup, () => sCurve("665", 1), sMulti, sBoundary, sTable, sLaw, sNoise, sEnd];
         $("#dots").innerHTML = SCENES.map(() => "<i></i>").join("");
         async function loop() {
           let i0 = +Q.get("s") || 0;
