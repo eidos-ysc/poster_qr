@@ -42,14 +42,14 @@
         position: absolute;
         left: 120px;
         right: 240px;
-        top: 64px;
+        top: 112px;
         transition: opacity 0.35s;
       }
       .cap {
         position: absolute;
         left: 120px;
         right: 120px;
-        bottom: 64px;
+        bottom: 90px;
         text-align: center;
         font-size: 30px;
         line-height: 1.4;
@@ -97,10 +97,10 @@
         font-family: inherit;
       }
       .dots {
-        position: absolute;
-        bottom: 26px;
-        left: 0;
-        right: 0;
+        position: fixed;
+        left: 50%;
+        bottom: 0;
+        transform-origin: 50% 100%;
         display: flex;
         justify-content: center;
         gap: 12px;
@@ -116,9 +116,10 @@
         background: var(--ink);
       }
       .qr {
-        position: absolute;
-        right: 40px;
-        top: 14px;
+        position: fixed;
+        right: 0;
+        top: 0;
+        transform-origin: 100% 0;
         width: 150px;
         text-align: center;
       }
@@ -141,9 +142,11 @@
         font-weight: 600;
       }
       .brand {
-        position: absolute;
-        right: 40px;
-        bottom: 6px;
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        transform-origin: 100% 100%;
+        white-space: nowrap;
         font-size: 20px;
         color: var(--muted);
       }
@@ -161,16 +164,16 @@
   <body>
     <div id="stage">
       <div class="head" id="head">
-        <p class="kick" id="kick"></p>
         <h1 class="title" id="title"></h1>
         <p class="sub" id="sub"></p>
       </div>
       <svg id="g" viewBox="0 0 1600 900" aria-hidden="true"></svg>
       <div class="cap" id="cap"></div>
-      <div class="dots" id="dots"></div>
-      <div class="qr" id="qr"></div>
-      <div class="brand">2026 청소년과학탐구대회 | EIDOS</div>
     </div>
+    <!-- 화면 비율이 16:9가 아니어도 실제 화면 모서리에 붙도록 무대 밖에 둔다 -->
+    <div class="dots" id="dots"></div>
+    <div class="qr" id="qr"></div>
+    <div class="brand" id="brand">2026 청소년과학탐구대회 | EIDOS</div>
 
     <script>
       (() => {
@@ -216,6 +219,11 @@
         function fit() {
           const s = Math.min(innerWidth / 1600, innerHeight / 900);
           $("#stage").style.transform = `translate(-50%, -50%) scale(${s})`;
+          // 모서리 요소: 크기는 무대와 같은 비율, 위치는 실제 화면 가장자리 기준 (괄호 안 = 1600×900 기준 여백 px)
+          const at = (id, css, tf) => Object.assign($(id).style, css, { transform: tf });
+          at("#qr", { right: 40 * s + "px", top: 22 * s + "px" }, `scale(${s})`);
+          at("#brand", { right: 40 * s + "px", bottom: 16 * s + "px" }, `scale(${s})`);
+          at("#dots", { bottom: 24 * s + "px" }, `translateX(-50%) scale(${s})`);
         }
         addEventListener("resize", fit);
         fit();
@@ -226,7 +234,6 @@
           h.classList.add("off");
           await sleep(350);
           if (SPEED > 1) h.style.transition = "none";
-          $("#kick").textContent = kick || "";
           $("#title").innerHTML = title || "";
           $("#sub").innerHTML = sub || "";
           h.classList.remove("off");
@@ -342,7 +349,7 @@
           );
           // 장식: 실제 학습 곡선 한 줄이 천천히 그려진다
           const r = runsOf("665")[1], ST = stepsOf(r);
-          const box = { x: 120, y: 500, w: 1360, h: 270 };
+          const box = { x: 120, y: 420, w: 1360, h: 280 };
           const lx = (v) => box.x + ((Math.log(v) - Math.log(100)) / (Math.log(r.last) - Math.log(100))) * box.w;
           const ly = (v) => box.y + (1 - v / 100) * box.h;
           const pTr = el("path", { ...lineStyle("var(--train)"), opacity: 0.55 });
@@ -440,6 +447,29 @@
           await sleep(1500);
         }
 
+        // 그려진 곡선이 thr%에 처음 닿는 step. 기록점이 듬성듬성해서
+        // 실제 일반화 step(r.tg)에 선을 그으면 곡선의 80%쯤에 걸리므로, 화면의 곡선 기준으로 다시 찾는다.
+        function crossAt(xs, ys, thr, lx, ly, ix) {
+          const i = ys.findIndex((v) => v >= thr);
+          if (i < 0) return null;
+          if (i === 0) return xs[0];
+          const p = el("path", { d: curve(xs, ys, xs[xs.length - 1], lx, ly), fill: "none", visibility: "hidden" });
+          const L = p.getTotalLength(), x0 = lx(xs[i - 1]), yT = ly(thr);
+          let lo = 0, hi = L;
+          while (hi - lo > 0.5) {
+            const m = (lo + hi) / 2;
+            if (p.getPointAtLength(m).x < x0) lo = m; else hi = m;
+          }
+          let x = lx(xs[i]);
+          for (let l = lo; l <= L; l += 0.5) {
+            const q = p.getPointAtLength(l);
+            if (q.y <= yT) { x = q.x; break; }
+          }
+          p.remove();
+          return ix(x);
+        }
+        const lerpLog = (box, a, b) => (x) => Math.exp(Math.log(a) + ((x - box.x) / box.w) * (Math.log(b) - Math.log(a)));
+
         async function sCurve(N, idx) {
           const rs = runsOf(N), r = rs[idx], ST = stepsOf(r);
           const g = rs.filter((x) => x.tg != null).length;
@@ -450,6 +480,8 @@
             (v) => v + "%", false, [0, 100], [0, 50, 100]);
           axTitle(box, "학습 단계 (step)", "정답률", LOGNOTE);
           legend([["var(--train)", "학습 문제 정답률"], ["var(--test)", "처음 보는 문제 정답률"]], box.x, box.y - 66);
+          // 선 위치만 그려진 곡선이 95%에 닿는 곳으로 맞춘다. 숫자(step)는 실제 기록값 r.tf, r.tg 그대로
+          const tg = crossAt(ST, r.te, 95, lx, ly, lerpLog(box, 100, 60000));
           const zone = el("rect", { x: lx(r.tf), y: box.y, width: 0, height: box.h, fill: "rgba(42,120,214,0.08)" });
           // 시험 문제 곡선이 위에 오게 (둘 다 100%일 때 가려지지 않도록)
           const pTr = el("path", lineStyle("var(--train)"));
@@ -457,7 +489,7 @@
           const draw = (t) => {
             pTe.setAttribute("d", curve(ST, r.te, t, lx, ly));
             pTr.setAttribute("d", curve(ST, r.tr, t, lx, ly));
-            if (t > r.tf) zone.setAttribute("width", Math.max(0, lx(Math.min(t, r.tg)) - lx(r.tf)));
+            if (t > r.tf) zone.setAttribute("width", Math.max(0, lx(Math.min(t, tg)) - lx(r.tf)));
           };
           const run = (a, b, ms) => tween(ms, (u) => draw(u === 1 ? b : Math.exp(Math.log(a) + u * (Math.log(b) - Math.log(a)))));
           await say("주황 선은 학습 문제, 파란 선은 처음 보는 문제의 정답률입니다");
@@ -466,15 +498,15 @@
           const teAtF = r.te[ST.indexOf(r.tf)] ?? 0;
           await say(`${fmt(r.tf)} step에서 학습 문제는 100%, 처음 보는 문제는 ${Math.round(teAtF)}%. 답만 외운 상태입니다`);
           say("학습을 계속해도 한동안 변화가 없습니다", false);
-          await run(r.tf, r.tg * 0.85, 7000);
+          await run(r.tf, tg * 0.8, 7000);
           await say("중간에 주황 선이 떨어지는 것은 학습 중에 생기는 일시적인 흔들림입니다");
-          await run(r.tg * 0.85, r.last, 2400);
-          vmark(lx(r.tg), box.y, box.y + box.h, "일반화");
+          await run(tg * 0.8, r.last, 2400);
+          vmark(lx(tg), box.y, box.y + box.h, "일반화");
           el("text", { x: lx(r.last) + 14, y: ly(100) + 40, "font-size": 20, fill: "var(--muted)" }, null, "학습 종료");
           await say(`${fmt(r.tg)} step 무렵, 처음 보는 문제의 정답률이 갑자기 100%로 오릅니다`);
-          const cx = (lx(r.tf) + lx(r.tg)) / 2;
-          el("text", { x: cx, y: box.y + box.h * 0.6, "text-anchor": "middle", "font-size": 24, fill: "var(--muted)" }, null, "지연");
-          el("text", { x: cx, y: box.y + box.h * 0.6 + 40, "text-anchor": "middle", "font-size": 34, "font-weight": 700, fill: "var(--ink)" }, null, `약 ${fmt(r.tg - r.tf)} step`);
+          const cx = (lx(r.tf) + lx(tg)) / 2;
+          el("text", { x: cx, y: box.y + box.h * 0.8, "text-anchor": "middle", "font-size": 24, fill: "var(--muted)" }, null, "지연");
+          el("text", { x: cx, y: box.y + box.h * 0.8 + 40, "text-anchor": "middle", "font-size": 34, "font-weight": 700, fill: "var(--ink)" }, null, `약 ${fmt(r.tg - r.tf)} step`);
           await head(kick, `외운 뒤 <span style="color:var(--test)">한참 지나서</span> 규칙을 알아냈습니다`, "");
           await say("암기와 일반화 사이의 이 간격을 지연이라고 부릅니다");
           await say(`같은 조건으로 ${rs.length}번 학습시켰을 때 일반화한 것은 ${g}번이었습니다`);
@@ -498,7 +530,9 @@
             el("text", { x: box.x, y: box.y - 26, "font-size": 32, "font-weight": 700, fill: "var(--ink)" }, null, `문제 ${fmt(+N)}개`);
             const tr = rs.map(() => el("path", { fill: "none", stroke: "var(--train)", "stroke-width": 2.5, opacity: 0.22 }));
             const te = rs.map(() => el("path", { fill: "none", stroke: "var(--test)", "stroke-width": 3, opacity: 0.75, "stroke-linejoin": "round" }));
-            return { N, box, rs, lx, ly, tr, te, hit: rs.map(() => false) };
+            const ix = lerpLog(box, 100, 60000);
+            const tg = rs.map((r) => (r.tg != null ? crossAt(stepsOf(r), r.te, 95, lx, ly, ix) : null));
+            return { N, box, rs, lx, ly, tr, te, tg, hit: rs.map(() => false) };
           });
           legend([["var(--train)", "학습 문제"], ["var(--test)", "처음 보는 문제"]], x0, y + h + 140);
           el("circle", { cx: x0 + 500, cy: y + h + 140, r: 8, fill: "var(--test)" });
@@ -512,9 +546,9 @@
                 const ST = stepsOf(r);
                 p.tr[j].setAttribute("d", curve(ST, r.tr, t, p.lx, p.ly, 60000));
                 p.te[j].setAttribute("d", curve(ST, r.te, t, p.lx, p.ly, 60000));
-                if (r.tg != null && !p.hit[j] && t >= r.tg) {
+                if (p.tg[j] != null && !p.hit[j] && t >= p.tg[j]) {
                   p.hit[j] = true;
-                  el("circle", { cx: p.lx(r.tg), cy: p.ly(95), r: 7, fill: "var(--test)", stroke: "var(--bg)", "stroke-width": 2 });
+                  el("circle", { cx: p.lx(p.tg[j]), cy: p.ly(95), r: 7, fill: "var(--test)", stroke: "var(--bg)", "stroke-width": 2 });
                 }
               });
           });
