@@ -775,30 +775,30 @@
             <div class="seg" id="nseg-wd" role="group" aria-label="규제 세기">
               <button data-v="1">1</button><button data-v="3">3</button><button data-v="5">5</button><button data-v="7">7</button><button data-v="10">10</button><button data-v="15">15</button>
             </div>
-            <div class="hint">규제는 AI의 가중치를 작게 유지하려는 힘입니다. 세질수록 따로 암기한 예외를 지우려는 압력이 커집니다.</div>
+            <div class="hint">규제는 가중치가 커지지 않도록 거는 제약입니다. 클수록 따로 암기한 예외가 지워지기 쉽습니다.</div>
           </div>
           <p class="verdict" id="nVerdict"></p>
         </section>
 
         <section class="sec" aria-labelledby="h-ov">
-          <h2 id="h-ov">한눈에 보기</h2>
-          <p class="sub" id="ovSub">칸마다 4번씩 학습한 결과입니다. 칸을 누르면 그 조건의 기록을 봅니다.</p>
+          <h2 id="h-ov">조건별 결과</h2>
+          <p class="sub" id="ovSub">칸마다 4번씩 학습한 결과입니다. 칸을 누르면 해당 조건의 기록이 위에 표시됩니다.</p>
           <table class="ov" id="ov"></table>
           <p class="ov-cap">남음: 암기한 오답 50% 이상 · 고침: 10% 미만 · 일부: 그 사이 · 실패: 마지막 처음 보는 문제 정답률 90% 미만</p>
         </section>
 
         <section class="sec" aria-labelledby="h-nhow">
           <h2 id="h-nhow">실험 내용</h2>
-          <p class="sub">보여 줄 문제 중 10%에 일부러 틀린 답을 넣고 학습시킵니다.</p>
+          <p class="sub">보여 줄 문제의 10%에 틀린 답을 넣고 학습시켰습니다.</p>
           <ol class="steps">
-            <li><span class="no">①</span><div>규칙을 배움<div class="s">처음 보는 문제는 거의 100% 맞힙니다. 규칙을 이해했다는 뜻입니다.</div></div></li>
-            <li><span class="no">②</span><div>오답도 함께 암기함<div class="s">규제가 약하면(1~3) 틀리게 배운 자리에서는 암기한 오답을 끝까지 그대로 냅니다. 이해와 암기가 한 AI 안에 함께 있습니다. 같은 칸 오답은 그 칸을 쓰는 처음 보는 문제로도 번집니다.</div></div></li>
-            <li><span class="no">③</span><div>알맞은 규제로 오답이 사라짐<div class="s">문제가 2,048개 이상이면 흩어진 오답은 5부터 원래 정답으로 바뀝니다. 같은 칸 오답은 7부터 줄어들고 10에서 거의 다 고쳐집니다. 15처럼 너무 세면 규칙까지 잃습니다.</div></div></li>
+            <li><span class="no">①</span><div>규칙 학습<div class="s">오답이 섞여 있어도 처음 보는 문제는 거의 100% 맞힙니다.</div></div></li>
+            <li><span class="no">②</span><div>오답 암기<div class="s">규제가 약하면(1~3) 오답을 넣은 문제에서는 암기한 오답을 끝까지 그대로 냅니다. 규칙과 예외를 함께 기억하는 셈입니다. 같은 칸 오답은 그 칸이 들어간 처음 보는 문제에도 나타납니다.</div></div></li>
+            <li><span class="no">③</span><div>규제에 따른 교정<div class="s">문제가 2,048개 이상이면 흩어진 오답은 규제 5부터 원래 정답으로 바뀝니다. 같은 칸 오답은 7부터 줄어들어 10에서 대부분 고쳐집니다. 15에서는 규칙까지 무너집니다.</div></div></li>
           </ol>
         </section>
 
         <div class="note">
-          <p>이 화면의 곡선은 시뮬레이션이 아니라 <b>실제 GPU 학습 기록</b>입니다 (조건 54개 × 4회 = 216회).</p>
+          <p>이 탭의 곡선은 시뮬레이션이 아니라 <b>실제 GPU 학습 기록</b>입니다(조건 54개 × 4회 = 216회).</p>
           <p>수 1~50 · 이웃한 두 수 더하기 · 오답 10% · 6만 step · 2층 Transformer(d128). 정답률은 숫자 하나 단위로 셉니다.</p>
         </div>
       </div>
@@ -1848,7 +1848,7 @@
             .then((d) => { ND = d; syncNoiseUI(); playNoise(); })
             .catch(() => {
               $("#nT").textContent = "기록을 불러오지 못했습니다";
-              $("#nD").textContent = "인터넷 연결을 확인한 뒤 페이지를 새로 고치세요.";
+              $("#nD").textContent = "인터넷 연결을 확인하고 페이지를 새로 고쳐 주세요.";
             });
         }
 
@@ -1861,13 +1861,13 @@
           const cnt = {};
           for (let s = 0; s < 4; s++) { const c = classify(runOf(NZ.mode, NZ.N, NZ.wd, s), NZ.mode); cnt[c] = (cnt[c] || 0) + 1; }
           const parts = [];
-          if (cnt.fail) parts.push(`규칙을 배우지 못하거나 잃음 ${cnt.fail}번`);
-          if (cnt.kept) parts.push(`오답이 그대로 남음 ${cnt.kept}번`);
-          if (cnt.part) parts.push(`오답이 일부 남음 ${cnt.part}번`);
-          if (cnt.fixed) parts.push(`원래 정답으로 바뀜 ${cnt.fixed}번`);
-          if (cnt.never) parts.push(`오답 암기가 거의 없음 ${cnt.never}번`);
-          if (cnt.none) parts.push(`정상 학습 ${cnt.none}번`);
-          $("#nVerdict").innerHTML = `<b>같은 조건 4번 학습 결과</b> · ${parts.join(" · ")}`;
+          if (cnt.fail) parts.push(`규칙 학습 실패·붕괴 ${cnt.fail}번`);
+          if (cnt.kept) parts.push(`오답 유지 ${cnt.kept}번`);
+          if (cnt.part) parts.push(`오답 일부 유지 ${cnt.part}번`);
+          if (cnt.fixed) parts.push(`정답으로 교정 ${cnt.fixed}번`);
+          if (cnt.never) parts.push(`오답 암기 거의 없음 ${cnt.never}번`);
+          if (cnt.none) parts.push(`오답 없음 ${cnt.none}번`);
+          $("#nVerdict").innerHTML = `<b>같은 조건 4회</b> · ${parts.join(" · ")}`;
           drawOverview();
         }
 
@@ -1890,7 +1890,7 @@
           $("#ovSub").textContent = (NZ.mode === "none"
             ? "오답을 넣지 않은 비교 실험입니다. "
             : NZ.mode === "scatter" ? "흩어진 오답 10%를 넣은 결과입니다. " : "같은 칸 오답 10%를 넣은 결과입니다. ") +
-            "칸마다 4번씩 학습했고, 칸을 누르면 그 조건의 기록을 봅니다.";
+            "칸마다 4번씩 학습했고, 칸을 누르면 해당 조건의 기록이 위에 표시됩니다.";
           t.querySelectorAll("button").forEach((b) =>
             b.addEventListener("click", () => {
               NZ.N = +b.dataset.n; NZ.wd = +b.dataset.wd; NZ.seed = 0;
@@ -1911,17 +1911,17 @@
           const c = classify(r, NZ.mode), test = r.test[L];
           if (c === "fail") {
             const peakT = Math.max(...r.test);
-            if (peakT >= 90) { T.textContent = "✕ 배운 규칙을 잃음"; D.textContent = `처음 보는 문제 정답률이 ${peakT}%까지 올랐다가 ${test}%로 떨어짐 (규제가 너무 셈)`; }
-            else { T.textContent = "✕ 규칙을 배우지 못함"; D.textContent = `처음 보는 문제 정답률 ${test}% (규제가 너무 셈)`; }
+            if (peakT >= 90) { T.textContent = "규칙 붕괴"; D.textContent = `처음 보는 문제 정답률이 ${peakT}%까지 올랐다가 ${test}%로 떨어짐. 규제가 지나치게 셈`; }
+            else { T.textContent = "규칙 학습 실패"; D.textContent = `처음 보는 문제 정답률 ${test}%. 규제가 지나치게 셈`; }
           }
-          else if (c === "none") { T.textContent = "오답 없이 정상 학습"; D.textContent = `처음 보는 문제 정답률 ${test}%`; }
-          else if (c === "kept") { T.textContent = "오답이 그대로 남음"; D.textContent = `처음 보는 문제 정답률 ${test}% · 오답 자리에서는 암기한 오답 ${r.mem[L]}%`; }
-          else if (c === "part") { T.textContent = "오답이 일부 남음"; D.textContent = `처음 보는 문제 정답률 ${test}% · 암기한 오답 ${r.mem[L]}% 남음`; }
-          else if (c === "never") { T.textContent = "오답 암기가 거의 없음"; D.textContent = `처음 보는 문제 정답률 ${test}% · 오답 자리에서도 처음부터 원래 정답`; }
+          else if (c === "none") { T.textContent = "오답 없음 (비교)"; D.textContent = `처음 보는 문제 정답률 ${test}%`; }
+          else if (c === "kept") { T.textContent = "오답 유지"; D.textContent = `처음 보는 문제 정답률 ${test}% · 오답을 넣은 자리에서는 암기한 오답 ${r.mem[L]}%`; }
+          else if (c === "part") { T.textContent = "오답 일부 유지"; D.textContent = `처음 보는 문제 정답률 ${test}% · 암기한 오답 ${r.mem[L]}%`; }
+          else if (c === "never") { T.textContent = "오답 암기 거의 없음"; D.textContent = `처음 보는 문제 정답률 ${test}% · 오답을 넣은 자리에서도 처음부터 원래 정답을 냄`; }
           else {
             const pk = r.mem.indexOf(Math.max(...r.mem));
             let k = pk; while (k < L && r.mem[k] >= 10) k++;
-            T.textContent = "오답이 원래 정답으로 바뀜";
+            T.textContent = "정답으로 교정";
             D.textContent = `암기한 오답이 최대 ${r.mem[pk]}%까지 늘었다가 step ${fmt(steps[k])} 무렵 원래 정답으로 바뀜`;
           }
         }
