@@ -38,7 +38,7 @@
       .head {
         position: absolute;
         left: 120px;
-        right: 120px;
+        right: 240px;
         top: 64px;
         transition: opacity 0.35s;
       }
@@ -98,6 +98,31 @@
       .dots i.on {
         background: var(--ink);
       }
+      .qr {
+        position: absolute;
+        right: 40px;
+        top: 36px;
+        width: 150px;
+        text-align: center;
+      }
+      .qr svg {
+        display: block;
+        width: 150px;
+        height: 150px;
+        border: 2px solid var(--line);
+        border-radius: 8px;
+      }
+      .qr b {
+        display: block;
+        margin-top: 8px;
+        font-size: 19px;
+      }
+      .qr span {
+        display: block;
+        font-size: 15px;
+        color: var(--test);
+        font-weight: 600;
+      }
       .brand {
         position: absolute;
         right: 40px;
@@ -125,6 +150,7 @@
       </div>
       <svg id="g" viewBox="0 0 1600 900" aria-hidden="true"></svg>
       <div class="dots" id="dots"></div>
+      <div class="qr" id="qr"></div>
       <div class="brand">2026 청소년과학탐구대회 · EIDOS</div>
     </div>
 
@@ -139,8 +165,10 @@
         const SPEED = +Q.get("speed") || 1;
         const sleep = (ms) => new Promise((r) => setTimeout(r, ms / SPEED));
         const ease = (u) => (u < 0.5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2);
+        // 그래프가 그려지는 속도 (1 = 원래 속도, 작을수록 빠름)
+        const DRAW = 0.5;
         function tween(ms, fn) {
-          ms /= SPEED;
+          ms = (ms * DRAW) / SPEED;
           if (ms < 20) {
             fn(1);
             return Promise.resolve();
@@ -207,11 +235,43 @@
             el("text", { x: lx(v), y: box.y + box.h + 36, "text-anchor": "middle", "font-size": 20, fill: "var(--muted)" }, null, lab);
           return { lx, ly };
         }
-        const pathOf = (xs, ys, k, lx, ly) => {
-          let d = "";
-          for (let i = 0; i <= k; i++) d += (i ? "L" : "M") + lx(xs[i]).toFixed(1) + "," + ly(ys[i]).toFixed(1);
+        // 점들을 단조 3차 곡선으로 잇는다 (기록값 사이를 넘쳐 나가지 않음)
+        function mono(P) {
+          const n = P.length;
+          if (n < 2) return n ? `M${P[0][0].toFixed(1)},${P[0][1].toFixed(1)}` : "";
+          const m = [], tg = [];
+          for (let i = 0; i < n - 1; i++) m.push((P[i + 1][1] - P[i][1]) / (P[i + 1][0] - P[i][0]));
+          tg[0] = m[0];
+          tg[n - 1] = m[n - 2];
+          for (let i = 1; i < n - 1; i++) tg[i] = m[i - 1] * m[i] <= 0 ? 0 : (m[i - 1] + m[i]) / 2;
+          for (let i = 0; i < n - 1; i++) {
+            if (m[i] === 0) { tg[i] = tg[i + 1] = 0; continue; }
+            const a = tg[i] / m[i], b = tg[i + 1] / m[i], q = a * a + b * b;
+            if (q > 9) { const k = 3 / Math.sqrt(q); tg[i] = k * a * m[i]; tg[i + 1] = k * b * m[i]; }
+          }
+          let d = `M${P[0][0].toFixed(1)},${P[0][1].toFixed(1)}`;
+          for (let i = 0; i < n - 1; i++) {
+            const dx = (P[i + 1][0] - P[i][0]) / 3;
+            d += `C${(P[i][0] + dx).toFixed(1)},${(P[i][1] + tg[i] * dx).toFixed(1)} ${(P[i + 1][0] - dx).toFixed(1)},${(P[i + 1][1] - tg[i + 1] * dx).toFixed(1)} ${P[i + 1][0].toFixed(1)},${P[i + 1][1].toFixed(1)}`;
+          }
           return d;
-        };
+        }
+        // step t까지의 곡선. 다음 기록점까지는 로그 step으로 이어 그려서 끊기지 않게 한다.
+        // ext: 기록이 끝난 뒤(일반화 후 학습 종료)를 마지막 값으로 ext step까지 이어 그림
+        function curve(xs, ys, t, lx, ly, ext) {
+          const P = [];
+          let i = 0;
+          for (; i < xs.length && xs[i] <= t; i++) P.push([lx(xs[i]), ly(ys[i])]);
+          if (i && i < xs.length) {
+            const u = (Math.log(t) - Math.log(xs[i - 1])) / (Math.log(xs[i]) - Math.log(xs[i - 1]));
+            const x = lx(t);
+            if (x - P[P.length - 1][0] > 0.5) P.push([x, ly(ys[i - 1] + u * (ys[i] - ys[i - 1]))]);
+          } else if (i && i === xs.length && ext && t > xs[i - 1]) {
+            const x = lx(Math.min(t, ext));
+            if (x - P[P.length - 1][0] > 0.5) P.push([x, ly(ys[i - 1])]);
+          }
+          return mono(P);
+        }
         const lineStyle = (col, dash) => ({
           fill: "none", stroke: col, "stroke-width": 5, "stroke-linejoin": "round", "stroke-linecap": "round",
           ...(dash ? { "stroke-dasharray": "12 9" } : {}),
@@ -248,9 +308,9 @@
           const pTr = el("path", { ...lineStyle("var(--train)"), opacity: 0.55 });
           const pTe = el("path", lineStyle("var(--test)"));
           await tween(5000, (u) => {
-            const k = Math.round(ease(u) * (ST.length - 1));
-            pTr.setAttribute("d", pathOf(ST, r.tr, k, lx, ly));
-            pTe.setAttribute("d", pathOf(ST, r.te, k, lx, ly));
+            const t = u === 1 ? r.last : Math.exp(Math.log(100) + ease(u) * (Math.log(r.last) - Math.log(100)));
+            pTr.setAttribute("d", curve(ST, r.tr, t, lx, ly));
+            pTe.setAttribute("d", curve(ST, r.te, t, lx, ly));
           });
           await sleep(2500);
         }
@@ -272,12 +332,9 @@
           const a = Math.log(100), end = Math.log(r.last);
           const dur = Math.max(2500, 8000 * (end - a) / (Math.log(60000) - a));
           await tween(dur, (u) => {
-            const t = Math.exp(a + (end - a) * u);
-            let k = 0;
-            while (k < ST.length - 1 && ST[k + 1] <= t) k++;
-            if (u === 1) k = ST.length - 1;
-            pTe.setAttribute("d", pathOf(ST, r.te, k, lx, ly));
-            pTr.setAttribute("d", pathOf(ST, r.tr, k, lx, ly));
+            const t = u === 1 ? r.last : Math.exp(a + (end - a) * u);
+            pTe.setAttribute("d", curve(ST, r.te, t, lx, ly));
+            pTr.setAttribute("d", curve(ST, r.tr, t, lx, ly));
             if (!mf && t >= r.tf) {
               mf = true;
               if (!sync) vmark(lx(r.tf), box.y, box.y + box.h, "암기");
@@ -303,6 +360,51 @@
           await head(`수 1~50 · 이웃한 두 수 더하기 · 보여 준 문제 ${fmt(+N)}개`, after(r),
             `같은 조건으로 ${rs.length}번 학습 → <b>${g}번</b> 깨달음`);
           await sleep(5000);
+        }
+
+        async function sMulti() {
+          const Ns = ["561", "665", "765", "2048"];
+          const total = Ns.reduce((a, N) => a + runsOf(N).length, 0);
+          await head("수 1~50 · 이웃한 두 수 더하기", "문제 수를 바꿔 가며 여러 번 학습하면?",
+            "선 하나가 학습 한 번 · 같은 조건마다 5~20번씩 학습");
+          const w = 320, gap = 50, x0 = (1600 - (4 * w + 3 * gap)) / 2 + 20, y = 400, h = 300;
+          const panels = Ns.map((N, i) => {
+            const box = { x: x0 + i * (w + gap), y, w, h }, rs = runsOf(N);
+            const lx = (v) => box.x + ((Math.log(v) - Math.log(100)) / (Math.log(60000) - Math.log(100))) * box.w;
+            const ly = (v) => box.y + (1 - v / 100) * box.h;
+            for (const v of [0, 100]) {
+              el("line", { x1: box.x, x2: box.x + box.w, y1: ly(v), y2: ly(v), stroke: "var(--grid)", "stroke-width": 2 });
+              if (i === 0) el("text", { x: box.x - 12, y: ly(v) + 7, "text-anchor": "end", "font-size": 18, fill: "var(--muted)" }, null, v + "%");
+            }
+            for (const [v, lab] of [[100, "100"], [1000, "1천"], [10000, "1만"], [60000, "6만"]])
+              el("text", { x: lx(v), y: box.y + box.h + 30, "text-anchor": v === 100 ? "start" : v === 60000 ? "end" : "middle", "font-size": 18, fill: "var(--muted)" }, null, lab);
+            el("text", { x: box.x, y: box.y - 26, "font-size": 36, "font-weight": 700, fill: "var(--ink)" }, null, `${fmt(+N)}개`);
+            const tr = rs.map(() => el("path", { fill: "none", stroke: "var(--train)", "stroke-width": 2.5, opacity: 0.22 }));
+            const te = rs.map(() => el("path", { fill: "none", stroke: "var(--test)", "stroke-width": 3, opacity: 0.75, "stroke-linejoin": "round" }));
+            return { N, box, rs, lx, ly, tr, te, hit: rs.map(() => false) };
+          });
+          legend([["var(--train)", "보여 준 문제"], ["var(--test)", "처음 보는 문제"]], x0, y + h + 84);
+          await tween(8000, (u) => {
+            const t = u === 1 ? 60000 : Math.exp(Math.log(100) + u * (Math.log(60000) - Math.log(100)));
+            for (const p of panels)
+              p.rs.forEach((r, j) => {
+                const ST = stepsOf(r);
+                p.tr[j].setAttribute("d", curve(ST, r.tr, t, p.lx, p.ly, 60000));
+                p.te[j].setAttribute("d", curve(ST, r.te, t, p.lx, p.ly, 60000));
+                if (r.tg != null && !p.hit[j] && t >= r.tg) {
+                  p.hit[j] = true;
+                  el("circle", { cx: p.lx(r.tg), cy: p.ly(95), r: 7, fill: "var(--test)", stroke: "var(--bg)", "stroke-width": 2 });
+                }
+              });
+          });
+          for (const p of panels) {
+            const g = p.rs.filter((r) => r.tg != null).length, K = p.rs.length;
+            el("text", { x: p.box.x, y: p.box.y + p.box.h + 140, "font-size": 30, "font-weight": 700,
+              fill: g === 0 ? "var(--muted)" : g === K ? "var(--test)" : "var(--ink)" }, null, `${K}번 중 ${g}번 깨달음`);
+          }
+          await head("수 1~50 · 이웃한 두 수 더하기", "문제가 적으면 매번 실패, 많으면 매번 깨닫는다",
+            `학습 ${total}번의 실제 기록 · 문제가 많을수록 더 일찍 깨닫는다 (● 깨달은 순간)`);
+          await sleep(6500);
         }
 
         async function sBoundary() {
@@ -331,7 +433,7 @@
             el("text", mid
               ? { x: x + 24, y: y + 7, "font-size": 20, fill: "var(--muted)" }
               : { x, y: y + (p.g ? 46 : -26), "text-anchor": "middle", "font-size": 20, fill: "var(--muted)" }, null, `${p.g}/${p.k}`);
-            await sleep(380);
+            await sleep(380 * DRAW);
           }
           await sleep(400);
           vmark(lx(c.b), box.y, box.y + box.h);
@@ -360,7 +462,7 @@
               : op === "add"
               ? { x: lx(C), y: ly(b) + 46, "text-anchor": "middle", "font-size": 19, fill: "var(--muted)" }
               : { x: lx(C) - 24, y: ly(b) - 14, "text-anchor": "end", "font-size": 19, fill: "var(--muted)" }, null, `n=${n}`);
-            await sleep(420);
+            await sleep(420 * DRAW);
           }
           const ln = el("line", { x1: lx(200), y1: ly(law(200)), x2: lx(200), y2: ly(law(200)), stroke: "var(--test)", "stroke-width": 5 });
           await tween(1600, (u) => {
@@ -401,14 +503,12 @@
           legend([["var(--test)", "처음 보는 문제 정답률"], ["var(--train)", "오답 자리: 외운 오답"], ["var(--fix)", "오답 자리: 원래 정답", true]], 160, 820);
           await tween(7000, (u) => {
             const t = Math.exp(Math.log(10) + u * (Math.log(60000) - Math.log(10)));
+            const tt = u === 1 ? 60000 : t;
             for (const q of P) {
-              let k = 0;
-              while (k < ST.length - 1 && ST[k + 1] <= t) k++;
-              if (u === 1) k = ST.length - 1;
-              k = Math.min(k, q.r.test.length - 1);
-              q.fix.setAttribute("d", pathOf(ST, q.r.fix, k, q.lx, q.ly));
-              q.mem.setAttribute("d", pathOf(ST, q.r.mem, k, q.lx, q.ly));
-              q.te.setAttribute("d", pathOf(ST, q.r.test, k, q.lx, q.ly));
+              const xs = ST.slice(0, q.r.test.length);
+              q.fix.setAttribute("d", curve(xs, q.r.fix, tt, q.lx, q.ly));
+              q.mem.setAttribute("d", curve(xs, q.r.mem, tt, q.lx, q.ly));
+              q.te.setAttribute("d", curve(xs, q.r.test, tt, q.lx, q.ly));
             }
           });
           await head("오답 섞기 · 문제 2,048개 · 같은 계산에 늘 같은 오답", "규칙을 깨쳐도 외운 오답은 남는다",
@@ -417,32 +517,24 @@
         }
 
         const QR = "11111110001111100010001111111,10000010111111000000101000001,10111010101110010011001011101,10111010011101010100101011101,10111010010011011111001011101,10000010001010100001101000001,11111110101010101010101111111,00000000011101010101000000000,01110110000111111000100000110,01011100001100001011111111001,00000110110111001110101000010,10001101111100110001000100001,01001011000000001100010100111,10011000110000100001001101111,01011111010111111111010111011,00011000101011110110010011011,00110111010100011110000111011,01101101011011101000100100000,10101011011010011000101101000,00111101000111000110111101111,01111010100101000111111110100,00000000100111101001100011011,11111110000011001101101010100,10000010110100101010100010000,10111010010011110010111111110,10111010111101001111000010110,10111010110101011100100101101,10000010110011101010101011010,11111110001111111011101100010".split(",");
-        async function sQR() {
-          await head("", "", "");
-          const size = 420, n = QR.length, q = 4, cell = size / (n + 2 * q), X = 1000, Y = 230;
-          el("rect", { x: X, y: Y, width: size, height: size, fill: "#fff", rx: 8, stroke: "var(--line)", "stroke-width": 2 });
+        // 모서리에 항상 떠 있는 QR
+        (() => {
+          const n = QR.length, q = 3, N = n + 2 * q;
           let d = "";
           QR.forEach((row, i) => [...row].forEach((b, j) => {
-            if (b === "1") d += `M${(X + (j + q) * cell).toFixed(2)},${(Y + (i + q) * cell).toFixed(2)}h${cell.toFixed(2)}v${cell.toFixed(2)}h-${cell.toFixed(2)}z`;
+            if (b === "1") d += `M${j + q},${i + q}h1v1h-1z`;
           }));
-          el("path", { d, fill: "#000" });
-          el("text", { x: 180, y: 360, "font-size": 30, fill: "var(--muted)" }, null, "휴대폰 카메라로 QR을 비춰 보세요");
-          el("text", { x: 180, y: 450, "font-size": 72, "font-weight": 700, fill: "var(--ink)" }, null, "직접 해 보기");
-          el("text", { x: 180, y: 530, "font-size": 36, fill: "var(--test)", "font-weight": 600 }, null, "posterqr.vercel.app");
-          el("text", { x: 180, y: 600, "font-size": 26, fill: "var(--muted)" }, null, "문제 수를 바꿔 가며 실제 학습 기록 보기 · 보고서 · 소스코드");
-          await sleep(11000);
-        }
+          $("#qr").innerHTML = `<svg viewBox="0 0 ${N} ${N}" shape-rendering="crispEdges"><rect width="${N}" height="${N}" fill="#fff"/><path d="${d}" fill="#000"/></svg><b>직접 해 보기</b><span>posterqr.vercel.app</span>`;
+        })();
 
         /* ---------- 순서 ---------- */
         const SCENES = [
           sTitle,
-          () => sCurve("561", 0, "561개를 보여 주면?", () => "외우기만 하고 끝까지 깨닫지 못한다"),
           () => sCurve("665", 1, "665개를 보여 주면?", (r) => `외운 뒤 한참 지나 <span style="color:var(--test)">갑자기</span> 깨닫는다`),
-          () => sCurve("2048", 0, "2,048개를 보여 주면?", () => "외우자마자 바로 깨닫는다"),
+          sMulti,
           sBoundary,
           sLaw,
           sNoise,
-          sQR,
         ];
         $("#dots").innerHTML = SCENES.map(() => "<i></i>").join("");
         async function loop() {
